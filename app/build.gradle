@@ -45,6 +45,8 @@ dependencies {
     //Kotlin Lib
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "org.jetbrains.anko:anko-common:$anko_version"
+    //okhttp Lib
+    implementation("com.squareup.okhttp3:okhttp:4.9.0")
     //Test
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

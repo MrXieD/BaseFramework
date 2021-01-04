@@ -9,4 +9,10 @@
     <color name="white">#FFFFFFFF</color>
     <color name="colorPrimary">#008577</color>
     <color name="colorAccent">#D81B60</color>
+    <!-- WheelView Color-->
+    <color name="color_centerTextColor">#ff313131</color>
+    <color name="color_outerTextColor">#ffafafaf</color>
+    <color name="color_dividerTextColor">#ffc5c5c5</color>
+    <!-- WheelView Color-->
+
 </resources>

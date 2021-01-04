@@ -7,7 +7,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.SystemClock
 import android.util.Log
-import com.xiedi.testapp.work.log.XLog
+import com.example.baseframework.log.XLog
 import kotlin.math.sqrt
 
 

@@ -1,4 +1,4 @@
-package com.xiedi.testapp.work.log
+package com.example.baseframework.log
 
 import android.text.TextUtils
 import android.util.Log

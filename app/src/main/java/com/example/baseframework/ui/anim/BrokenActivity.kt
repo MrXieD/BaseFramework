@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.graphics.Point
 import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import com.example.baseframework.activity.BaseVBActivity
 import com.example.baseframework.databinding.ActivityBrokenBinding
@@ -12,6 +11,7 @@ import com.example.baseframework.ui.anim.broken.BrokenCallback
 import com.example.baseframework.ui.anim.broken.BrokenTouchListener
 import com.example.baseframework.ui.anim.broken.ShakeListener
 import com.example.baseframework.ui.anim.broken.Utils
+import com.example.baseframework.log.XLog
 
 class BrokenActivity : BaseVBActivity<ActivityBrokenBinding>() {
     private var shakeListener: ShakeListener? = null
@@ -25,27 +25,27 @@ class BrokenActivity : BaseVBActivity<ActivityBrokenBinding>() {
         mViewContainer.bvTest.setCallback(object :
             BrokenCallback {
             override fun onStart(v: View) {
-                Log.i("BrokenActivity", "onStart--->")
+                XLog.i("BrokenActivity", "onStart--->")
             }
 
             override fun onCancel(v: View) {
-                Log.i("BrokenActivity", "onCancel--->")
+                XLog.i("BrokenActivity", "onCancel--->")
             }
 
             override fun onRestart(v: View) {
-                Log.i("BrokenActivity", "onRestart--->")
+                XLog.i("BrokenActivity", "onRestart--->")
             }
 
             override fun onFalling(v: View) {
-                Log.i("BrokenActivity", "onFalling--->")
+                XLog.i("BrokenActivity", "onFalling--->")
             }
 
             override fun onFallingEnd(v: View) {
-                Log.i("BrokenActivity", "onFallingEnd--->")
+                XLog.i("BrokenActivity", "onFallingEnd--->")
             }
 
             override fun onCancelEnd(v: View) {
-                Log.i("BrokenActivity", "onCancelEnd--->")
+                XLog.i("BrokenActivity", "onCancelEnd--->")
             }
         })
         // 将你要使用特效的控件,设置点击事件

@@ -6,9 +6,8 @@ import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
-import android.os.Looper
 import android.view.View
-import com.xiedi.testapp.work.log.XLog
+import com.example.baseframework.log.XLog
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType

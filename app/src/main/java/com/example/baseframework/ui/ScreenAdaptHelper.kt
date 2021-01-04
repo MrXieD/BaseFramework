@@ -7,7 +7,7 @@ import android.content.res.Resources
 import android.graphics.Canvas
 import com.example.baseframework.BaseApplication
 import com.example.baseframework.ex.px2dip
-import com.xiedi.testapp.work.log.XLog
+import com.example.baseframework.log.XLog
 
 /**
  * Note: 屏幕适配方案

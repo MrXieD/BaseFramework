@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="WheelView">
+        <attr name="awv_textsize" format="integer" />
+        <attr name="awv_lineSpace" format="float" />
+        <attr name="awv_centerTextColor" format="integer" />
+        <attr name="awv_outerTextColor" format="integer" />
+        <attr name="awv_dividerTextColor" format="integer" />
+        <attr name="awv_itemsVisibleCount" format="integer" />
+        <attr name="awv_isLoop" format="boolean" />
+        <attr name="awv_initialPosition" format="integer" />
+        <attr name="awv_scaleX" format="float" />
+    </declare-styleable>
+
+    <declare-styleable name="AnnulusView">
+        <attr name="annulus_color" format="integer" />
+        <attr name="annulus_selected_color" format="integer" />
+        <attr name="progress" format="integer" />
+        <attr name="btn_bitmap" format="integer" />
+        <attr name="btn_isClick" format="boolean" />
+    </declare-styleable>
+
+</resources>

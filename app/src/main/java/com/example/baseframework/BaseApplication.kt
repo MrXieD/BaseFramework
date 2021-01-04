@@ -16,6 +16,7 @@ class BaseApplication : Application() {
 
     private val mActivityList = LinkedList<Activity>()
     override fun attachBaseContext(base: Context?) {
+        super.attachBaseContext(base)
         instance = this
     }
 

@@ -1,11 +1,17 @@
 package com.example.baseframework
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.baseframework.activity.BaseVBActivity
+import com.example.baseframework.databinding.ActivityMainBinding
+import com.example.baseframework.ex.onClick
+import com.example.baseframework.ui.anim.BrokenActivity
+import org.jetbrains.anko.startActivity
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseVBActivity<ActivityMainBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        mViewContainer.btnBroken.onClick {
+            startActivity<BrokenActivity>()
+        }
     }
 }

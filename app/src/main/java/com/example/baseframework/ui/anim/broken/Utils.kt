@@ -1,4 +1,4 @@
-package com.xiedi.testapp.test.broken.animator
+package com.example.baseframework.ui.anim.broken
 
 import android.content.res.Resources
 import android.graphics.Bitmap

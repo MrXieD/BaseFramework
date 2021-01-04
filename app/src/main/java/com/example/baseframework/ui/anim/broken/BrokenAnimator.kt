@@ -1,4 +1,4 @@
-package com.xiedi.testapp.test.broken.animator
+package com.example.baseframework.ui.anim.broken
 
 import android.animation.ValueAnimator
 import android.graphics.*

@@ -1,4 +1,4 @@
-package com.xiedi.testapp.test.broken.animator
+package com.example.baseframework.ui.anim.broken
 
 import android.graphics.Path
 import android.graphics.Point

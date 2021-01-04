@@ -8,6 +8,12 @@ import com.example.baseframework.ui.ScreenAdaptHelper
 import java.util.*
 
 class BaseApplication : Application() {
+    companion object Instance {
+        var instance: BaseApplication? = null
+        val baseInstance: BaseApplication by lazy { instance!! }
+        val context: Context by lazy { baseInstance.applicationContext }
+    }
+
     private val mActivityList = LinkedList<Activity>()
     override fun attachBaseContext(base: Context?) {
         instance = this
@@ -43,6 +49,7 @@ class BaseApplication : Application() {
         screenAdaptInit(360)
     }
 
+
     /**
      * 开启屏幕适配
      *
@@ -50,7 +57,7 @@ class BaseApplication : Application() {
      *                    比如设计图中的标注尺寸是dp， 那么这里也应该是dp；如果设计图中的标注尺寸是px，那么这里也应该是xp。
      *                    另外，APP中所有设计到尺寸的地方都应该和这里一致。
      */
-    fun screenAdaptInit(screenWidth: Int) {
+    protected fun screenAdaptInit(screenWidth: Int) {
         ScreenAdaptHelper.screenAdaptInit(this, screenWidth)
     }
 
@@ -72,10 +79,6 @@ class BaseApplication : Application() {
         }
     }
 
-    companion object Instance {
-        var instance: BaseApplication? = null
-        val baseInstance: BaseApplication by lazy { instance!! }
-        val context: Context by lazy { baseInstance.applicationContext }
-    }
+
 
 }

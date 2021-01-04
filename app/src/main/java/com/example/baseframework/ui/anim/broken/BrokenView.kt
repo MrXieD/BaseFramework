@@ -1,4 +1,4 @@
-package com.xiedi.testapp.test.broken.animator
+package com.example.baseframework.ui.anim.broken
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -16,6 +16,9 @@ import android.view.Window
 import java.util.*
 import kotlin.collections.HashMap
 
+/**
+ * 玻璃破碎效果View
+ */
 class BrokenView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

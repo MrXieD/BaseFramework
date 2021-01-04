@@ -1,4 +1,4 @@
-package com.xiedi.testapp.test.broken
+package com.example.baseframework.ui.anim.broken
 
 import android.content.Context
 import android.hardware.Sensor

@@ -7,13 +7,14 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import androidx.core.content.ContextCompat
 import com.example.baseframework.R
 import com.example.baseframework.ex.dip2px
 import com.example.baseframework.ex.getResourcesColor
-import com.xiedi.testapp.test.broken.animator.Utils.dp2px
 import kotlin.math.*
 
+/**
+ * 圆环拖动View
+ */
 class AnnulusView : View {
     private val mBgAnnulusPaint = Paint()
     private val mTestPaint = Paint()

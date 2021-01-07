@@ -13,10 +13,12 @@ interface Request<Callback : OnNetCallback<Result>, Result> {
      */
     fun setParams(params: HashMap<String, String>): Request<Callback, Result>
 
+    fun setParams(mediaType: String, param: String): Request<Callback, Result>
+
     /**
      * 设置状态回调监听器。
      */
-    fun setListener(listener: Callback?): Request<Callback, Result>
+    fun setListener(callback: Callback?): Request<Callback, Result>
 
     fun onSuccess(callback: (Result) -> Unit): Request<Callback, Result>
 
@@ -25,21 +27,6 @@ interface Request<Callback : OnNetCallback<Result>, Result> {
      * 进度监听
      */
     fun onProgress(callback: (curr:Long,total:Long) -> Unit): Request<Callback, Result>
-    /**
-     * 设置连接超时时间，毫秒
-     */
-    fun setConnectTimeout(time: Long): Request<Callback, Result>
-
-    /**
-     * 设置读取超时时间，毫秒
-     */
-    fun setReadTimeout(time: Long): Request<Callback, Result>
-
-    /**
-     * 设置写入超时时间，毫秒
-     */
-    fun setWriteTimeout(time: Long): Request<Callback, Result>
-
     /**
      * 异步执行
      */

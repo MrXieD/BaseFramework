@@ -24,10 +24,10 @@ interface Response :Closeable{
     fun getBodyBytes(): ByteArray?
 
     @Throws(IOException::class)
-    fun getBodyByteStream(action: (InputStream?) -> Unit)
+    fun getBodyOfByteStream(action: (InputStream?) -> Unit)
 
     @Throws(IOException::class)
-    fun getBodyCharStream(action: (Reader?) -> Unit)
+    fun getBodyOfCharStream(action: (Reader?) -> Unit)
 
     fun getResponseCode(): Int
 

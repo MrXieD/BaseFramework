@@ -1,9 +1,12 @@
 package com.example.baseframework.http.okhttp
 
 import android.annotation.SuppressLint
-import com.example.baseframework.http.Method
+import android.os.Handler
+import android.os.Looper
 import com.example.baseframework.http.Request
 import com.example.baseframework.http.Response
+import com.example.baseframework.http.interfaces.Method
+import com.example.baseframework.http.interfaces.callback.OnFileDownloadListener
 import com.example.baseframework.http.interfaces.callback.OnNetCallback
 import com.example.baseframework.utils.TimeUtils
 import okhttp3.*
@@ -14,11 +17,11 @@ import java.io.File
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
-abstract class OkHttpRequestImpl<Callback : OnNetCallback<Result>, Result>(protected val url: String, protected val method: Method) : Request<Callback, Result> {
+abstract class OKHttpRequestImpl<Callback : OnNetCallback<Result>, Result>(protected val url: String, protected val method: Method) : Request<Callback, Result> {
     companion object {
         private const val mDefaultTimeout = 20 * TimeUtils.SECOND
         private val mClient: OkHttpClient
-
+        private val mUiHandler = Handler(Looper.getMainLooper())
         init {
             val builder = OkHttpClient.Builder()
             builder.connectTimeout(mDefaultTimeout, TimeUnit.MILLISECONDS)
@@ -35,6 +38,8 @@ abstract class OkHttpRequestImpl<Callback : OnNetCallback<Result>, Result>(prote
     private var mCallback: Callback? = null
     private var mOnSuccess: ((Result) -> Unit)? = null
     private var mOnFailure: ((Response) -> Unit)? = null
+    private var mOnProgress: ((curr:Long,countLen:Long)->Unit)? = null
+    private var isCallbackOnUiThread = false
     private var mCall: Call? = null
 
     @Volatile
@@ -58,6 +63,10 @@ abstract class OkHttpRequestImpl<Callback : OnNetCallback<Result>, Result>(prote
         mUploadFile = uploadFile
         return this
     }
+    override fun onProgress(progress: (current: Long, total: Long) -> Unit): Request<Callback, Result> {
+        mOnProgress = progress
+        return this
+    }
 
     override fun setListener(callback: Callback?): Request<Callback, Result> {
         mCallback = callback
@@ -73,6 +82,23 @@ abstract class OkHttpRequestImpl<Callback : OnNetCallback<Result>, Result>(prote
         mOnFailure = callback
         return this
     }
+    override fun callbackOnUiThread(isUiThread :Boolean): Request<Callback, Result>{
+        isCallbackOnUiThread =isUiThread
+        return this
+    }
+    protected fun onProgressCallback(curr:Long,totalLen:Long){
+        if (isCallbackOnUiThread){
+            mUiHandler.post {
+                val listener = mCallback
+                if (listener is OnFileDownloadListener) {
+                    listener.onProgress(curr, totalLen)
+                }
+                mOnProgress?.invoke(curr,totalLen)
+            }
+        }else{
+            mOnProgress?.invoke(curr,totalLen)
+        }
+    }
 
     @Synchronized
     protected fun newCall(): Call {
@@ -82,29 +108,38 @@ abstract class OkHttpRequestImpl<Callback : OnNetCallback<Result>, Result>(prote
 
     protected fun onSuccessCallback(result: Result) {
         clearCall()
-        mOnSuccess?.invoke(result)
-        mCallback?.onSuccess(result)
+        if(isCallbackOnUiThread){
+            mUiHandler.post {
+                mOnSuccess?.invoke(result)
+                mCallback?.onSuccess(result)
+            }
+        }else{
+            mOnSuccess?.invoke(result)
+            mCallback?.onSuccess(result)
+        }
     }
 
     protected fun onFailureCallback(error: Response) {
         clearCall();
-        val errorResponse = if (!error.isCanceled() && isCanceled) OkHttpResponse(true) else error
-        mCallback?.onFailure(errorResponse)
-        mOnFailure?.invoke(errorResponse)
+        val errorResponse = if (!error.isCanceled() && isCanceled) OKHttpResponse(true) else error
+        if(isCallbackOnUiThread){
+            mUiHandler.post {
+                mCallback?.onFailure(errorResponse)
+                mOnFailure?.invoke(errorResponse)
+            }
+        }else{
+            mCallback?.onFailure(errorResponse)
+            mOnFailure?.invoke(errorResponse)
+        }
     }
 
-    private fun clearCall(): Call? {
-        val call = mCall
-        mCall = null
-        return call
-    }
 
     final override fun connect(): Request<Callback, Result> {
         isCanceled = false
         try {
             newCall().enqueue(object : okhttp3.Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    onFailureCallback(OkHttpResponse(e))
+                    onFailureCallback(OKHttpResponse(e))
                 }
 
                 override fun onResponse(call: Call, response: okhttp3.Response) {
@@ -113,7 +148,7 @@ abstract class OkHttpRequestImpl<Callback : OnNetCallback<Result>, Result>(prote
 
             })
         } catch (e: Throwable) {
-            onFailureCallback(OkHttpResponse(e))
+            onFailureCallback(OKHttpResponse(e))
         }
         return this
     }
@@ -168,6 +203,12 @@ abstract class OkHttpRequestImpl<Callback : OnNetCallback<Result>, Result>(prote
             }
             else -> throw IllegalStateException("unsupported request method: $method")
         }
+    }
+
+    private fun clearCall(): Call? {
+        val call = mCall
+        mCall = null
+        return call
     }
 
     override fun cancel() {

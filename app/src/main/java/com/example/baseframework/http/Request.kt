@@ -27,12 +27,20 @@ interface Request<Callback : OnNetCallback<Result>, Result> {
      * 进度监听
      */
     fun onProgress(callback: (curr:Long,total:Long) -> Unit): Request<Callback, Result>
+
+    /**
+     * 让回调在主线程中执行
+     */
+    fun callbackOnUiThread(isUiThread :Boolean = true): Request<Callback, Result>
+
     /**
      * 异步执行
      */
     fun connect(): Request<Callback, Result>
+
     /**
      * 取消该Request
      */
     fun cancel()
+
 }

@@ -1,4 +1,4 @@
-package com.example.baseframework.http
+package com.example.baseframework.http.interfaces
 
 enum class Method {
     METHOD_GET,

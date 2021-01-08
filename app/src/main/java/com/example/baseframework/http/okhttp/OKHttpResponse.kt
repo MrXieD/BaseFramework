@@ -7,7 +7,7 @@ import okhttp3.internal.closeQuietly
 import java.io.InputStream
 import java.io.Reader
 
-class OkHttpResponse : Response {
+class OKHttpResponse : Response {
     private var mResponse: okhttp3.Response? = null
     private var mException: NetException? = null
     private var isCanceled = false
@@ -24,6 +24,11 @@ class OkHttpResponse : Response {
     constructor(exception: Exception) {
         mException = if (exception is NetException) exception else NetException(exception)
     }
+    constructor(e: Exception, result: okhttp3.Response) {
+        mException = if (e is NetException) e else NetException(e)
+        mResponse = result
+    }
+
     constructor(exception: Throwable) {
         mException = if (exception is NetException) exception else NetException(exception)
     }
@@ -114,4 +119,6 @@ class OkHttpResponse : Response {
         mResponse?.closeQuietly()
         mResponse = null
     }
+
+    override fun toString() = "isCanceled=$isCanceled, mResponse=${mResponse}, exception=$mException"
 }

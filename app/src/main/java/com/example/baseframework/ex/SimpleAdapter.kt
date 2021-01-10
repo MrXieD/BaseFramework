@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 /**
  * 简单的Adapter
  * 用于只显示简单Item
+ * test
  */
 class SimpleAdapter<T>(private val context: Context, private val layoutResId:Int, private val list:MutableList<T>, val init:(View, T)->Unit) :RecyclerView.Adapter<SimpleAdapter.ItemHolder<T>>(){
 

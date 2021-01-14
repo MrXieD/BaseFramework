@@ -200,18 +200,31 @@ private inline fun Any?.getFields(includeStaticField: Boolean): List<Field> {
             Char::class,
             String::class
         )) {
-        return listOf()
+        return emptyList()
     }
+    //让私有成员可被访问
     val list = this.javaClass.declaredFields.apply { forEach { it.isAccessible = true } }
     if (includeStaticField) {
-        return list.flatMap { it:Field ->
+        //查找静态成员变量
+        val fieldList = mutableListOf<Field>()
+        list.forEach {
             println("is isCompanion(${it.type.kotlin.isCompanion}): ${it.type.name}")
             if (it.type.kotlin.isCompanion || it.type.name.endsWith("\$Companion")) {
-                it.get(null).javaClass.declaredFields.apply { forEach { f -> f.isAccessible = true } }.toList<Field>()
+                fieldList.addAll(it.get(null).javaClass.declaredFields.apply { forEach { f -> f.isAccessible = true } }.toList<Field>())
             } else {
-                listOf(it)
+                fieldList.add(it)
             }
         }
+        return fieldList
+//        return list.flatMap { it:Field ->
+//            println("is isCompanion(${it.type.kotlin.isCompanion}): ${it.type.name}")
+//            //获取Companion Object定义的静态变量
+//            if (it.type.kotlin.isCompanion || it.type.name.endsWith("\$Companion")) {
+//                it.get(null).javaClass.declaredFields.apply { forEach { f -> f.isAccessible = true } }.toList()
+//            } else {
+//                listOf(it)
+//            }
+//        }
     }
 
     return list.filter { !Modifier.isStatic(it.modifiers) }
@@ -403,7 +416,7 @@ inline fun <T: Any> T.logV(tag: String = "") {
 }
 
 inline fun <T: Any> T.logI(tag: String = "") {
-    XLog.i(tag, this.toStringEx())
+    XLog.i(tag, this.toStringEx(true))
 }
 
 inline fun <T: Any> T.logW(tag: String = "") {

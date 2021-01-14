@@ -13,7 +13,7 @@ object XLog{
             Log.i(getStackInfo(4, TAG), content)
         }
     }
-    fun i(content:String,tag:String){
+    fun i(tag:String,content:String){
         if (IS_DEBUG){
             Log.i(getStackInfo(4, tag), content)
         }
@@ -24,31 +24,27 @@ object XLog{
             Log.w(getStackInfo(4, TAG), content)
         }
     }
-    fun w(content:String,tag:String){
+    fun w(tag:String,content:String){
         if (IS_DEBUG){
             Log.w(getStackInfo(4, tag), content)
         }
     }
-
-
     fun d(content:String){
         if (IS_DEBUG){
             Log.d(getStackInfo(4, TAG), content)
         }
     }
-    fun d(content:String,tag:String){
+    fun d(tag:String,content:String){
         if (IS_DEBUG){
             Log.d(getStackInfo(4, tag), content)
         }
     }
-
-
     fun e(content:String){
         if (IS_DEBUG){
             Log.e(getStackInfo(4, TAG), content)
         }
     }
-    fun e(content:String,tag:String){
+    fun e(tag:String,content:String){
         if (IS_DEBUG){
             Log.e(getStackInfo(4, tag), content)
         }
@@ -58,7 +54,7 @@ object XLog{
             Log.v(getStackInfo(4, TAG), content)
         }
     }
-    fun v(content:String,tag:String){
+    fun v(tag:String,content:String){
         if (IS_DEBUG){
             Log.v(getStackInfo(4, tag), content)
         }

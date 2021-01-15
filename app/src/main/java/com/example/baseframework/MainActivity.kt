@@ -8,6 +8,7 @@ import com.example.baseframework.ui.anim.BrokenActivity
 import org.jetbrains.anko.startActivity
 
 class MainActivity : BaseVBActivity<ActivityMainBinding>() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mViewContainer.btnBroken.onClick {

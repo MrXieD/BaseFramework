@@ -204,7 +204,7 @@ private inline fun Any?.getFields(includeStaticField: Boolean): List<Field> {
     }
     val list = this.javaClass.declaredFields.apply { forEach { it.isAccessible = true } }
     if (includeStaticField) {
-        return list.flatMap { it:Field ->
+        return list.flatMap {
             println("is isCompanion(${it.type.kotlin.isCompanion}): ${it.type.name}")
             if (it.type.kotlin.isCompanion || it.type.name.endsWith("\$Companion")) {
                 it.get(null).javaClass.declaredFields.apply { forEach { f -> f.isAccessible = true } }.toList<Field>()

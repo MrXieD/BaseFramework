@@ -2,6 +2,10 @@
 buildscript {
     ext.kotlin_version = "1.4.10"
     ext.anko_version = "0.10.8"
+    ext{
+        retrofit_version="2.9.0"
+        converter_gson_version="2.6.0"
+    }
     repositories {
         google()
         jcenter()

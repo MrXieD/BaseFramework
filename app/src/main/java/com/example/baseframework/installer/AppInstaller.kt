@@ -1,5 +1,6 @@
 package com.example.baseframework.installer
 
+import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import java.io.File
@@ -13,11 +14,12 @@ class AppInstaller {
     private var mListener:OnInstallerListener?=null
     private val mainHandler: Handler = Handler(Looper.getMainLooper())
     private lateinit var installerInfo:InstallerInfo
+
     companion object{
         const val DEFAULT_APK_FILE = ""
     }
-    fun start() {
 
+    fun start(context: Context) {
     }
 
     fun stop() {

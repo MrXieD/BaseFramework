@@ -41,6 +41,7 @@ class ExampleInstrumentedTest {
                 error.close()
             }
         }).connect()
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
 
         Thread.sleep(20 * TimeUtils.SECOND)
     }

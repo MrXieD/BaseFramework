@@ -1,8 +1,9 @@
 package com.example.baseframework.http.okhttp
 
-import com.example.baseframework.http.interfaces.Method
 import com.example.baseframework.http.Request
+import com.example.baseframework.http.interfaces.Method
 import com.example.baseframework.http.interfaces.callback.OnFileDownloadListener
+import com.example.baseframework.utils.CloseableUtils
 import okhttp3.Response
 import java.io.File
 import java.io.FileOutputStream
@@ -39,6 +40,7 @@ class FileDownloadRequest(url: String) : OKHttpRequestImpl<OnFileDownloadListene
         try {
             result.getBodyOfByteStream {
                 it?.apply {
+                    try {
                     out = FileOutputStream(downloadFile)
                     var current = 0L
                     val buff = ByteArray(DEFAULT_BUFFER_SIZE)
@@ -51,6 +53,9 @@ class FileDownloadRequest(url: String) : OKHttpRequestImpl<OnFileDownloadListene
                         current += readNum
                         out!!.write(buff, 0, readNum)
                         onProgressCallback(current, totalLen)
+                    }
+                    }finally {
+                        CloseableUtils.close(this)
                     }
                 }
             }

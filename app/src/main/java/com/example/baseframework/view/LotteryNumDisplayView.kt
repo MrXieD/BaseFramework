@@ -175,13 +175,13 @@ class LotteryNumDisplayView : View {
                     //绘制每个数字
                     canvas.saveAndRestore {
                     for (num in numText.lotteryNumFrontList) {
-                            val textWidth = mPaint.getTextBounds(num, 0, num.length, tempRect)
+                            val textWidth = mNumTextPaint.getTextBounds(num, 0, num.length, tempRect)
                             XLog.i("lotteryNumFrontList----textWidth--->$textWidth")
                             canvas.drawText(num,(numWidth-tempRect.width())/2,(numHeight+tempRect.height())/2,mNumTextPaint)
                             canvas.translate(numWidth, 0f)
                         }
                         for (num in numText.lotteryNumBackList) {
-                            val textWidth = mPaint.getTextBounds(num, 0, num.length, tempRect)
+                            val textWidth = mNumTextPaint.getTextBounds(num, 0, num.length, tempRect)
                             XLog.i("lotteryNumBackList---textWidth--->$textWidth")
                             canvas.drawText(num,(numWidth-tempRect.width())/2,(numHeight+tempRect.height())/2,mNumTextPaint)
                             canvas.translate(numWidth, 0f)

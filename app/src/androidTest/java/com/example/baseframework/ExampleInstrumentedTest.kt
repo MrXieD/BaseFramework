@@ -7,9 +7,11 @@ import com.example.baseframework.http.Response
 import com.example.baseframework.http.interfaces.callback.OnNetCallback
 import com.example.baseframework.log.XLog
 import com.example.baseframework.utils.TimeUtils
+import com.example.baseframework.view.LotteryNumDisplayView
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.random.Random
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -20,9 +22,15 @@ import org.junit.runner.RunWith
 class ExampleInstrumentedTest {
     @Test
     fun useAppContext() {
+        for (i in 1..20){
+            XLog.i(randomNum(i).toString())
+        }
+
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         assertEquals("com.example.baseframework", appContext.packageName)
+
+
     }
     @Test
     fun httpTest(){
@@ -45,4 +53,39 @@ class ExampleInstrumentedTest {
 
         Thread.sleep(20 * TimeUtils.SECOND)
     }
+
+    private fun randomNum(i:Int): LotteryNumDisplayView.LotteryNum {
+        val stringBuilder = StringBuilder()
+        val numList = mutableListOf<Int>()
+        //大乐透前五位 1-35
+        for (k in 0..4){
+            var  num = Random.nextInt(1,35)
+            while (numList.contains(num)){
+                num = Random.nextInt(1,35)
+            }
+            numList.add(num)
+        }
+        numList.sort()
+        numList.forEach {
+            stringBuilder.append(it)
+            stringBuilder.append(",")
+        }
+        numList.clear()
+        //区号 1-12
+        for (k in 0..1){
+            var  num = Random.nextInt(1,12)
+            while (numList.contains(num)){
+                num = Random.nextInt(1,12)
+            }
+            numList.add(num)
+        }
+        numList.sort()
+        numList.forEach {
+            stringBuilder.append(it)
+            stringBuilder.append(",")
+        }
+        val result =stringBuilder.toString()
+        return LotteryNumDisplayView.LotteryNum(i.toString(), result.substring(0, result.length - 1))
+    }
+
 }

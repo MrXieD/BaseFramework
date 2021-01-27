@@ -9,17 +9,14 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import com.example.baseframework.R
-import com.example.baseframework.ex.dip2px
-import com.example.baseframework.ex.getColorResource
-import com.example.baseframework.ex.saveAndRestore
-import com.example.baseframework.ex.sp2px
+import com.example.baseframework.ex.*
 import com.example.baseframework.log.XLog
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.random.Random
 
 /**
- * 彩票中奖号码展示View //仿 https://datachart.500.com/dlt/
+ * 彩票中奖号码展示View https://datachart.500.com/dlt/
  * 要求：
  * 1、可在XML中配置显示的可显示范围行数和列数以及总的行数和列数
  * 2、可水平和竖直惯性滑动及拖动，并且内容也做相应变化
@@ -224,9 +221,9 @@ class LotteryNumDisplayView : View {
                         for (numIndex in startRowIndex..if (startRowIndex + displayRowNum < numText.lotteryNumFrontList.size) startRowIndex + displayRowNum else numText.lotteryNumFrontList.size - 1) {
                             val num = numText.lotteryNumFrontList[numIndex]
                             mNumTextPaint.getTextBounds(num.num, 0, num.num.length, tempRect)
-                            if (num.isLottery) {
-                                mNumTextPaint.color = context.getColorResource(R.color.colorAccent)
-                                canvas.drawCircle(numWidth / 2, numHeight / 2, min(numWidth / 2f * 0.8f, numHeight / 2f * 0.8f), mNumTextPaint)
+                            num.isLottery.doTrue {
+                                    mNumTextPaint.color = context.getColorResource(R.color.colorAccent)
+                                    canvas.drawCircle(numWidth / 2, numHeight / 2, min(numWidth / 2f * 0.8f, numHeight / 2f * 0.8f), mNumTextPaint)
                             }
                             mNumTextPaint.color = context.getColorResource(if (num.isLottery) R.color.white else R.color.black)
                             canvas.drawText(num.num, (numWidth) / 2, (numHeight + tempRect.height()) / 2, mNumTextPaint)
@@ -239,9 +236,9 @@ class LotteryNumDisplayView : View {
                             for (numIndex in startIndex..endIndex) {
                                 if (numIndex < numText.lotteryNumBackList.size) {
                                     val num = numText.lotteryNumBackList[numIndex]
-                                    if (num.isLottery) {
-                                        mNumTextPaint.color = context.getColorResource(R.color.colorAccent)
-                                        canvas.drawCircle(numWidth / 2, numHeight / 2, min(numWidth / 2f * 0.8f, numHeight / 2f * 0.8f), mNumTextPaint)
+                                    num.isLottery.doTrue {
+                                            mNumTextPaint.color = context.getColorResource(R.color.colorAccent)
+                                            canvas.drawCircle(numWidth / 2, numHeight / 2, min(numWidth / 2f * 0.8f, numHeight / 2f * 0.8f), mNumTextPaint)
                                     }
                                     mNumTextPaint.color = context.getColorResource(if (num.isLottery) R.color.white else R.color.black)
                                     mNumTextPaint.getTextBounds(num.num, 0, num.num.length, tempRect)

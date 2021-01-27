@@ -54,7 +54,7 @@ class ExampleInstrumentedTest {
         Thread.sleep(20 * TimeUtils.SECOND)
     }
 
-    private fun randomNum(i:Int): LotteryNumDisplayView.LotteryNum {
+    private fun randomNum(i:Int): LotteryNumDisplayView.LotteryNumData {
         val stringBuilder = StringBuilder()
         val numList = mutableListOf<Int>()
         //大乐透前五位 1-35
@@ -85,7 +85,7 @@ class ExampleInstrumentedTest {
             stringBuilder.append(",")
         }
         val result =stringBuilder.toString()
-        return LotteryNumDisplayView.LotteryNum(i.toString(), result.substring(0, result.length - 1))
+        return LotteryNumDisplayView.LotteryNumData(i.toString(), result.substring(0, result.length - 1))
     }
 
 }

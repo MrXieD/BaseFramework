@@ -1,8 +1,13 @@
+//插件用于扩展gradle脚本的能力，在一个项目中使用插件，这样该项目的构建脚本就可以定义该插件定义好的属性和使用它的tasks。
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'com.baseframework.reinforce'
 }
-
+reinforce{
+    userName "xiedi"
+    userPwd "123456"
+}
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.0"
@@ -46,7 +51,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "org.jetbrains.anko:anko-common:$anko_version"
     //okhttp Lib
-    implementation("com.squareup.okhttp3:okhttp:4.9.0")
+    implementation "com.squareup.okhttp3:okhttp:4.9.0"
     //Test
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

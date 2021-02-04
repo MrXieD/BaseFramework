@@ -8,6 +8,7 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.Typeface
 import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.os.SystemClock
 import android.util.AttributeSet
@@ -58,25 +59,18 @@ class WheelView : View {
         if (typedArray != null) {
             textSize = typedArray.getInteger(R.styleable.WheelView_awv_textsize, (Resources.getSystem().displayMetrics.density * 15).toInt())
             textSize = (Resources.getSystem().displayMetrics.density * textSize).toInt()
-            centerTextColor =
-                    typedArray.getInteger(
+            centerTextColor = typedArray.getInteger(
                             R.styleable.WheelView_awv_centerTextColor,
-                            context.resources.getColor(R.color.color_centerTextColor)
-                    )
-            outerTextColor =
-                    typedArray.getInteger(
+                            context.resources.getColor(R.color.color_centerTextColor))
+            outerTextColor = typedArray.getInteger(
                             R.styleable.WheelView_awv_outerTextColor,
-                            context.resources.getColor(R.color.color_outerTextColor)
-                    )
-            dividerColor =
-                    typedArray.getInteger(
+                            context.resources.getColor(R.color.color_outerTextColor))
+            dividerColor = typedArray.getInteger(
                             R.styleable.WheelView_awv_dividerTextColor,
-                            context.resources.getColor(R.color.color_dividerTextColor)
-                    )
+                            context.resources.getColor(R.color.color_dividerTextColor))
             itemsVisibleCount = typedArray.getInteger(
                     R.styleable.WheelView_awv_itemsVisibleCount,
-                    DEFAULT_VISIBIE_ITEMS
-            )
+                    DEFAULT_VISIBIE_ITEMS)
             if (itemsVisibleCount % 2 == 0) {
                 itemsVisibleCount = DEFAULT_VISIBIE_ITEMS
             }
@@ -297,12 +291,7 @@ class WheelView : View {
     private fun convertData(items: List<String>): List<IndexString> {
         val data = ArrayList<IndexString>()
         for (i in items.indices) {
-            data.add(
-                    IndexString(
-                            i,
-                            items[i]
-                    )
-            )
+            data.add(IndexString(i, items[i]))
         }
         return data
     }
@@ -396,7 +385,7 @@ class WheelView : View {
 
 
     private fun cancelFuture() {
-        if (mFuture != null && !mFuture!!.isCancelled()) {
+        if (mFuture != null && !mFuture!!.isCancelled) {
             mFuture!!.cancel(true)
             mFuture = null
             changeScrollState(SCROLL_STATE_IDLE)
@@ -594,7 +583,7 @@ class WheelView : View {
 
     data class IndexString(val index: Int = 0, val content: String = "")
 
-    class LoopHandler(private val wheelView: WheelView) : Handler() {
+    class LoopHandler(private val wheelView: WheelView) : Handler(Looper.getMainLooper()) {
         companion object {
             const val WHAT_SMOOTH_SCROLL = 2000
             const val WHAT_SMOOTH_SCROLL_INERTIA = 2001
@@ -656,10 +645,7 @@ class WheelView : View {
             }
             if (abs(realVelocityY) in 0.0f..20f) {
                 Log.i(TAG, "WHAT_SMOOTH_SCROLL_INERTIA--->")
-                handler.sendEmptyMessageDelayed(
-                        LoopHandler.WHAT_SMOOTH_SCROLL_INERTIA,
-                        60
-                )
+                handler.sendEmptyMessageDelayed(LoopHandler.WHAT_SMOOTH_SCROLL_INERTIA, 60)
                 cancelFuture()
                 handler.sendEmptyMessage(LoopHandler.WHAT_SMOOTH_SCROLL)
                 return

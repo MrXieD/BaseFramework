@@ -1,5 +1,5 @@
 package com.example.reinforce
-open class ReinforceExt {
+open class ReinforceInfo {
     var userName:String = ""
     var userPwd:String= ""
     var keyStorePath:String= ""

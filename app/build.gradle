@@ -18,6 +18,8 @@ reinforce{
     userName "xiedi"
     userPwd "123456"
 }
+
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.0"

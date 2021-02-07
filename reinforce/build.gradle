@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'kotlin'
+    id 'maven-publish'
 }
 
 java {
@@ -12,9 +13,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation gradleApi()
     implementation "com.android.tools.build:gradle:4.1.1"
-}
-apply plugin: 'maven-publish'
 
+}
 publishing{
     publications{
         ReinforcePlugins(MavenPublication){

@@ -1,6 +1,16 @@
+
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+}
+apply plugin: ApkDistPlugin
+class ApkDistPlugin implements Plugin<Project> {
+    @Override
+    void apply(Project project) {
+        project.task('apkdist') {
+            println 'hello, world!'
+        }
+    }
 }
 
 android {

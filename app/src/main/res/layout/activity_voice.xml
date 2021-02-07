@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/btn_init_asr"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/init" />
+        <Button
+            android:id="@+id/btn_set_grammar_asr"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Grammar" />
+        <Button
+            android:id="@+id/btn_release_asr"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Release" />
+    </LinearLayout>
+
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content">-->
+<!--        <Button-->
+<!--            android:id="@+id/btn_start_asr"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_weight="1"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Start" />-->
+<!--        <view-->
+<!--            android:layout_width="16dp"-->
+<!--            android:layout_height="1dp"/>-->
+<!--        <Button-->
+<!--            android:id="@+id/btn_stop_asr"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_weight="1"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Stop" />-->
+<!--        <view-->
+<!--            android:layout_width="16dp"-->
+<!--            android:layout_height="1dp"/>-->
+<!--        <Button-->
+<!--            android:id="@+id/btn_cancel_asr"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_weight="1"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="cancel" />-->
+<!--    </LinearLayout>-->
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="horizontal"-->
+<!--        android:gravity="center_vertical"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        >-->
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="识别状态:"-->
+<!--            android:textSize="20sp"-->
+<!--            />-->
+<!--        <TextView-->
+<!--            android:id="@+id/tv_asr_state"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="....."-->
+<!--            android:textSize="20sp"-->
+<!--            android:layout_marginStart="12dp" />-->
+<!--    </LinearLayout>-->
+
+<!--    <TextView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="识别结果:"-->
+<!--        android:textSize="20sp"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        />-->
+<!--    <TextView-->
+<!--        android:id="@+id/tv_asr_result"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="....."-->
+<!--        android:textSize="20sp"-->
+<!--        />-->
+</LinearLayout>

@@ -1,0 +1,27 @@
+plugins {
+    id 'java-library'
+    id 'kotlin'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_7
+    targetCompatibility = JavaVersion.VERSION_1_7
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation gradleApi()
+    implementation "com.android.tools.build:gradle:4.1.1"
+}
+apply plugin: 'maven-publish'
+
+publishing{
+    publications{
+        ReinforcePlugins(MavenPublication){
+            from components.java
+            groupId 'com.example.reinforce'
+            artifactId 'reinforce'
+            version '1.0'
+        }
+    }
+}

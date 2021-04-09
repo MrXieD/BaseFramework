@@ -8,6 +8,7 @@ import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
@@ -447,3 +448,10 @@ inline fun Drawable.newTint(context: Context, @ColorRes tintColorId: Int): Drawa
     DrawableCompat.setTint(wrappedDrawable, context.getColorResource(tintColorId))
     return wrappedDrawable
 }
+
+inline fun Canvas.saveAndRestore(action: (() -> Unit)) {
+    save()
+    action()
+    restore()
+}
+

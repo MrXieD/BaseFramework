@@ -1,7 +1,24 @@
+//插件用于扩展gradle脚本的能力，在一个项目中使用插件，这样该项目的构建脚本就可以定义该插件定义好的属性和使用它的tasks。
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'com.baseframework.reinforce'
 }
+apply plugin: ApkDistPlugin
+class ApkDistPlugin implements Plugin<Project> {
+    @Override
+    void apply(Project project) {
+        project.task('apkdist') {
+            println 'hello, world!'
+        }
+    }
+}
+
+reinforce{
+    userName "xiedi"
+    userPwd "123456"
+}
+
 
 android {
     compileSdkVersion 30

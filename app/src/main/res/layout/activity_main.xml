@@ -11,5 +11,8 @@
         android:layout_height="wrap_content"
         android:text="broken"
         />
-
+    <com.example.baseframework.view.LotteryNumDisplayView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
 </LinearLayout>

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">BaseFramework</string>
+    <string name="init">Init</string>
 </resources>

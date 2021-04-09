@@ -1,19 +1,21 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+//这个就是实际构建开始的地方
 buildscript {
-    ext.kotlin_version = "1.4.10"
-    ext.anko_version = "0.10.8"
     ext{
+        anko_version = "0.10.8"
+        kotlin_version = "1.4.20"
         retrofit_version="2.9.0"
-        converter_gson_version="2.6.0"
+        converter_gson_version="2.8.1"
     }
     repositories {
         google()
         jcenter()
+        mavenLocal()
     }
     dependencies {
         classpath "com.android.tools.build:gradle:4.1.1"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-
+        classpath("com.example.reinforce:reinforce:1.0")
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }

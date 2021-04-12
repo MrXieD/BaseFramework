@@ -14,5 +14,12 @@
     <com.example.baseframework.view.LotteryNumDisplayView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+
+        />
+    <com.example.baseframework.view.WheelView
+        android:id="@+id/wv"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:visibility="gone"
         />
 </LinearLayout>

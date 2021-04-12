@@ -16,6 +16,9 @@ import android.view.View
 import com.example.baseframework.R
 import com.example.baseframework.ex.*
 import com.example.baseframework.log.XLog
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.random.Random
@@ -313,7 +316,27 @@ class LotteryNumDisplayView : View {
         override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
             //velocity 这个词表示的是速度的意思
             XLog.i("GestureListener-----onFling---->velocityX = $velocityX ，velocityY = $velocityY")
+            //循环执行runnable
+//            mFuture = mExecutor.scheduleWithFixedDelay(
+//                    InertiaTimerTask(velocityY.toInt()), 0, 10L,
+//                    TimeUnit.MILLISECONDS
+//            )
+
             return false
+        }
+    }
+    private var mExecutor = Executors.newSingleThreadScheduledExecutor()
+    private var mFuture: ScheduledFuture<*>? = null
+
+    inner class InertiaTimerTask(private var velocityY: Int) : Runnable {
+        private val TAG = "InertiaTimerTask"
+        private var realVelocityY = Integer.MAX_VALUE.toFloat()
+        init {
+            Log.i(TAG, "InertiaTimerTask----init--->")
+        }
+        override fun run() {
+            Log.i(TAG, "velocityY--->$velocityY")
+            Log.i(TAG, "realVelocityY--->$realVelocityY")
         }
     }
 

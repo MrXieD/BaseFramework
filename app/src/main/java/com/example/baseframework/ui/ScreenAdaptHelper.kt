@@ -75,10 +75,12 @@ object ScreenAdaptHelper {
 
         // px = dp * density
         if (res.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            //是横屏还是竖屏
             dm.density = dm.widthPixels.toFloat() / mScreenWidth
         } else {
             dm.density = dm.heightPixels.toFloat() / mScreenWidth
         }
+
         dm.scaledDensity = dm.density * (sysDM.scaledDensity / sysDM.density)
         dm.densityDpi = (160 * dm.density).toInt()
 

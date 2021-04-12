@@ -154,8 +154,7 @@ class WheelView : View {
     private var mExecutor = Executors.newSingleThreadScheduledExecutor()
     private var mFuture: ScheduledFuture<*>? = null
 
-    private val handler: LoopHandler =
-            LoopHandler(this)
+    private val handler: LoopHandler = LoopHandler(this)
 
     enum class ACTION {
         CLICK, FLING, DRAG
@@ -630,6 +629,9 @@ class WheelView : View {
     inner class InertiaTimerTask(private var velocityY: Int) : Runnable {
         private val TAG = "InertiaTimerTask"
         private var realVelocityY = Integer.MAX_VALUE.toFloat()
+        init {
+            Log.i(TAG, "InertiaTimerTask----init--->")
+        }
         override fun run() {
             Log.i(TAG, "velocityY--->$velocityY")
             Log.i(TAG, "realVelocityY--->$realVelocityY")
@@ -712,6 +714,7 @@ class WheelView : View {
                 velocityY: Float
         ): Boolean {
             cancelFuture()
+            Log.i("WheelView","onFling--------->")
             mFuture = mExecutor.scheduleWithFixedDelay(
                     InertiaTimerTask(velocityY.toInt()), 0, 10L,
                     TimeUnit.MILLISECONDS

@@ -2,22 +2,22 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id 'com.baseframework.reinforce'
+//    id 'com.baseframework.reinforce'
 }
-apply plugin: ApkDistPlugin
-class ApkDistPlugin implements Plugin<Project> {
-    @Override
-    void apply(Project project) {
-        project.task('apkdist') {
-            println 'hello, world!'
-        }
-    }
-}
+//apply plugin: ApkDistPlugin
+//class ApkDistPlugin implements Plugin<Project> {
+//    @Override
+//    void apply(Project project) {
+//        project.task('apkdist') {
+//            println 'hello, world!'
+//        }
+//    }
+//}
 
-reinforce{
-    userName "xiedi"
-    userPwd "123456"
-}
+//reinforce{
+//    userName "xiedi"
+//    userPwd "123456"
+//}
 
 
 android {

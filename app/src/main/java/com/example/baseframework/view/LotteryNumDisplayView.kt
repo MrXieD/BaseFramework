@@ -5,12 +5,20 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.util.AttributeSet
+import android.util.Log
+import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import com.example.baseframework.R
 import com.example.baseframework.ex.*
 import com.example.baseframework.log.XLog
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.random.Random
@@ -70,13 +78,17 @@ class LotteryNumDisplayView : View {
 
     private var mLastX = 0
     private var totalOffX = 0
+    //网格X轴偏移量
     private var offMeshX = 0f
 
 
     private var mLastY = 0
     private var totalOffY = 0
+    //网格Y轴偏移量
     private var offMeshY = 0f
 
+
+    private var flingGestureDetector: GestureDetector
 
     constructor(context: Context) : super(context) {
 
@@ -113,7 +125,12 @@ class LotteryNumDisplayView : View {
             lotteryNumFrontList.size + lotteryNumBackList.size
         }
 
+        //手势检测
+        flingGestureDetector = GestureDetector(context, GestureListener())
+        flingGestureDetector.setIsLongpressEnabled(false)
     }
+
+
 
     private fun randomNum(i: Int): LotteryNumData {
         val lotteryNumFrontList = ArrayList<LotteryNum>(5)
@@ -196,6 +213,7 @@ class LotteryNumDisplayView : View {
         }
         mLastX = x
         mLastY = y
+        flingGestureDetector.onTouchEvent(event)
         return true
     }
 
@@ -206,6 +224,7 @@ class LotteryNumDisplayView : View {
         val startRowIndex = offRowIndex
         //首先绘制网格
         drawMesh(canvas)
+        //绘制数字
         drawNum(canvas, startLineIndex, startRowIndex)
     }
 
@@ -277,4 +296,60 @@ class LotteryNumDisplayView : View {
 
     data class LotteryNumData(val date: String, val lotteryNumFrontList: MutableList<LotteryNum>, val lotteryNumBackList: MutableList<LotteryNum>)
     data class LotteryNum(val num: String, val isLottery: Boolean)
+
+    inner class GestureListener : GestureDetector.SimpleOnGestureListener() {
+        //刚刚手指接触到触摸屏的那一刹那，就是触的那一下。
+        override fun onDown(e: MotionEvent?): Boolean {
+            return super.onDown(e)
+        }
+        //手指离开view那一瞬间执行
+        override fun onSingleTapUp(e: MotionEvent?): Boolean {
+            return super.onSingleTapUp(e)
+        }
+        //手指在屏幕上滑动
+        override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
+            XLog.i("GestureListener-----onScroll---->")
+            //当我们手指向下滑动的是表示负数,向上滑动是正数,这个数 distance 是表示距离
+            return false
+        }
+        //用户按下触摸屏、快速拖动后松开(滑动的比onScroll快)
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
+            //velocity 这个词表示的是速度的意思
+            XLog.i("GestureListener-----onFling---->velocityX = $velocityX ，velocityY = $velocityY")
+            //循环执行runnable
+//            mFuture = mExecutor.scheduleWithFixedDelay(
+//                    InertiaTimerTask(velocityY.toInt()), 0, 10L,
+//                    TimeUnit.MILLISECONDS
+//            )
+
+            return false
+        }
+    }
+    private var mExecutor = Executors.newSingleThreadScheduledExecutor()
+    private var mFuture: ScheduledFuture<*>? = null
+
+    inner class InertiaTimerTask(private var velocityY: Int) : Runnable {
+        private val TAG = "InertiaTimerTask"
+        private var realVelocityY = Integer.MAX_VALUE.toFloat()
+        init {
+            Log.i(TAG, "InertiaTimerTask----init--->")
+        }
+        override fun run() {
+            Log.i(TAG, "velocityY--->$velocityY")
+            Log.i(TAG, "realVelocityY--->$realVelocityY")
+        }
+    }
+
+    private val smoothScrollHandler:Handler = object :Handler(Looper.getMainLooper()){
+        override fun handleMessage(msg: Message) {
+            super.handleMessage(msg)
+        }
+    }
+    
+    companion object {
+        const val SCROLL_STATE_IDLE = 10000     // 停止滚动
+        const val SCROLL_STATE_DRAGGING = 10001 // 用户按住滚轮拖拽
+        const val SCROLL_STATE_SCROLLING = 10002 // 依靠惯性滚动
+
+    }
 }

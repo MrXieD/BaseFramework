@@ -77,15 +77,15 @@ class LotteryNumDisplayView : View {
     private val tempRect = Rect()
 
     private var mLastX = 0
-    private var totalOffX = 0
+    private var totalScrollX = 0
     //网格X轴偏移量
-    private var offMeshX = 0f
+    private var meshScrollX = 0f
 
 
     private var mLastY = 0
-    private var totalOffY = 0
+    private var totalScrollY = 0
     //网格Y轴偏移量
-    private var offMeshY = 0f
+    private var meshScrollY = 0f
 
 
     private var flingGestureDetector: GestureDetector
@@ -175,37 +175,44 @@ class LotteryNumDisplayView : View {
         numHeight = height / displayLineNum.toFloat()
     }
 
+    private fun checkScrollX(){
+        if (totalScrollX >= 0 || totalRows * numWidth < width) {
+            totalScrollX = 0
+        } else if (abs(totalScrollX) + width >= totalRows * numWidth) {
+            totalScrollX = (-(totalRows * numWidth - width)).toInt()
+        }
+    }
+    private fun checkScrollY(){
+        if (totalScrollY >= 0 ||totalLines * numHeight < height) {
+            totalScrollY = 0
+        } else {
+            if (abs(totalScrollY) + height >= totalLines * numHeight) {
+                totalScrollY = (-(totalLines * numHeight - height)).toInt()
+            }
+        }
+    }
     @SuppressLint("LongLogTag")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val x = event.x.toInt()
         val y = event.y.toInt()
         when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                //按下时停止滚动
+                cancelFuture()
+            }
             MotionEvent.ACTION_MOVE -> {
                 val deltaX: Int = x - mLastX
                 val deltaY: Int = y - mLastY
                 //X轴最小和最大限制
-                totalOffX += deltaX
-                if (totalOffX >= 0 || totalRows * numWidth < width) {
-                    totalOffX = 0
-                } else if (abs(totalOffX) + width >= totalRows * numWidth) {
-                    totalOffX = (-(totalRows * numWidth - width)).toInt()
-                }
-                offMeshX = totalOffX % numWidth
-                offRowIndex = abs(totalOffX / numWidth).toInt()
+                totalScrollX += deltaX
+                checkScrollX()
+                meshScrollX = totalScrollX % numWidth
+                offRowIndex = abs(totalScrollX / numWidth).toInt()
                 //Y轴最小和最大限制
-                totalOffY += deltaY
-                if (totalOffY >= 0) {
-                    totalOffY = 0
-                }
-                if (totalLines * numHeight < height) {
-                    totalOffY = 0
-                } else {
-                    if (abs(totalOffY) + height >= totalLines * numHeight) {
-                        totalOffY = (-(totalLines * numHeight - height)).toInt()
-                    }
-                }
-                offMeshY = totalOffY % numHeight
-                offLineIndex = abs(totalOffY / numHeight).toInt()
+                totalScrollY += deltaY
+                checkScrollY()
+                meshScrollY = totalScrollY % numHeight
+                offLineIndex = abs(totalScrollY / numHeight).toInt()
                 XLog.i("offRowIndex--->$offRowIndex")
                 XLog.i("offLineIndex--->$offLineIndex")
                 invalidate()
@@ -230,7 +237,7 @@ class LotteryNumDisplayView : View {
 
     private fun drawNum(canvas: Canvas, startLineIndex: Int, startRowIndex: Int) {
         canvas.saveAndRestore {
-            canvas.translate(offMeshX, offMeshY)
+            canvas.translate(meshScrollX, meshScrollY)
             for (lineIndex in startLineIndex..startLineIndex + displayLineNum) {
                 if (lineIndex < dataList.size) {
                     val numText = dataList[lineIndex]
@@ -275,7 +282,7 @@ class LotteryNumDisplayView : View {
 
     private fun drawMesh(canvas: Canvas) {
         canvas.saveAndRestore {
-            canvas.translate(offMeshX, 0f)
+            canvas.translate(meshScrollX, 0f)
             canvas.saveAndRestore {
                 for (i in 0..displayRowNum) {
                     canvas.drawLine(0f, 0f, 0f, height.toFloat(), mMeshPaint)
@@ -284,7 +291,7 @@ class LotteryNumDisplayView : View {
             }
         }
         canvas.saveAndRestore {
-            canvas.translate(0f, offMeshY)
+            canvas.translate(0f, meshScrollY)
             canvas.saveAndRestore {
                 for (i in 0..displayLineNum) {
                     canvas.drawLine(0f, 0f, width.toFloat(), 0f, mMeshPaint)
@@ -310,17 +317,17 @@ class LotteryNumDisplayView : View {
         override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
             XLog.i("GestureListener-----onScroll---->")
             //当我们手指向下滑动的是表示负数,向上滑动是正数,这个数 distance 是表示距离
-            return false
+            return super.onScroll(e1,e2,distanceX,distanceY)
         }
         //用户按下触摸屏、快速拖动后松开(滑动的比onScroll快)
         override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
             //velocity 这个词表示的是速度的意思
             XLog.i("GestureListener-----onFling---->velocityX = $velocityX ，velocityY = $velocityY")
             //循环执行runnable
-//            mFuture = mExecutor.scheduleWithFixedDelay(
-//                    InertiaTimerTask(velocityY.toInt()), 0, 10L,
-//                    TimeUnit.MILLISECONDS
-//            )
+            mFuture = mExecutor.scheduleWithFixedDelay(
+                    InertiaTimerTask(velocityX.toInt(),velocityY.toInt()), 0, 10L,
+                    TimeUnit.MILLISECONDS
+            )
 
             return false
         }
@@ -328,15 +335,75 @@ class LotteryNumDisplayView : View {
     private var mExecutor = Executors.newSingleThreadScheduledExecutor()
     private var mFuture: ScheduledFuture<*>? = null
 
-    inner class InertiaTimerTask(private var velocityY: Int) : Runnable {
-        private val TAG = "InertiaTimerTask"
-        private var realVelocityY = Integer.MAX_VALUE.toFloat()
-        init {
-            Log.i(TAG, "InertiaTimerTask----init--->")
+    private fun cancelFuture() {
+        if (mFuture != null && !mFuture!!.isCancelled) {
+            mFuture!!.cancel(true)
+            mFuture = null
         }
+    }
+
+    inner class InertiaTimerTask(private var velocityX: Int,private var velocityY: Int) : Runnable {
+        private val TAG = "InertiaTimerTask"
+        private var realVelocityX = Integer.MAX_VALUE.toFloat()
+        private var realVelocityY = Integer.MAX_VALUE.toFloat()
         override fun run() {
-            Log.i(TAG, "velocityY--->$velocityY")
-            Log.i(TAG, "realVelocityY--->$realVelocityY")
+//            Log.i(TAG, "velocityY--->$velocityY")
+//            Log.i(TAG, "realVelocityY--->$realVelocityY")
+            //最大拖动速度2000
+            checkVelocityX()
+            checkVelocityY()
+            if (abs(realVelocityX) in 0.0f..20f && abs(realVelocityY) in 0.0f..20f ) {
+                Log.i(TAG, "WHAT_SMOOTH_SCROLL_INERTIA--->")
+                cancelFuture()
+                return
+            }
+            val x = (realVelocityX * 10f / 1000f).toInt()
+            totalScrollX += x
+            checkScrollX()
+            meshScrollX = totalScrollX % numWidth
+            offRowIndex = abs(totalScrollX / numWidth).toInt()
+
+            val y = (realVelocityY * 10f / 1000f).toInt()
+            totalScrollY += y
+            checkScrollY()
+            meshScrollY = totalScrollY % numHeight
+            offLineIndex = abs(totalScrollY / numHeight).toInt()
+
+            if (realVelocityX < 0.0f) {
+                realVelocityX += 20f
+            } else {
+                realVelocityX -= 20f
+            }
+
+            if (realVelocityY < 0.0f) {
+                realVelocityY += 20f
+            } else {
+                realVelocityY -= 20f
+            }
+            postInvalidate()
+        }
+
+        private fun checkVelocityX(){
+            if (realVelocityX == Integer.MAX_VALUE.toFloat()) {
+                realVelocityX = if (abs(velocityX) > 2000f) {
+                    if (velocityX > 0.0f) {
+                        2000f
+                    } else {
+                        -2000f
+                    }
+                } else velocityX.toFloat()
+            }
+        }
+        private fun checkVelocityY(){
+            if (realVelocityY == Integer.MAX_VALUE.toFloat()) {
+                realVelocityY = if (abs(velocityY) > 2000f) {
+                    if (velocityY > 0.0f) {
+                        2000f
+                    } else {
+                        -2000f
+                    }
+                } else velocityY.toFloat()
+            }
         }
     }
 

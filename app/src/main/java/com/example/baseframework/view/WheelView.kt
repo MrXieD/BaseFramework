@@ -643,7 +643,6 @@ class WheelView : View {
                         -2000f
                     }
                 } else velocityY.toFloat()
-
             }
             if (abs(realVelocityY) in 0.0f..20f) {
                 Log.i(TAG, "WHAT_SMOOTH_SCROLL_INERTIA--->")

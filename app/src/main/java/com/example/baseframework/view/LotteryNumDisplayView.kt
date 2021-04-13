@@ -326,10 +326,8 @@ class LotteryNumDisplayView : View {
             //循环执行runnable
             mFuture = mExecutor.scheduleWithFixedDelay(
                     InertiaTimerTask(velocityX.toInt(),velocityY.toInt()), 0, 10L,
-                    TimeUnit.MILLISECONDS
-            )
-
-            return false
+                    TimeUnit.MILLISECONDS)
+            return true
         }
     }
     private var mExecutor = Executors.newSingleThreadScheduledExecutor()

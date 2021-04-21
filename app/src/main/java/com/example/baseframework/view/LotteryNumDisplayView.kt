@@ -15,7 +15,6 @@ import android.view.MotionEvent
 import android.view.View
 import com.example.baseframework.R
 import com.example.baseframework.ex.*
-import com.example.baseframework.log.XLog
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
@@ -54,9 +53,11 @@ class LotteryNumDisplayView : View {
     private var numTextSize = 16f
 
     //起始行Index
+    @Volatile
     private var offRowIndex = 0
 
-    //起始列Index
+    //起始列Indexv
+    @Volatile
     private var offLineIndex = 0
 
     //数据List
@@ -80,11 +81,12 @@ class LotteryNumDisplayView : View {
     private var mLastY = 0
 
     //网格X轴偏移量
+    @Volatile
     private var totalScrollX = 0
 
     //网格Y轴偏移量
     private var meshScrollX = 0f
-
+    @Volatile
     private var totalScrollY = 0
 
     //网格Y轴偏移量
@@ -123,7 +125,7 @@ class LotteryNumDisplayView : View {
         mNumTextPaint.color = context.getColorResource(R.color.black)
         mNumTextPaint.textSize = context.sp2px(numTextSize)
         mNumTextPaint.textAlign = Paint.Align.CENTER
-        for (i in 0 until 50) {
+        for (i in 0..500) {
             dataList.add(randomNum(i))
         }
         totalRows = dataList.size
@@ -171,7 +173,6 @@ class LotteryNumDisplayView : View {
 
     private fun initTypedArray(attrs: AttributeSet?) {
 
-
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -213,15 +214,15 @@ class LotteryNumDisplayView : View {
                 //X轴最小和最大限制
                 totalScrollX += deltaX
                 checkScrollX()
-                meshScrollX = totalScrollX % numWidth
-                offLineIndex = abs(totalScrollX / numWidth).toInt()
+//                meshScrollX = totalScrollX % numWidth
+//                offLineIndex = abs(totalScrollX / numWidth).toInt()
                 //Y轴最小和最大限制
                 totalScrollY += deltaY
                 checkScrollY()
-                meshScrollY = totalScrollY % numHeight
-                offRowIndex = abs(totalScrollY / numHeight).toInt()
-                XLog.i("offRowIndex--->$offLineIndex")
-                XLog.i("offLineIndex--->$offRowIndex")
+//                meshScrollY = totalScrollY % numHeight
+//                offRowIndex = abs(totalScrollY / numHeight).toInt()
+                Log.i(TAG,"offRowIndex--->$offRowIndex")
+                Log.i(TAG,"offLineIndex--->$offLineIndex")
                 invalidate()
             }
         }
@@ -234,6 +235,12 @@ class LotteryNumDisplayView : View {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        meshScrollX = totalScrollX % numWidth
+        offLineIndex = abs(totalScrollX / numWidth).toInt()
+
+        meshScrollY = totalScrollY % numHeight
+        offRowIndex = abs(totalScrollY / numHeight).toInt()
+
         val startRowsIndex = offRowIndex
         val startLinesIndex = offLineIndex
         //绘制期号
@@ -313,12 +320,12 @@ class LotteryNumDisplayView : View {
             for (rowIndex in startRowsIndex..endRowsIndex) {
                 val numText = dataList[rowIndex]
                 //绘制一行中的数字
-                if(rowIndex == startRowsIndex){
+                if (rowIndex == startRowsIndex) {
                     canvas.saveAndRestore {
                         canvas.clipRect(0f, abs(meshScrollY) - 1, width.toFloat(), numHeight)
                         drawRowNum(canvas, startLinesIndex, numText)
                     }
-                }else{
+                } else {
                     drawRowNum(canvas, startLinesIndex, numText)
                 }
                 canvas.translate(0f, numHeight)
@@ -335,7 +342,7 @@ class LotteryNumDisplayView : View {
                 mNumTextPaint.getTextBounds(num.num, 0, num.num.length, tempRect)
                 if (numIndex == startLinesIndex) {
                     canvas.saveAndRestore {
-                        canvas.clipRect(abs(meshScrollX), 0f, numWidth, numHeight)
+                        canvas.clipRect(abs(meshScrollX) - 1, 0f, numWidth,numHeight)
                         realDrawNum(num, canvas)
                     }
                 } else {
@@ -353,7 +360,7 @@ class LotteryNumDisplayView : View {
                         mNumTextPaint.getTextBounds(num.num, 0, num.num.length, tempRect)
                         if (numIndex == startIndex && startLinesIndex >= numText.lotteryNumFrontList.size) {
                             canvas.saveAndRestore {
-                                canvas.clipRect(abs(meshScrollX), 0f, numWidth, numHeight)
+                                canvas.clipRect(abs(meshScrollX) - 1, 0f, numWidth, numHeight)
                                 realDrawNum(num, canvas)
                             }
                         } else {
@@ -370,9 +377,9 @@ class LotteryNumDisplayView : View {
         num.isLottery.doTrue {
             mNumTextPaint.color = context.getColorResource(R.color.colorAccent)
             canvas.drawCircle(numWidth / 2, numHeight / 2, min(numWidth / 2f * 0.8f, numHeight / 2f * 0.8f), mNumTextPaint)
+            mNumTextPaint.color = context.getColorResource(if (num.isLottery) R.color.white else R.color.black)
+            canvas.drawText(num.num, (numWidth) / 2, (numHeight + tempRect.height()) / 2, mNumTextPaint)
         }
-        mNumTextPaint.color = context.getColorResource(if (num.isLottery) R.color.white else R.color.black)
-        canvas.drawText(num.num, (numWidth) / 2, (numHeight + tempRect.height()) / 2, mNumTextPaint)
     }
 
 
@@ -392,7 +399,7 @@ class LotteryNumDisplayView : View {
 
         //手指在屏幕上滑动
         override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
-//            XLog.i("GestureListener-----onScroll---->")
+//            Log.i("GestureListener-----onScroll---->")
             //当我们手指向下滑动的是表示负数,向上滑动是正数,这个数 distance 是表示距离
             return super.onScroll(e1, e2, distanceX, distanceY)
         }
@@ -400,10 +407,10 @@ class LotteryNumDisplayView : View {
         //用户按下触摸屏、快速拖动后松开(滑动的比onScroll快)
         override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
             //velocity 这个词表示的是速度的意思
-            XLog.i("GestureListener-----onFling---->velocityX = $velocityX ，velocityY = $velocityY")
+            Log.i(TAG,"GestureListener-----onFling---->velocityX = $velocityX ，velocityY = $velocityY")
             //循环执行runnable
             mFuture = mExecutor.scheduleWithFixedDelay(
-                    InertiaScrollTimerTask(velocityX.toInt(), velocityY.toInt()), 0, 10L,
+                    InertiaScrollTimerTask(velocityX.toInt(), velocityY.toInt()), 0, 7L,
                     TimeUnit.MILLISECONDS)
             return true
         }
@@ -422,27 +429,24 @@ class LotteryNumDisplayView : View {
         private var realVelocityX = Integer.MAX_VALUE.toFloat()
         private var realVelocityY = Integer.MAX_VALUE.toFloat()
         override fun run() {
-//            Log.i(TAG, "velocityY--->$velocityY")
-//            Log.i(TAG, "realVelocityY--->$realVelocityY")
             //最大拖动速度2000
             checkVelocityX()
             checkVelocityY()
             if (abs(realVelocityX) in 0.0f..20f && abs(realVelocityY) in 0.0f..20f) {
-                Log.i(TAG, "WHAT_SMOOTH_SCROLL_INERTIA--->")
                 cancelFuture()
                 return
             }
             val x = (realVelocityX * 10f / 1000f).toInt()
             totalScrollX += x
             checkScrollX()
-            meshScrollX = totalScrollX % numWidth
-            offLineIndex = abs(totalScrollX / numWidth).toInt()
-
+//            meshScrollX = totalScrollX % numWidth
+//            offLineIndex = abs(totalScrollX / numWidth).toInt()
+            Log.i(TAG, "offLineIndex--->$offLineIndex")
             val y = (realVelocityY * 10f / 1000f).toInt()
             totalScrollY += y
             checkScrollY()
-            meshScrollY = totalScrollY % numHeight
-            offRowIndex = abs(totalScrollY / numHeight).toInt()
+//            meshScrollY = totalScrollY % numHeight
+//            offRowIndex = abs(totalScrollY / numHeight).toInt()
 
             if (realVelocityX < 0.0f) {
                 realVelocityX += 20f
@@ -494,5 +498,6 @@ class LotteryNumDisplayView : View {
         const val SCROLL_STATE_DRAGGING = 10001 // 用户按住滚轮拖拽
         const val SCROLL_STATE_SCROLLING = 10002 // 依靠惯性滚动
         const val MAX_SCROLL_VELOCITY = 2000f
+        private val TAG = "LotteryNumDisplayView"
     }
 }

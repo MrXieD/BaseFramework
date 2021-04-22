@@ -9,12 +9,12 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.AttributeSet
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import com.example.baseframework.R
 import com.example.baseframework.ex.*
+import com.example.baseframework.log.XLog
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
@@ -61,7 +61,7 @@ class LotteryNumDisplayView : View {
     private var offLineIndex = 0
 
     //数据List
-    private val dataList = mutableListOf<LotteryNumData>()
+    private val dataList = mutableListOf<OneDateLotteryData>()
 
     //总列数
     private var totalLines = 0
@@ -86,6 +86,7 @@ class LotteryNumDisplayView : View {
 
     //网格Y轴偏移量
     private var meshScrollX = 0f
+
     @Volatile
     private var totalScrollY = 0
 
@@ -97,6 +98,9 @@ class LotteryNumDisplayView : View {
     private var mExecutor = Executors.newSingleThreadScheduledExecutor()
 
     private var mFuture: ScheduledFuture<*>? = null
+
+    //一期有多少个数字
+    private var rowNumSize = 0
 
     constructor(context: Context) : super(context) {
 
@@ -125,13 +129,11 @@ class LotteryNumDisplayView : View {
         mNumTextPaint.color = context.getColorResource(R.color.black)
         mNumTextPaint.textSize = context.sp2px(numTextSize)
         mNumTextPaint.textAlign = Paint.Align.CENTER
-        for (i in 0..500) {
-            dataList.add(randomNum(i))
+        for (i in 1..50) {
+            dataList.add(randomBuildNum(i))
         }
         totalRows = dataList.size
-        totalLines = dataList[0].run {
-            lotteryNumFrontList.size + lotteryNumBackList.size
-        }
+        totalLines = rowNumSize
 
         //手势检测
         flingGestureDetector = GestureDetector(context, ScrollGestureListener())
@@ -139,9 +141,9 @@ class LotteryNumDisplayView : View {
     }
 
 
-    private fun randomNum(i: Int): LotteryNumData {
-        val lotteryNumFrontList = ArrayList<LotteryNum>(5)
-        val lotteryNumBackList = ArrayList<LotteryNum>(2)
+    private fun randomBuildNum(i: Int): OneDateLotteryData {
+        val lotteryNumFrontList = ArrayList<OneLotteryNum>(5)
+        val lotteryNumBackList = ArrayList<OneLotteryNum>(2)
         val numList = mutableListOf<Int>()
         //大乐透前五位 1-35
         for (k in 1..5) {
@@ -153,7 +155,7 @@ class LotteryNumDisplayView : View {
         }
         numList.sort()
         for (k in 1..35) {
-            lotteryNumFrontList.add(LotteryNum(k.toString(), numList.contains(k)))
+            lotteryNumFrontList.add(OneLotteryNum(k.toString(), numList.contains(k)))
         }
         numList.clear()
         //区号 1-12
@@ -166,9 +168,13 @@ class LotteryNumDisplayView : View {
         }
         numList.sort()
         for (k in 1..12) {
-            lotteryNumBackList.add(LotteryNum(k.toString(), numList.contains(k)))
+            lotteryNumBackList.add(OneLotteryNum(k.toString(), numList.contains(k)))
         }
-        return LotteryNumData(i.toString(), lotteryNumFrontList, lotteryNumBackList)
+        val list = mutableListOf<OneLotteryNum>()
+        list.addAll(lotteryNumFrontList)
+        list.addAll(lotteryNumBackList)
+        rowNumSize = list.size
+        return OneDateLotteryData(i.toString(), list)
     }
 
     private fun initTypedArray(attrs: AttributeSet?) {
@@ -221,8 +227,6 @@ class LotteryNumDisplayView : View {
                 checkScrollY()
 //                meshScrollY = totalScrollY % numHeight
 //                offRowIndex = abs(totalScrollY / numHeight).toInt()
-                Log.i(TAG,"offRowIndex--->$offRowIndex")
-                Log.i(TAG,"offLineIndex--->$offLineIndex")
                 invalidate()
             }
         }
@@ -235,6 +239,7 @@ class LotteryNumDisplayView : View {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+
         meshScrollX = totalScrollX % numWidth
         offLineIndex = abs(totalScrollX / numWidth).toInt()
 
@@ -243,29 +248,52 @@ class LotteryNumDisplayView : View {
 
         val startRowsIndex = offRowIndex
         val startLinesIndex = offLineIndex
-        //绘制期号
+        canvas.drawLine(dateWidth, 0f, dateWidth, numHeight, mMeshPaint)
+        canvas.drawLine(0f, numHeight, dateWidth, numHeight, mMeshPaint)
+        val date = "期号"
+        mNumTextPaint.getTextBounds(date, 0, date.length, tempRect)
+        mNumTextPaint.color = context.getColorResource(R.color.black)
+        canvas.drawText(date, (dateWidth) / 2, (numHeight + tempRect.height()) / 2, mNumTextPaint)
+
+        //绘制期号Title
         canvas.saveAndRestore {
             canvas.translate(0f, numHeight)
             canvas.translate(0f, meshScrollY)
             canvas.saveAndRestore {
-                for (i in 0..displayRowNum) {
-                    canvas.drawLine(0f, 0f, dateWidth, 0f, mMeshPaint)
+                for (i in 0 until displayRowNum) {
+                    canvas.saveAndRestore {
+                        if (i == 0) {
+                            canvas.clipRect(0f, abs(meshScrollY) - 1, dateWidth + 1, numHeight)
+                        }
+                        canvas.drawLine(0f, 0f, dateWidth, 0f, mMeshPaint)
+                        canvas.drawLine(dateWidth, 0f, dateWidth, numHeight, mMeshPaint)
+                        val dateNum = dataList[startRowsIndex + i]
+                        mNumTextPaint.getTextBounds(dateNum.date, 0, dateNum.date.length, tempRect)
+                        mNumTextPaint.color = context.getColorResource(R.color.black)
+                        canvas.drawText(dateNum.date, (dateWidth) / 2, (numHeight + tempRect.height()) / 2, mNumTextPaint)
+                    }
                     canvas.translate(0f, numHeight)
                 }
             }
         }
+        //绘制数字Title
         canvas.saveAndRestore {
             canvas.translate(dateWidth, 0f)
             canvas.translate(meshScrollX, 0f)
             canvas.saveAndRestore {
-                for (i in 0..displayLineNum) {
-                    if (i == 0) {
-                        canvas.saveAndRestore {
-                            canvas.clipRect(abs(meshScrollX) - 1, 0f, numWidth, height.toFloat())
-                            canvas.drawLine(0f, 0f, 0f, height.toFloat(), mMeshPaint)
+                for (i in 0 until displayLineNum - 1) {
+                    canvas.saveAndRestore {
+                        if (i == 0) {
+                            canvas.clipRect(abs(meshScrollX) - 1, 0f, numWidth, numHeight)
                         }
-                    } else
-                        canvas.drawLine(0f, 0f, 0f, height.toFloat(), mMeshPaint)
+                        canvas.drawLine(0f, 0f, 0f, numHeight, mMeshPaint)
+                        canvas.drawLine(0f, numHeight, numWidth, numHeight, mMeshPaint)
+                        val dateNum = dataList[0].numList[startLinesIndex + i]
+                        mNumTextPaint.getTextBounds(dateNum.num, 0, dateNum.num.length, tempRect)
+                        mNumTextPaint.color = context.getColorResource(R.color.black)
+                        canvas.drawText(dateNum.num, (numWidth) / 2, (numHeight + tempRect.height()) / 2, mNumTextPaint)
+
+                    }
                     canvas.translate(numWidth, 0f)
                 }
             }
@@ -323,26 +351,26 @@ class LotteryNumDisplayView : View {
                 if (rowIndex == startRowsIndex) {
                     canvas.saveAndRestore {
                         canvas.clipRect(0f, abs(meshScrollY) - 1, width.toFloat(), numHeight)
-                        drawRowNum(canvas, startLinesIndex, numText)
+                        drawLinesNum(canvas, startLinesIndex, numText)
                     }
                 } else {
-                    drawRowNum(canvas, startLinesIndex, numText)
+                    drawLinesNum(canvas, startLinesIndex, numText)
                 }
                 canvas.translate(0f, numHeight)
             }
         }
     }
 
-    private fun drawRowNum(canvas: Canvas, startLinesIndex: Int, numText: LotteryNumData) {
+    private fun drawLinesNum(canvas: Canvas, startLinesIndex: Int, numDataOneDate: OneDateLotteryData) {
+        val list = numDataOneDate.numList
+        //有几种号码的组合（大乐透有前五位（1-35）后两位(1-12)）
         canvas.saveAndRestore {
-            //绘制前五位
-            val endLinesIndex = if (startLinesIndex + displayLineNum < numText.lotteryNumFrontList.size) startLinesIndex + displayLineNum else numText.lotteryNumFrontList.size - 1
+            val endLinesIndex = if (startLinesIndex + displayLineNum < list.size) startLinesIndex + displayLineNum else list.size - 1
             for (numIndex in startLinesIndex..endLinesIndex) {
-                val num = numText.lotteryNumFrontList[numIndex]
-                mNumTextPaint.getTextBounds(num.num, 0, num.num.length, tempRect)
+                val num = list[numIndex]
                 if (numIndex == startLinesIndex) {
                     canvas.saveAndRestore {
-                        canvas.clipRect(abs(meshScrollX) - 1, 0f, numWidth,numHeight)
+                        canvas.clipRect(abs(meshScrollX) - 1, 0f, numWidth, numHeight)
                         realDrawNum(num, canvas)
                     }
                 } else {
@@ -350,30 +378,49 @@ class LotteryNumDisplayView : View {
                 }
                 canvas.translate(numWidth, 0f)
             }
-            //绘制后两位
-            if (startLinesIndex + displayLineNum >= numText.lotteryNumFrontList.size) {
-                val startIndex = if (startLinesIndex < numText.lotteryNumFrontList.size) 0 else startLinesIndex - numText.lotteryNumFrontList.size
-                val endIndex = startLinesIndex + displayLineNum - numText.lotteryNumFrontList.size
-                for (numIndex in startIndex..endIndex) {
-                    if (numIndex < numText.lotteryNumBackList.size) {
-                        val num = numText.lotteryNumBackList[numIndex]
-                        mNumTextPaint.getTextBounds(num.num, 0, num.num.length, tempRect)
-                        if (numIndex == startIndex && startLinesIndex >= numText.lotteryNumFrontList.size) {
-                            canvas.saveAndRestore {
-                                canvas.clipRect(abs(meshScrollX) - 1, 0f, numWidth, numHeight)
-                                realDrawNum(num, canvas)
-                            }
-                        } else {
-                            realDrawNum(num, canvas)
-                        }
-                        canvas.translate(numWidth, 0f)
-                    }
-                }
-            }
         }
+//        canvas.saveAndRestore {
+//            //绘制前五位
+//            val endLinesIndex = if (startLinesIndex + displayLineNum < numText.lotteryNumFrontList.size) startLinesIndex + displayLineNum else numText.lotteryNumFrontList.size - 1
+//            for (numIndex in startLinesIndex..endLinesIndex) {
+//                val num = numText.lotteryNumFrontList[numIndex]
+//                mNumTextPaint.getTextBounds(num.num, 0, num.num.length, tempRect)
+//                if (numIndex == startLinesIndex) {
+//                    canvas.saveAndRestore {
+//                        canvas.clipRect(abs(meshScrollX) - 1, 0f, numWidth,numHeight)
+//                        realDrawNum(num, canvas)
+//                    }
+//                } else {
+//                    realDrawNum(num, canvas)
+//                }
+//                canvas.translate(numWidth, 0f)
+//            }
+//
+//            //绘制后两位
+//            if (startLinesIndex + displayLineNum >= numText.lotteryNumFrontList.size) {
+//                val startIndex = if (startLinesIndex < numText.lotteryNumFrontList.size) 0 else startLinesIndex - numText.lotteryNumFrontList.size
+//                val endIndex = startLinesIndex + displayLineNum - numText.lotteryNumFrontList.size
+//                for (numIndex in startIndex..endIndex) {
+//                    if (numIndex < numText.lotteryNumBackList.size) {
+//                        val num = numText.lotteryNumBackList[numIndex]
+//                        mNumTextPaint.getTextBounds(num.num, 0, num.num.length, tempRect)
+//                        if (numIndex == startIndex && startLinesIndex >= numText.lotteryNumFrontList.size) {
+//                            canvas.saveAndRestore {
+//                                canvas.clipRect(abs(meshScrollX) - 1, 0f, numWidth, numHeight)
+//                                realDrawNum(num, canvas)
+//                            }
+//                        } else {
+//                            realDrawNum(num, canvas)
+//                        }
+//                        canvas.translate(numWidth, 0f)
+//                    }
+//                }
+//            }
+//        }
     }
 
-    private fun realDrawNum(num: LotteryNum, canvas: Canvas) {
+    private fun realDrawNum(num: OneLotteryNum, canvas: Canvas) {
+        mNumTextPaint.getTextBounds(num.num, 0, num.num.length, tempRect)
         num.isLottery.doTrue {
             mNumTextPaint.color = context.getColorResource(R.color.colorAccent)
             canvas.drawCircle(numWidth / 2, numHeight / 2, min(numWidth / 2f * 0.8f, numHeight / 2f * 0.8f), mNumTextPaint)
@@ -383,8 +430,14 @@ class LotteryNumDisplayView : View {
     }
 
 
-    data class LotteryNumData(val date: String, val lotteryNumFrontList: MutableList<LotteryNum>, val lotteryNumBackList: MutableList<LotteryNum>)
-    data class LotteryNum(val num: String, val isLottery: Boolean)
+    data class LotteryNumData(val date: String, val lotteryNumFrontList: MutableList<OneLotteryNum>, val lotteryNumBackList: MutableList<OneLotteryNum>)
+
+    data class OneDateLotteryData(val date: String, val numList: MutableList<OneLotteryNum>)
+
+    /**
+     * isLottery -->是否中奖号码
+     */
+    data class OneLotteryNum(val num: String, val isLottery: Boolean)
 
     inner class ScrollGestureListener : GestureDetector.SimpleOnGestureListener() {
         //刚刚手指接触到触摸屏的那一刹那，就是触的那一下。
@@ -407,7 +460,7 @@ class LotteryNumDisplayView : View {
         //用户按下触摸屏、快速拖动后松开(滑动的比onScroll快)
         override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
             //velocity 这个词表示的是速度的意思
-            Log.i(TAG,"GestureListener-----onFling---->velocityX = $velocityX ，velocityY = $velocityY")
+//            Log.i(TAG,"GestureListener-----onFling---->velocityX = $velocityX ，velocityY = $velocityY")
             //循环执行runnable
             mFuture = mExecutor.scheduleWithFixedDelay(
                     InertiaScrollTimerTask(velocityX.toInt(), velocityY.toInt()), 0, 7L,
@@ -441,7 +494,6 @@ class LotteryNumDisplayView : View {
             checkScrollX()
 //            meshScrollX = totalScrollX % numWidth
 //            offLineIndex = abs(totalScrollX / numWidth).toInt()
-            Log.i(TAG, "offLineIndex--->$offLineIndex")
             val y = (realVelocityY * 10f / 1000f).toInt()
             totalScrollY += y
             checkScrollY()

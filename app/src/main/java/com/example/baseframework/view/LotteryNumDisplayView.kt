@@ -9,9 +9,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.AttributeSet
-import android.view.GestureDetector
-import android.view.MotionEvent
-import android.view.View
+import android.view.*
 import com.example.baseframework.R
 import com.example.baseframework.ex.*
 import com.example.baseframework.log.XLog
@@ -102,6 +100,31 @@ class LotteryNumDisplayView : View {
     //一期有多少个数字
     private var rowNumSize = 0
 
+    //缩放检测
+    private var scaleGestureDetector: ScaleGestureDetector
+
+    //缩放倍率
+
+    private var scaleFactor = 1f
+
+    //缩放x中心点
+    private var cX = 1f
+
+    //缩放y中心点
+    private var cY = 1f
+
+    //最小滑动检测
+    private var minTouchSlop: Int
+
+    //是否确定滑动方向，当手指离开屏幕后重置
+    private var haveGotMoveDirection = false
+
+    //滑动方向标志位,true为x方向，反之为y
+    private var moveXDirection = false
+
+    //是否强制不准滑动
+    private var forceIntercptMove = false
+
     constructor(context: Context) : super(context) {
 
     }
@@ -138,6 +161,8 @@ class LotteryNumDisplayView : View {
         //手势检测
         flingGestureDetector = GestureDetector(context, ScrollGestureListener())
         flingGestureDetector.setIsLongpressEnabled(false)
+        minTouchSlop = ViewConfiguration.get(context).scaledTouchSlop * 1 / 2
+        scaleGestureDetector = ScaleGestureDetector(context, ScaleListener())
     }
 
 
@@ -211,29 +236,89 @@ class LotteryNumDisplayView : View {
         val y = event.y.toInt()
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
+                forceIntercptMove = false
                 //按下时停止滚动
                 cancelFuture()
             }
             MotionEvent.ACTION_MOVE -> {
                 val deltaX: Int = x - mLastX
                 val deltaY: Int = y - mLastY
-                //X轴最小和最大限制
-                totalScrollX += deltaX
-                checkScrollX()
-//                meshScrollX = totalScrollX % numWidth
-//                offLineIndex = abs(totalScrollX / numWidth).toInt()
-                //Y轴最小和最大限制
-                totalScrollY += deltaY
-                checkScrollY()
-//                meshScrollY = totalScrollY % numHeight
-//                offRowIndex = abs(totalScrollY / numHeight).toInt()
+                if (!forceIntercptMove && event.pointerCount == 1) {//scaleFactor == 1f
+                    if (!haveGotMoveDirection) {
+                        if (abs(deltaX) >= abs(deltaY) && abs(deltaX) >= minTouchSlop) {
+                            moveXDirection = true
+                            haveGotMoveDirection = true
+                        } else if (abs(deltaY) >= minTouchSlop) {
+                            moveXDirection = false
+                            haveGotMoveDirection = true
+                        }
+                    }
+                    if (haveGotMoveDirection) {
+                        if (moveXDirection) {
+                            //X轴最小和最大限制
+                            totalScrollX += deltaX
+                            checkScrollX()
+                        } else {
+                            //Y轴最小和最大限制
+                            totalScrollY += deltaY
+                            checkScrollY()
+                        }
+                    }
+
+                    if (scaleFactor > 1) {
+                        scaleCenterChange(deltaX, deltaY)
+                    }
+                }
                 invalidate()
+            }
+            //当有多个手指情况下，有手指抬起时候，这时候此触碰系列不准滑动(不然有些手指抬起后画面位置要抖动)，
+            // 直到下一次重新触发actionDown事件
+            MotionEvent.ACTION_POINTER_UP -> {
+                haveGotMoveDirection = false
+                forceIntercptMove = true
+            }
+
+            MotionEvent.ACTION_UP -> {
+                haveGotMoveDirection = false
             }
         }
         mLastX = x
         mLastY = y
         flingGestureDetector.onTouchEvent(event)
+        scaleGestureDetector.onTouchEvent(event)
         return true
+    }
+
+    /*
+        当滑动到边界且有放大时，将缩放中心移动到边界，不然看不到边界的东西
+     */
+    private fun scaleCenterChange(deltaX: Int, deltaY: Int) {
+        //x方向
+        if (totalScrollX == 0) {//最左边
+            if (deltaX > 0 && (cX > 0)) {
+                cX -= deltaX
+                cX = if (cX <= 0) 0f else cX
+            }
+        } else if (totalScrollX == (-(totalLines * numWidth + dateWidth - width)).toInt()) {//最右边
+            if (deltaX < 0 && (cX < width)) {
+                cX -= deltaX
+                cX = if (cX >= width) width.toFloat() else cX
+            }
+        }
+
+        //y方向
+        if (totalScrollY == 0) {//最上边
+            if (deltaY > 0 && cY > 0) {
+                cY -= deltaY
+                cY = if (cY <= 0) 0f else cY
+            }
+        } else if (totalScrollY == (-(totalRows * numHeight + numHeight - height)).toInt()) {//最下边
+            if (deltaY < 0 && cY <= height) {
+                cY -= deltaY
+                cY = if (cY >= height) height.toFloat() else cY
+            }
+        }
+//        Log.e(TAG, "scaleCenterChange: $cX,$cY")
     }
 
 
@@ -248,63 +333,67 @@ class LotteryNumDisplayView : View {
 
         val startRowsIndex = offRowIndex
         val startLinesIndex = offLineIndex
-        canvas.drawLine(dateWidth, 0f, dateWidth, numHeight, mMeshPaint)
-        canvas.drawLine(0f, numHeight, dateWidth, numHeight, mMeshPaint)
-        val date = "期号"
-        mNumTextPaint.getTextBounds(date, 0, date.length, tempRect)
-        mNumTextPaint.color = context.getColorResource(R.color.black)
-        canvas.drawText(date, (dateWidth) / 2, (numHeight + tempRect.height()) / 2, mNumTextPaint)
 
-        //绘制期号Title
         canvas.saveAndRestore {
-            canvas.translate(0f, numHeight)
-            canvas.translate(0f, meshScrollY)
+            scaleCanvas(canvas)
+            canvas.drawLine(dateWidth, 0f, dateWidth, numHeight, mMeshPaint)
+            canvas.drawLine(0f, numHeight, dateWidth, numHeight, mMeshPaint)
+            val date = "期号"
+            mNumTextPaint.getTextBounds(date, 0, date.length, tempRect)
+            mNumTextPaint.color = context.getColorResource(R.color.black)
+            canvas.drawText(date, (dateWidth) / 2, (numHeight + tempRect.height()) / 2, mNumTextPaint)
+
+            //绘制期号Title
             canvas.saveAndRestore {
-                for (i in 0 until displayRowNum) {
-                    canvas.saveAndRestore {
-                        if (i == 0) {
-                            canvas.clipRect(0f, abs(meshScrollY) - 1, dateWidth + 1, numHeight)
+                canvas.translate(0f, numHeight)
+                canvas.translate(0f, meshScrollY)
+                canvas.saveAndRestore {
+                    for (i in 0 until displayRowNum) {
+                        canvas.saveAndRestore {
+                            if (i == 0) {
+                                canvas.clipRect(0f, abs(meshScrollY) - 1, dateWidth + 1, numHeight)
+                            }
+                            canvas.drawLine(0f, 0f, dateWidth, 0f, mMeshPaint)
+                            canvas.drawLine(dateWidth, 0f, dateWidth, numHeight, mMeshPaint)
+                            val dateNum = dataList[startRowsIndex + i]
+                            mNumTextPaint.getTextBounds(dateNum.date, 0, dateNum.date.length, tempRect)
+                            mNumTextPaint.color = context.getColorResource(R.color.black)
+                            canvas.drawText(dateNum.date, (dateWidth) / 2, (numHeight + tempRect.height()) / 2, mNumTextPaint)
                         }
-                        canvas.drawLine(0f, 0f, dateWidth, 0f, mMeshPaint)
-                        canvas.drawLine(dateWidth, 0f, dateWidth, numHeight, mMeshPaint)
-                        val dateNum = dataList[startRowsIndex + i]
-                        mNumTextPaint.getTextBounds(dateNum.date, 0, dateNum.date.length, tempRect)
-                        mNumTextPaint.color = context.getColorResource(R.color.black)
-                        canvas.drawText(dateNum.date, (dateWidth) / 2, (numHeight + tempRect.height()) / 2, mNumTextPaint)
+                        canvas.translate(0f, numHeight)
                     }
-                    canvas.translate(0f, numHeight)
                 }
             }
-        }
-        //绘制数字Title
-        canvas.saveAndRestore {
-            canvas.translate(dateWidth, 0f)
-            canvas.translate(meshScrollX, 0f)
+            //绘制数字Title
             canvas.saveAndRestore {
-                for (i in 0 until displayLineNum - 1) {
-                    canvas.saveAndRestore {
-                        if (i == 0) {
-                            canvas.clipRect(abs(meshScrollX) - 1, 0f, numWidth, numHeight)
-                        }
-                        canvas.drawLine(0f, 0f, 0f, numHeight, mMeshPaint)
-                        canvas.drawLine(0f, numHeight, numWidth, numHeight, mMeshPaint)
-                        val dateNum = dataList[0].numList[startLinesIndex + i]
-                        mNumTextPaint.getTextBounds(dateNum.num, 0, dateNum.num.length, tempRect)
-                        mNumTextPaint.color = context.getColorResource(R.color.black)
-                        canvas.drawText(dateNum.num, (numWidth) / 2, (numHeight + tempRect.height()) / 2, mNumTextPaint)
+                canvas.translate(dateWidth, 0f)
+                canvas.translate(meshScrollX, 0f)
+                canvas.saveAndRestore {
+                    for (i in 0 until displayLineNum - 1) {
+                        canvas.saveAndRestore {
+                            if (i == 0) {
+                                canvas.clipRect(abs(meshScrollX) - 1, 0f, numWidth, numHeight)
+                            }
+                            canvas.drawLine(0f, 0f, 0f, numHeight, mMeshPaint)
+                            canvas.drawLine(0f, numHeight, numWidth, numHeight, mMeshPaint)
+                            val dateNum = dataList[0].numList[startLinesIndex + i]
+                            mNumTextPaint.getTextBounds(dateNum.num, 0, dateNum.num.length, tempRect)
+                            mNumTextPaint.color = context.getColorResource(R.color.black)
+                            canvas.drawText(dateNum.num, (numWidth) / 2, (numHeight + tempRect.height()) / 2, mNumTextPaint)
 
+                        }
+                        canvas.translate(numWidth, 0f)
                     }
-                    canvas.translate(numWidth, 0f)
                 }
             }
-        }
 
-        canvas.saveAndRestore {
-            canvas.translate(dateWidth, numHeight)
-            //绘制网格
-            drawMesh(canvas)
-            //绘制号码
-            drawNum(canvas, startRowsIndex, startLinesIndex)
+            canvas.saveAndRestore {
+                canvas.translate(dateWidth, numHeight)
+                //绘制网格
+                drawMesh(canvas)
+                //绘制号码
+                drawNum(canvas, startRowsIndex, startLinesIndex)
+            }
         }
     }
 
@@ -462,9 +551,11 @@ class LotteryNumDisplayView : View {
             //velocity 这个词表示的是速度的意思
 //            Log.i(TAG,"GestureListener-----onFling---->velocityX = $velocityX ，velocityY = $velocityY")
             //循环执行runnable
-            mFuture = mExecutor.scheduleWithFixedDelay(
-                    InertiaScrollTimerTask(velocityX.toInt(), velocityY.toInt()), 0, 7L,
-                    TimeUnit.MILLISECONDS)
+            if (!forceIntercptMove) {
+                mFuture = mExecutor.scheduleWithFixedDelay(
+                        InertiaScrollTimerTask(velocityX.toInt(), velocityY.toInt()), 0, 7L,
+                        TimeUnit.MILLISECONDS)
+            }
             return true
         }
     }
@@ -543,6 +634,32 @@ class LotteryNumDisplayView : View {
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
         }
+    }
+
+    inner class ScaleListener : ScaleGestureDetector.OnScaleGestureListener {
+        override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
+            return true
+        }
+
+        override fun onScaleEnd(detector: ScaleGestureDetector?) {
+        }
+
+        override fun onScale(detector: ScaleGestureDetector): Boolean {
+            scaleFactor *= detector.scaleFactor
+            if (scaleFactor > 2) scaleFactor = 2f//Limit max
+            else if (scaleFactor < 1f) scaleFactor = 1f;//limit min
+            scaleFactor = (((scaleFactor * 100))) / 100;//jitter-protection
+            cX = detector.focusX
+            cY = detector.focusY
+//            Log.e(TAG, "onScale: $scaleFactor, $cX,$cY")
+            return true
+        }
+
+    }
+
+    //缩放画布
+    private fun scaleCanvas(canvas: Canvas) {
+        canvas.scale(scaleFactor, scaleFactor, cX, cY)
     }
 
     companion object {

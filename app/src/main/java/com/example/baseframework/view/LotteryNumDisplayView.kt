@@ -32,10 +32,10 @@ import kotlin.random.Random
  */
 class LotteryNumDisplayView : View {
     //显示界面行数
-    private var displayRowNum = 100
+    private var displayRowNum = 5
 
     //显示界面列数
-    private var displayLineNum = 47
+    private var displayLineNum = 10
 
     //期号宽度
     private var dateWidth = context.dip2px(64f)
@@ -145,7 +145,6 @@ class LotteryNumDisplayView : View {
         mNumTextPaint.color = context.getColorResource(R.color.black)
         mNumTextPaint.textSize = context.sp2px(numTextSize)
         mNumTextPaint.textAlign = Paint.Align.CENTER
-        adjustBaseLineDistance()
         for (i in 1..100) {
             dataList.add(randomBuildNum(i))
         }
@@ -209,13 +208,11 @@ class LotteryNumDisplayView : View {
         //画笔字体自适应计算
         val testString = "35"
         val nowWidth = mNumTextPaint.measureText(testString)
-        val maxWidth = min(numWidth / 2 * 0.8f,numHeight/2*0.8f)
-        if (nowWidth > maxWidth) {
-            val scale = nowWidth / mNumTextPaint.textSize
-            val newTextSize = maxWidth / scale
-            mNumTextPaint.textSize = newTextSize
-            adjustBaseLineDistance()
-        }
+        val maxWidth = min(numWidth * 0.6f, numHeight * 0.6f)
+        val scale = nowWidth / mNumTextPaint.textSize
+        val newTextSize = maxWidth / scale
+        mNumTextPaint.textSize = newTextSize
+        adjustBaseLineDistance()
     }
 
     private fun checkScrollX() {

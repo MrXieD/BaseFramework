@@ -113,15 +113,6 @@ class LotteryNumDisplayView : View {
     //缩放y中心点
     private var cY = 1f
 
-    //最小滑动检测
-    private var minTouchSlop: Int
-
-    //是否确定滑动方向，当手指离开屏幕后重置
-    private var haveGotMoveDirection = false
-
-    //滑动方向标志位,true为x方向，反之为y
-    private var moveXDirection = false
-
     //是否强制不准滑动
     private var forceIntercptMove = false
 
@@ -161,7 +152,6 @@ class LotteryNumDisplayView : View {
         //手势检测
         flingGestureDetector = GestureDetector(context, ScrollGestureListener())
         flingGestureDetector.setIsLongpressEnabled(false)
-        minTouchSlop = ViewConfiguration.get(context).scaledTouchSlop * 1 / 2
         scaleGestureDetector = ScaleGestureDetector(context, ScaleListener())
     }
 
@@ -244,26 +234,17 @@ class LotteryNumDisplayView : View {
                 val deltaX: Int = x - mLastX
                 val deltaY: Int = y - mLastY
                 if (!forceIntercptMove && event.pointerCount == 1) {//scaleFactor == 1f
-                    if (!haveGotMoveDirection) {
-                        if (abs(deltaX) >= abs(deltaY) && abs(deltaX) >= minTouchSlop) {
-                            moveXDirection = true
-                            haveGotMoveDirection = true
-                        } else if (abs(deltaY) >= minTouchSlop) {
-                            moveXDirection = false
-                            haveGotMoveDirection = true
-                        }
+                    if (abs(deltaX) >= abs(deltaY)) {
+                        totalScrollX += deltaX
+                        checkScrollX()
+                    } else {
+                        totalScrollY += deltaY
+                        checkScrollY()
                     }
-                    if (haveGotMoveDirection) {
-                        if (moveXDirection) {
-                            //X轴最小和最大限制
-                            totalScrollX += deltaX
-                            checkScrollX()
-                        } else {
-                            //Y轴最小和最大限制
-                            totalScrollY += deltaY
-                            checkScrollY()
-                        }
-                    }
+//                    totalScrollX += deltaX
+//                    checkScrollX()
+//                    totalScrollY += deltaY
+//                    checkScrollY()
 
                     if (scaleFactor > 1) {
                         scaleCenterChange(deltaX, deltaY)
@@ -274,12 +255,7 @@ class LotteryNumDisplayView : View {
             //当有多个手指情况下，有手指抬起时候，这时候此触碰系列不准滑动(不然有些手指抬起后画面位置要抖动)，
             // 直到下一次重新触发actionDown事件
             MotionEvent.ACTION_POINTER_UP -> {
-                haveGotMoveDirection = false
                 forceIntercptMove = true
-            }
-
-            MotionEvent.ACTION_UP -> {
-                haveGotMoveDirection = false
             }
         }
         mLastX = x

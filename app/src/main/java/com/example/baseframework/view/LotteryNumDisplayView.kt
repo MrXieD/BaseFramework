@@ -32,7 +32,7 @@ import kotlin.random.Random
  */
 class LotteryNumDisplayView : View {
     //显示界面行数
-    private var displayRowNum = 22
+    private var displayRowNum = 100
 
     //显示界面列数
     private var displayLineNum = 47
@@ -146,7 +146,7 @@ class LotteryNumDisplayView : View {
         mNumTextPaint.textSize = context.sp2px(numTextSize)
         mNumTextPaint.textAlign = Paint.Align.CENTER
         adjustBaseLineDistance()
-        for (i in 1..50) {
+        for (i in 1..100) {
             dataList.add(randomBuildNum(i))
         }
         totalRows = dataList.size
@@ -209,7 +209,7 @@ class LotteryNumDisplayView : View {
         //画笔字体自适应计算
         val testString = "35"
         val nowWidth = mNumTextPaint.measureText(testString)
-        val maxWidth = numWidth / 2 * 0.8f
+        val maxWidth = min(numWidth / 2 * 0.8f,numHeight/2*0.8f)
         if (nowWidth > maxWidth) {
             val scale = nowWidth / mNumTextPaint.textSize
             val newTextSize = maxWidth / scale

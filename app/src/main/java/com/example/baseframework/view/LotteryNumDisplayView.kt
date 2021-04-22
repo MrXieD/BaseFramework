@@ -551,9 +551,16 @@ class LotteryNumDisplayView : View {
             //velocity 这个词表示的是速度的意思
 //            Log.i(TAG,"GestureListener-----onFling---->velocityX = $velocityX ，velocityY = $velocityY")
             //循环执行runnable
+            var vX = 0f
+            var vY = 0f
+            if (abs(velocityX) >= abs(velocityY)) {
+                vX = velocityX
+            } else {
+                vY = velocityY
+            }
             if (!forceIntercptMove) {
                 mFuture = mExecutor.scheduleWithFixedDelay(
-                        InertiaScrollTimerTask(velocityX.toInt(), velocityY.toInt()), 0, 7L,
+                        InertiaScrollTimerTask(vX.toInt(), vY.toInt()), 0, 7L,
                         TimeUnit.MILLISECONDS)
             }
             return true

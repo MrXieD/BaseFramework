@@ -41,6 +41,7 @@ class LotteryNumDisplayView : View {
 
     //期号宽度
     private var dateWidth = context.dip2px(64f)
+
     //期号宽度
     private var dateHeight = context.dip2px(64f)
 
@@ -208,6 +209,7 @@ class LotteryNumDisplayView : View {
 
         return super.onSaveInstanceState()
     }
+
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
 
@@ -231,7 +233,7 @@ class LotteryNumDisplayView : View {
         textVerDistance = (mNumTextPaint.fontMetrics.bottom - mNumTextPaint.fontMetrics.top) / 2 - mNumTextPaint.fontMetrics.bottom
     }
 
-    private fun checkScrollX():Boolean {
+    private fun checkScrollX(): Boolean {
         if (totalScrollX >= 0 || totalLines * numWidth + dateWidth < width) {
             totalScrollX = 0
             return false
@@ -242,7 +244,7 @@ class LotteryNumDisplayView : View {
         return true
     }
 
-    private fun checkScrollY():Boolean {
+    private fun checkScrollY(): Boolean {
         if (totalScrollY >= 0 || totalRows * numHeight + dateHeight < height) {
             totalScrollY = 0
             return false
@@ -269,12 +271,12 @@ class LotteryNumDisplayView : View {
                 val deltaX: Int = x - mLastX
                 val deltaY: Int = y - mLastY
                 if (!forceIntercptMove && event.pointerCount == 1) {
-                    if(isSlantMove){
+                    if (isSlantMove) {
                         totalScrollX += deltaX
                         checkScrollX()
                         totalScrollY += deltaY
                         checkScrollY()
-                    }else{
+                    } else {
                         if (abs(deltaX) >= abs(deltaY)) {
                             totalScrollX += deltaX
                             checkScrollX()
@@ -359,7 +361,7 @@ class LotteryNumDisplayView : View {
                 canvas.translate(0f, meshScrollY)
                 canvas.saveAndRestore {
                     val endRowsIndex = if (startRowsIndex + displayRowNum >= dataList.size) dataList.size - 1 else startRowsIndex + displayRowNum
-                    for (i in startRowsIndex .. endRowsIndex) {
+                    for (i in startRowsIndex..endRowsIndex) {
                         canvas.saveAndRestore {
                             if (i == startRowsIndex) {
                                 canvas.clipRect(0f, abs(meshScrollY) - 1, dateWidth + 1, numHeight)
@@ -380,12 +382,12 @@ class LotteryNumDisplayView : View {
                 canvas.translate(dateWidth, 0f)
                 canvas.translate(meshScrollX, 0f)
                 canvas.saveAndRestore {
-                    val list =dataList[0].numList
+                    val list = dataList[0].numList
                     val endLinesIndex = if (startLinesIndex + displayLineNum < list.size) startLinesIndex + displayLineNum else list.size - 1
-                    for (i in startLinesIndex .. endLinesIndex) {
+                    for (i in startLinesIndex..endLinesIndex) {
                         canvas.saveAndRestore {
                             if (i == startLinesIndex) {
-                                canvas.clipRect(abs(meshScrollX) - 1, 0f, numWidth, numHeight+1)
+                                canvas.clipRect(abs(meshScrollX) - 1, 0f, numWidth, numHeight + 1)
                             }
                             canvas.drawLine(0f, 0f, 0f, numHeight, mMeshPaint)
                             canvas.drawLine(0f, numHeight, numWidth, numHeight, mMeshPaint)
@@ -449,12 +451,10 @@ class LotteryNumDisplayView : View {
             for (rowIndex in startRowsIndex..endRowsIndex) {
                 val numText = dataList[rowIndex]
                 //绘制一行中的数字
-                if (rowIndex == startRowsIndex) {
-                    canvas.saveAndRestore {
+                canvas.saveAndRestore {
+                    if (rowIndex == startRowsIndex) {
                         canvas.clipRect(0f, abs(meshScrollY) - 1, width.toFloat(), numHeight)
-                        drawLinesNum(canvas, startLinesIndex, numText)
                     }
-                } else {
                     drawLinesNum(canvas, startLinesIndex, numText)
                 }
                 canvas.translate(0f, numHeight)
@@ -469,12 +469,10 @@ class LotteryNumDisplayView : View {
             val endLinesIndex = if (startLinesIndex + displayLineNum < list.size) startLinesIndex + displayLineNum else list.size - 1
             for (numIndex in startLinesIndex..endLinesIndex) {
                 val num = list[numIndex]
-                if (numIndex == startLinesIndex) {
-                    canvas.saveAndRestore {
+                canvas.saveAndRestore {
+                    if (numIndex == startLinesIndex) {
                         canvas.clipRect(abs(meshScrollX) - 1, 0f, numWidth, numHeight)
-                        realDrawNum(num, canvas)
                     }
-                } else {
                     realDrawNum(num, canvas)
                 }
                 canvas.translate(numWidth, 0f)
@@ -530,7 +528,7 @@ class LotteryNumDisplayView : View {
             //循环执行runnable
             var vX = velocityX
             var vY = velocityY
-            if(!isSlantMove){
+            if (!isSlantMove) {
                 if (abs(velocityX) >= abs(velocityY)) {
                     vX = velocityX
                     vY = 0f
@@ -564,28 +562,20 @@ class LotteryNumDisplayView : View {
             //最大拖动速度2000
             checkVelocityX()
             checkVelocityY()
-            XLog.i("realVelocityX --- > $realVelocityX")
-            XLog.i("realVelocityY --- > $realVelocityY")
             if (abs(realVelocityX) in 0.0f..20f && abs(realVelocityY) in 0.0f..20f) {
                 cancelFuture()
                 return
             }
             val x = (realVelocityX * 10f / 1000f).toInt()
             totalScrollX += x
-            if(!checkScrollX()){
+            if (!checkScrollX()) {
                 realVelocityX = 0f
             }
-//            meshScrollX = totalScrollX % numWidth
-//            offLineIndex = abs(totalScrollX / numWidth).toInt()
             val y = (realVelocityY * 10f / 1000f).toInt()
             totalScrollY += y
-            if(!checkScrollY()){
+            if (!checkScrollY()) {
                 realVelocityY = 0f
             }
-
-//            meshScrollY = totalScrollY % numHeight
-//            offRowIndex = abs(totalScrollY / numHeight).toInt()
-
             if (realVelocityX < 0.0f) {
                 realVelocityX += 20f
             } else {

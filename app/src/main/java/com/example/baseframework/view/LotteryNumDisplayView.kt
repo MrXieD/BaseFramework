@@ -231,22 +231,28 @@ class LotteryNumDisplayView : View {
         textVerDistance = (mNumTextPaint.fontMetrics.bottom - mNumTextPaint.fontMetrics.top) / 2 - mNumTextPaint.fontMetrics.bottom
     }
 
-    private fun checkScrollX() {
+    private fun checkScrollX():Boolean {
         if (totalScrollX >= 0 || totalLines * numWidth + dateWidth < width) {
             totalScrollX = 0
+            return false
         } else if (abs(totalScrollX) + width >= totalLines * numWidth + dateWidth) {
             totalScrollX = (-(totalLines * numWidth + dateWidth - width)).toInt()
+            return false
         }
+        return true
     }
 
-    private fun checkScrollY() {
+    private fun checkScrollY():Boolean {
         if (totalScrollY >= 0 || totalRows * numHeight + dateHeight < height) {
             totalScrollY = 0
+            return false
         } else {
             if (abs(totalScrollY) + height >= totalRows * numHeight + dateHeight) {
                 totalScrollY = (-(totalRows * numHeight + dateHeight - height)).toInt()
+                return false
             }
         }
+        return true
     }
 
     @SuppressLint("LongLogTag")
@@ -558,18 +564,25 @@ class LotteryNumDisplayView : View {
             //最大拖动速度2000
             checkVelocityX()
             checkVelocityY()
+            XLog.i("realVelocityX --- > $realVelocityX")
+            XLog.i("realVelocityY --- > $realVelocityY")
             if (abs(realVelocityX) in 0.0f..20f && abs(realVelocityY) in 0.0f..20f) {
                 cancelFuture()
                 return
             }
             val x = (realVelocityX * 10f / 1000f).toInt()
             totalScrollX += x
-            checkScrollX()
+            if(!checkScrollX()){
+                realVelocityX = 0f
+            }
 //            meshScrollX = totalScrollX % numWidth
 //            offLineIndex = abs(totalScrollX / numWidth).toInt()
             val y = (realVelocityY * 10f / 1000f).toInt()
             totalScrollY += y
-            checkScrollY()
+            if(!checkScrollY()){
+                realVelocityY = 0f
+            }
+
 //            meshScrollY = totalScrollY % numHeight
 //            offRowIndex = abs(totalScrollY / numHeight).toInt()
 

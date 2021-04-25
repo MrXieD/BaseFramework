@@ -3,6 +3,7 @@ package com.example.baseframework.view
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.os.Handler
@@ -64,7 +65,7 @@ class LotteryNumDisplayView : View {
     private var offLineIndex = 0
 
     //数据List
-    private val dataList = mutableListOf<OneDateLotteryData>()
+    private var dataList = mutableListOf<OneDateLotteryData>()
 
     //总列数
     private var totalLines = 0
@@ -106,6 +107,9 @@ class LotteryNumDisplayView : View {
     private var mExecutor = Executors.newSingleThreadScheduledExecutor()
 
     private var mFuture: ScheduledFuture<*>? = null
+
+    //一期有多少个数字
+    private var rowNumSize = 0
 
     //缩放检测
     private var scaleGestureDetector: ScaleGestureDetector
@@ -152,17 +156,34 @@ class LotteryNumDisplayView : View {
         mNumTextPaint.color = context.getColorResource(R.color.black)
         mNumTextPaint.textSize = context.sp2px(numTextSize)
         mNumTextPaint.textAlign = Paint.Align.CENTER
-        for (i in 1..50) {
-            dataList.add(randomBuildNum(i))
-        }
-        totalRows = dataList.size
-
+//        for (i in 1..100) {
+//            dataList.add(randomBuildNum(i))
+//        }
+//        totalRows = dataList.size
+//        totalLines = rowNumSize
 
         //手势检测
         flingGestureDetector = GestureDetector(context, ScrollGestureListener())
         flingGestureDetector.setIsLongpressEnabled(false)
         scaleGestureDetector = ScaleGestureDetector(context, ScaleListener())
     }
+
+    fun refreshData(lotteryData: MutableList<OneDateLotteryData>) {
+        this.dataList = lotteryData
+        val numberTitleList = ArrayList<OneLotteryNum>()
+        for (ball in 1..47) {
+            if (ball <= 35) {
+                numberTitleList.add(OneLotteryNum(ball.toString(), false, -2))
+            } else {
+                numberTitleList.add(OneLotteryNum((ball - 35).toString(), false, -2))
+            }
+        }
+        dataList.add(0, OneDateLotteryData("null", numberTitleList))
+        totalRows = dataList.size
+        totalLines = 47
+        invalidate()
+    }
+
 
     private fun randomBuildNum(i: Int): OneDateLotteryData {
         val lotteryNumFrontList = ArrayList<OneLotteryNum>(5)
@@ -209,7 +230,6 @@ class LotteryNumDisplayView : View {
 
         return super.onSaveInstanceState()
     }
-
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
@@ -339,6 +359,8 @@ class LotteryNumDisplayView : View {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        if (dataList.isEmpty()) return
+
         meshScrollX = totalScrollX % numWidth
         offLineIndex = abs(totalScrollX / numWidth).toInt()
 
@@ -483,26 +505,42 @@ class LotteryNumDisplayView : View {
 
     private fun realDrawNum(num: OneLotteryNum, canvas: Canvas) {
         mNumTextPaint.getTextBounds(num.num, 0, num.num.length, tempRect)
-        num.isLottery.doTrue {
-            mNumTextPaint.color = context.getColorResource(R.color.colorAccent)
-            canvas.drawCircle(numWidth / 2, numHeight / 2, min(numWidth / 2f * 0.8f, numHeight / 2f * 0.8f), mNumTextPaint)
-            mNumTextPaint.color = context.getColorResource(if (num.isLottery) R.color.white else R.color.black)
+        num.isLottery.doIf({
+            mNumTextPaint.color = if (num.ballType == 1) {
+                Color.RED
+            } else {
+                Color.BLUE
+            }
+            canvas.drawCircle(
+                numWidth / 2,
+                numHeight / 2,
+                min(numWidth / 2f * 0.8f, numHeight / 2f * 0.8f),
+                mNumTextPaint
+            )
+            mNumTextPaint.color = Color.WHITE
             drawText(canvas, num.num, numWidth, numHeight, mNumTextPaint)
-        }
+        }, {
+            mNumTextPaint.color = Color.GRAY
+            drawText(canvas, num.num, numWidth, numHeight, mNumTextPaint)
+        })
     }
 
     private fun drawText(canvas: Canvas, text: String, latticeWidth: Float, latticeHeight: Float, paint: Paint) {
         canvas.drawText(text, latticeWidth / 2, latticeHeight / 2 + textVerDistance, paint)
     }
 
-    data class LotteryNumData(val date: String, val lotteryNumFrontList: MutableList<OneLotteryNum>, val lotteryNumBackList: MutableList<OneLotteryNum>)
+    data class LotteryNumData(
+        val date: String,
+        val lotteryNumFrontList: MutableList<OneLotteryNum>,
+        val lotteryNumBackList: MutableList<OneLotteryNum>
+    )
 
     data class OneDateLotteryData(val date: String, val numList: MutableList<OneLotteryNum>)
 
     /**
      * isLottery -->是否中奖号码
      */
-    data class OneLotteryNum(val num: String, val isLottery: Boolean)
+    data class OneLotteryNum(val num: String, val isLottery: Boolean, val ballType: Int = -1)
 
     inner class ScrollGestureListener : GestureDetector.SimpleOnGestureListener() {
         //刚刚手指接触到触摸屏的那一刹那，就是触的那一下。
@@ -644,9 +682,8 @@ class LotteryNumDisplayView : View {
     }
 
     //缩放画布
-    private fun scaleCanvas(canvas: Canvas) {
-        canvas.scale(scaleFactor, scaleFactor, cX, cY)
-    }
+    private fun scaleCanvas(canvas: Canvas) = canvas.scale(scaleFactor, scaleFactor, cX, cY)
+
 
     companion object {
         const val SCROLL_STATE_IDLE = 10000     // 停止滚动

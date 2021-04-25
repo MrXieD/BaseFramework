@@ -12,6 +12,7 @@
         android:text="broken"
         />
     <com.example.baseframework.view.LotteryNumDisplayView
+        android:id="@+id/lottery_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
 

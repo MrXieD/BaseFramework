@@ -241,7 +241,7 @@ class LotteryNumDisplayView : View {
         dateHeight = numHeight
         //画笔字体自适应计算
         var testString = ""
-        dataList[0].numList.forEach {
+        dataList[0]?.numList.forEach {
             if (it.num.length > testString.length) {
                 testString = it.num
             }

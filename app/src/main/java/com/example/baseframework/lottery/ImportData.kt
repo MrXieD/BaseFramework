@@ -26,45 +26,47 @@ object ImportData {
     private const val TAG = "ImportData"
     private val formatter =
         SimpleDateFormat("yyyy/MM/dd")
-    private val mainHandler = Handler(Looper.getMainLooper())
     private var tmpRedNumberList = ArrayList<Int>()
     private var tmpBlueNumberList = ArrayList<Int>()
-    private var job:Job?=null
+    private var job: Job? = null
     fun run(context: Context, importListener: ImportDataListener) {
         context!!.run {
-            try {
-                job?.run {
-                    if (isActive) {
-                        cancel()
-                    }
+            job?.run {
+                if (isActive) {
+                    cancel()
                 }
-                job = GlobalScope.launch(context = Dispatchers.Default) {
+            }
+            job = GlobalScope.launch(context = Dispatchers.Default) {
+                try {
                     doImport(context, importListener)
+                } catch (e: java.lang.Exception) {
+                    callBackError(e, importListener)
                 }
-            } catch (e: java.lang.Exception) {
-
-                callBackError(e, importListener)
             }
         }
     }
 
-    private fun callBackSuc(
+    private suspend fun callBackSuc(
         lotteryList: ArrayList<LotteryNumDisplayView.OneDateLotteryData>,
         listener: ImportDataListener
     ) {
-        listener?.run { mainHandler.post { onSuccced(lotteryList) } }
+        listener?.run { withContext(Dispatchers.Main) { onSuccced(lotteryList) } }
     }
 
-    private fun callBackError(e: java.lang.Exception, listener: ImportDataListener) {
-        listener?.run { mainHandler.post { onError(e) } }
+    private suspend fun callBackError(e: java.lang.Exception, listener: ImportDataListener) {
+        listener?.run {
+            withContext(Dispatchers.Main) {
+                onError(e)
+            }
+        }
     }
 
-    private fun callBackProgress(listener: ImportDataListener, index: Long) {
-        listener?.run { mainHandler.post { onProgress(index) } }
+    private suspend fun callBackProgress(listener: ImportDataListener, index: Long) {
+        listener?.run { withContext(Dispatchers.Main) { onProgress(index) } }
     }
 
 
-    private fun doImport(context: Context, importListener: ImportDataListener) {
+    private suspend fun doImport(context: Context, importListener: ImportDataListener) {
         val inputStream = context.resources.assets.open("lottery_history.xls")
         if (inputStream != null) {
             val lotteryList = ArrayList<LotteryNumDisplayView.OneDateLotteryData>()
@@ -118,7 +120,6 @@ object ImportData {
                         Log.e(TAG, "跳过一次:${e.message} ")
                     }
                 }
-                Log.e(TAG, "doImport: $rowIndex")
                 callBackProgress(importListener, rowIndex.toLong())
             }
             callBackSuc(lotteryList, importListener)

@@ -17,7 +17,6 @@ import android.view.ScaleGestureDetector
 import android.view.View
 import com.example.baseframework.R
 import com.example.baseframework.ex.*
-import com.example.baseframework.log.XLog
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
@@ -184,7 +183,7 @@ class LotteryNumDisplayView : View {
         dataList.add(0, OneDateLotteryData("null", numberTitleList))
         totalRows = dataList.size
         totalLines = 47
-        invalidate()
+        requestLayout()
     }
 
 
@@ -242,6 +241,8 @@ class LotteryNumDisplayView : View {
         numHeight = height / (displayRowNum + 1f)
 
         dateHeight = numHeight
+
+        if(dataList.isEmpty()) return
         //画笔字体自适应计算
         var testString = ""
         dataList[0]?.numList.forEach {

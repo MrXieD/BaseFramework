@@ -10,7 +10,10 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.AttributeSet
-import android.view.*
+import android.view.GestureDetector
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
+import android.view.View
 import com.example.baseframework.R
 import com.example.baseframework.ex.*
 import java.util.concurrent.Executors
@@ -33,7 +36,7 @@ import kotlin.random.Random
  */
 class LotteryNumDisplayView : View {
     //显示界面行数
-    private var displayRowNum = 30
+    private var displayRowNum = 15
 
     //显示界面列数
     private var displayLineNum = 10

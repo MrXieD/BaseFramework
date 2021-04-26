@@ -6,6 +6,7 @@ import android.os.Looper
 import android.util.Log
 import com.example.baseframework.view.LotteryNumDisplayView
 import kotlinx.coroutines.*
+import okhttp3.internal.wait
 import org.apache.poi.hssf.usermodel.HSSFDateUtil
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.apache.poi.ss.usermodel.FormulaEvaluator
@@ -28,15 +29,16 @@ object ImportData {
     private val mainHandler = Handler(Looper.getMainLooper())
     private var tmpRedNumberList = ArrayList<Int>()
     private var tmpBlueNumberList = ArrayList<Int>()
-    private val job: CoroutineContext = Job() + Dispatchers.IO
+    private var job:Job?=null
     fun run(context: Context, importListener: ImportDataListener) {
         context!!.run {
             try {
-
-//                if (job.isActive) {
-//                    job.cancel()
-//                }
-                CoroutineScope(job).launch {
+                job?.run {
+                    if (isActive) {
+                        cancel()
+                    }
+                }
+                job = GlobalScope.launch(context = Dispatchers.Default) {
                     doImport(context, importListener)
                 }
             } catch (e: java.lang.Exception) {

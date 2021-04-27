@@ -5,15 +5,15 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.example.baseframework.view.LotteryNumDisplayView
-import kotlinx.coroutines.*
-import okhttp3.internal.wait
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import org.apache.poi.hssf.usermodel.HSSFDateUtil
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.apache.poi.ss.usermodel.FormulaEvaluator
 import org.apache.poi.ss.usermodel.Row
-import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.text.SimpleDateFormat
-import kotlin.coroutines.CoroutineContext
 
 
 /**
@@ -24,8 +24,7 @@ createDate: 2020/9/29 0029
 object ImportData {
 
     private const val TAG = "ImportData"
-    private val formatter =
-        SimpleDateFormat("yyyy/MM/dd")
+    private val formatter = SimpleDateFormat("yyyy/MM/dd")
     private val mainHandler = Handler(Looper.getMainLooper())
     private var tmpRedNumberList = ArrayList<Int>()
     private var tmpBlueNumberList = ArrayList<Int>()
@@ -104,8 +103,7 @@ object ImportData {
                                 add(formulaEvaluator.evaluate(row.getCell(7)).numberValue.toInt())
                                 add(formulaEvaluator.evaluate(row.getCell(8)).numberValue.toInt())
                             }
-                            val rowData =
-                                createItemData(
+                            val rowData = createItemData(
                                     tmpRedNumberList,
                                     tmpBlueNumberList,
                                     lssueNumber,

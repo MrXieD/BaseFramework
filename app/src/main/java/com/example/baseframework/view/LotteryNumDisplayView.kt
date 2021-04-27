@@ -171,7 +171,8 @@ class LotteryNumDisplayView : View {
     }
 
     fun refreshData(lotteryData: MutableList<OneDateLotteryData>) {
-        this.dataList = lotteryData
+        if(lotteryData.isEmpty()) return
+        dataList.clear()
         val numberTitleList = ArrayList<OneLotteryNum>()
         for (ball in 1..47) {
             if (ball <= 35) {
@@ -180,14 +181,18 @@ class LotteryNumDisplayView : View {
                 numberTitleList.add(OneLotteryNum((ball - 35).toString(), false, -2))
             }
         }
-        dataList.add(0, OneDateLotteryData("null", numberTitleList))
+        dataList.add( OneDateLotteryData("null", numberTitleList))
+        dataList.addAll(lotteryData)
         totalRows = dataList.size
         totalLines = 47
-        requestLayout()
+        measureNumWH()
+//        requestLayout()
+        //由于requestLayout()时，VIew的w,h都没有改变，并且也没有执行任何动画，所以onDraw函数没有被执行
+        invalidate()
     }
 
 
-    private fun randomBuildNum(i: Int): OneDateLotteryData {
+    fun randomBuildNum(i: Int): OneDateLotteryData {
         val lotteryNumFrontList = ArrayList<OneLotteryNum>(5)
         val lotteryNumBackList = ArrayList<OneLotteryNum>(2)
         val numList = mutableListOf<Int>()
@@ -235,17 +240,20 @@ class LotteryNumDisplayView : View {
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
+        measureNumWH()
+    }
 
+    private fun measureNumWH() {
         numWidth = (width - dateWidth) / displayLineNum.toFloat()
         //
         numHeight = height / (displayRowNum + 1f)
 
         dateHeight = numHeight
 
-        if(dataList.isEmpty()) return
+        if (dataList.isEmpty()) return
         //画笔字体自适应计算
         var testString = ""
-        dataList[0]?.numList.forEach {
+        dataList[0].numList.forEach {
             if (it.num.length > testString.length) {
                 testString = it.num
             }
@@ -255,7 +263,8 @@ class LotteryNumDisplayView : View {
         val scale = nowWidth / mNumTextPaint.textSize
         val newTextSize = maxWidth / scale
         mNumTextPaint.textSize = newTextSize
-        textVerDistance = (mNumTextPaint.fontMetrics.bottom - mNumTextPaint.fontMetrics.top) / 2 - mNumTextPaint.fontMetrics.bottom
+        textVerDistance =
+            (mNumTextPaint.fontMetrics.bottom - mNumTextPaint.fontMetrics.top) / 2 - mNumTextPaint.fontMetrics.bottom
     }
 
     private fun checkScrollX(): Boolean {

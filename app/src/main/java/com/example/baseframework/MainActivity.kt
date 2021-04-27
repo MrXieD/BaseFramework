@@ -5,21 +5,24 @@ import android.os.Bundle
 import android.util.Log
 import com.example.baseframework.activity.BaseVBActivity
 import com.example.baseframework.databinding.ActivityMainBinding
+import com.example.baseframework.ex.onClick
 import com.example.baseframework.lottery.ImportData
+import com.example.baseframework.ui.anim.BrokenActivity
 import com.example.baseframework.view.LotteryNumDisplayView
+import org.jetbrains.anko.startActivity
 
 class MainActivity : BaseVBActivity<ActivityMainBinding>() {
 
-    companion object{
+    companion object {
 
         private const val TAG = "MainActivity"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        mViewContainer.btnBroken.onClick {
-//            startActivity<BrokenActivity>()
-//        }
+        mViewContainer.btnBroken.onClick {
+            startActivity<BrokenActivity>()
+        }
         val list = mutableListOf<String>()
         for (i in 0..20) {
             list.add("$i")
@@ -48,7 +51,7 @@ class MainActivity : BaseVBActivity<ActivityMainBinding>() {
             }
 
             override fun onError(e: Exception) {
-                Log.e(TAG, "onError: ${e.message}" )
+                Log.e(TAG, "onError: ${e.message}")
                 alertDialog.setMessage(e.message)
                 if (!alertDialog.isShowing) {
                     alertDialog.show()

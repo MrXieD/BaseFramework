@@ -68,7 +68,7 @@ class LotteryNumDisplayView : View {
 
     //数据List
     private var dataList = mutableListOf<OneDateLotteryData>()
-
+    private var numDataList = mutableListOf<OneDateLotteryData>()
     //总列数
     private var totalLines = 0
 
@@ -181,7 +181,7 @@ class LotteryNumDisplayView : View {
                 numberTitleList.add(OneLotteryNum((ball - 35).toString(), false, -2))
             }
         }
-        dataList.add( OneDateLotteryData("null", numberTitleList))
+        numDataList.add(OneDateLotteryData("null", numberTitleList))
         dataList.addAll(lotteryData)
         totalRows = dataList.size
         totalLines = 47
@@ -418,7 +418,7 @@ class LotteryNumDisplayView : View {
                 canvas.translate(dateWidth, 0f)
                 canvas.translate(meshScrollX, 0f)
                 canvas.saveAndRestore {
-                    val list = dataList[0].numList
+                    val list = numDataList[0].numList
                     val endLinesIndex = if (startLinesIndex + displayLineNum < list.size) startLinesIndex + displayLineNum else list.size - 1
                     for (i in startLinesIndex..endLinesIndex) {
                         canvas.saveAndRestore {

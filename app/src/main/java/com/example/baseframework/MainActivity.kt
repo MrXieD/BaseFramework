@@ -5,21 +5,24 @@ import android.os.Bundle
 import android.util.Log
 import com.example.baseframework.activity.BaseVBActivity
 import com.example.baseframework.databinding.ActivityMainBinding
+import com.example.baseframework.ex.onClick
 import com.example.baseframework.lottery.ImportData
+import com.example.baseframework.ui.anim.BrokenActivity
 import com.example.baseframework.view.LotteryNumDisplayView
+import org.jetbrains.anko.startActivity
 
 class MainActivity : BaseVBActivity<ActivityMainBinding>() {
 
-    companion object{
+    companion object {
 
         private const val TAG = "MainActivity"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        mViewContainer.btnBroken.onClick {
-//            startActivity<BrokenActivity>()
-//        }
+        mViewContainer.btnBroken.onClick {
+            startActivity<BrokenActivity>()
+        }
         val list = mutableListOf<String>()
         for (i in 0..20) {
             list.add("$i")
@@ -44,11 +47,20 @@ class MainActivity : BaseVBActivity<ActivityMainBinding>() {
             override fun onSuccced(list: ArrayList<LotteryNumDisplayView.OneDateLotteryData>) {
                 alertDialog.dismiss()
                 Log.e(TAG, "onSuccced: ")
-                mViewContainer.lotteryView.refreshData(list)
+                //大乐透
+                val numberTitleList = ArrayList<LotteryNumDisplayView.OneLotteryNum>()
+                for (ball in 1..47) {
+                    if (ball <= 35) {
+                        numberTitleList.add(LotteryNumDisplayView.OneLotteryNum(ball.toString(), false, -2))
+                    } else {
+                        numberTitleList.add(LotteryNumDisplayView.OneLotteryNum((ball - 35).toString(), false, -2))
+                    }
+                }
+                mViewContainer.lotteryView.refreshData(list,numberTitleList.map { it.num })
             }
 
             override fun onError(e: Exception) {
-                Log.e(TAG, "onError: ${e.message}" )
+                Log.e(TAG, "onError: ${e.message}")
                 alertDialog.setMessage(e.message)
                 if (!alertDialog.isShowing) {
                     alertDialog.show()

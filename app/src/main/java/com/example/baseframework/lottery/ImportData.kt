@@ -5,15 +5,15 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.example.baseframework.view.LotteryNumDisplayView
-import kotlinx.coroutines.*
-import okhttp3.internal.wait
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import org.apache.poi.hssf.usermodel.HSSFDateUtil
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.apache.poi.ss.usermodel.FormulaEvaluator
 import org.apache.poi.ss.usermodel.Row
-import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.text.SimpleDateFormat
-import kotlin.coroutines.CoroutineContext
 
 
 /**
@@ -24,49 +24,46 @@ createDate: 2020/9/29 0029
 object ImportData {
 
     private const val TAG = "ImportData"
-    private val formatter =
-        SimpleDateFormat("yyyy/MM/dd")
+    private val formatter = SimpleDateFormat("yyyy/MM/dd")
+    private val mainHandler = Handler(Looper.getMainLooper())
     private var tmpRedNumberList = ArrayList<Int>()
     private var tmpBlueNumberList = ArrayList<Int>()
-    private var job: Job? = null
+    private var job:Job?=null
     fun run(context: Context, importListener: ImportDataListener) {
         context!!.run {
-            job?.run {
-                if (isActive) {
-                    cancel()
+            try {
+                job?.run {
+                    if (isActive) {
+                        cancel()
+                    }
                 }
-            }
-            job = GlobalScope.launch(context = Dispatchers.Default) {
-                try {
+                job = GlobalScope.launch(context = Dispatchers.Default) {
                     doImport(context, importListener)
-                } catch (e: java.lang.Exception) {
-                    callBackError(e, importListener)
                 }
+            } catch (e: java.lang.Exception) {
+
+                callBackError(e, importListener)
             }
         }
     }
 
-    private suspend fun callBackSuc(
+    private fun callBackSuc(
         lotteryList: ArrayList<LotteryNumDisplayView.OneDateLotteryData>,
         listener: ImportDataListener
     ) {
-        listener?.run { withContext(Dispatchers.Main) { onSuccced(lotteryList) } }
+        listener?.run { mainHandler.post { onSuccced(lotteryList) } }
     }
 
-    private suspend fun callBackError(e: java.lang.Exception, listener: ImportDataListener) {
-        listener?.run {
-            withContext(Dispatchers.Main) {
-                onError(e)
-            }
-        }
+    private fun callBackError(e: java.lang.Exception, listener: ImportDataListener) {
+        listener?.run { mainHandler.post { onError(e) } }
     }
 
-    private suspend fun callBackProgress(listener: ImportDataListener, index: Long) {
-        listener?.run { withContext(Dispatchers.Main) { onProgress(index) } }
+    private fun callBackProgress(listener: ImportDataListener, index: Long) {
+        listener?.run { mainHandler.post { onProgress(index) } }
     }
 
 
-    private suspend fun doImport(context: Context, importListener: ImportDataListener) {
+    private fun doImport(context: Context, importListener: ImportDataListener) {
         val inputStream = context.resources.assets.open("lottery_history.xls")
         if (inputStream != null) {
             val lotteryList = ArrayList<LotteryNumDisplayView.OneDateLotteryData>()
@@ -106,8 +103,7 @@ object ImportData {
                                 add(formulaEvaluator.evaluate(row.getCell(7)).numberValue.toInt())
                                 add(formulaEvaluator.evaluate(row.getCell(8)).numberValue.toInt())
                             }
-                            val rowData =
-                                createItemData(
+                            val rowData = createItemData(
                                     tmpRedNumberList,
                                     tmpBlueNumberList,
                                     lssueNumber,
@@ -120,6 +116,7 @@ object ImportData {
                         Log.e(TAG, "跳过一次:${e.message} ")
                     }
                 }
+                Log.e(TAG, "doImport: $rowIndex")
                 callBackProgress(importListener, rowIndex.toLong())
             }
             callBackSuc(lotteryList, importListener)

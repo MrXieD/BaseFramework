@@ -47,9 +47,9 @@ class WheelView : View {
     }
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
-            context,
-            attrs,
-            defStyleAttr
+        context,
+        attrs,
+        defStyleAttr
     ) {
         initTypedArray(attrs)
     }
@@ -57,20 +57,27 @@ class WheelView : View {
     private fun initTypedArray(attrs: AttributeSet?) {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.WheelView)
         if (typedArray != null) {
-            textSize = typedArray.getInteger(R.styleable.WheelView_awv_textsize, (Resources.getSystem().displayMetrics.density * 15).toInt())
+            textSize = typedArray.getInteger(
+                R.styleable.WheelView_awv_textsize,
+                (Resources.getSystem().displayMetrics.density * 15).toInt()
+            )
             textSize = (Resources.getSystem().displayMetrics.density * textSize).toInt()
             centerTextColor = typedArray.getInteger(
-                            R.styleable.WheelView_awv_centerTextColor,
-                            context.resources.getColor(R.color.color_centerTextColor))
+                R.styleable.WheelView_awv_centerTextColor,
+                context.resources.getColor(R.color.color_centerTextColor)
+            )
             outerTextColor = typedArray.getInteger(
-                            R.styleable.WheelView_awv_outerTextColor,
-                            context.resources.getColor(R.color.color_outerTextColor))
+                R.styleable.WheelView_awv_outerTextColor,
+                context.resources.getColor(R.color.color_outerTextColor)
+            )
             dividerColor = typedArray.getInteger(
-                            R.styleable.WheelView_awv_dividerTextColor,
-                            context.resources.getColor(R.color.color_dividerTextColor))
+                R.styleable.WheelView_awv_dividerTextColor,
+                context.resources.getColor(R.color.color_dividerTextColor)
+            )
             itemsVisibleCount = typedArray.getInteger(
-                    R.styleable.WheelView_awv_itemsVisibleCount,
-                    DEFAULT_VISIBIE_ITEMS)
+                R.styleable.WheelView_awv_itemsVisibleCount,
+                DEFAULT_VISIBIE_ITEMS
+            )
             if (itemsVisibleCount % 2 == 0) {
                 itemsVisibleCount = DEFAULT_VISIBIE_ITEMS
             }
@@ -110,6 +117,7 @@ class WheelView : View {
     private var halfCircumference: Int = 0
     private var initPosition: Int = -1
     private var preCurrentIndex: Int = 0
+
     @Volatile
     private var totalScrollY: Int = 0
     private var isLoop: Boolean = true
@@ -267,7 +275,7 @@ class WheelView : View {
 
     fun setOnItemClick(listener: (Int) -> Unit) {
         onItemSelectedListener = object :
-                OnItemSelectedListener {
+            OnItemSelectedListener {
             override fun onItemSelected(index: Int) {
                 listener(index)
             }
@@ -374,10 +382,10 @@ class WheelView : View {
             }
         }
         mFuture = mExecutor.scheduleWithFixedDelay(
-                SmoothScrollTimerTask(mOffset),
-                0,
-                10,
-                TimeUnit.MILLISECONDS
+            SmoothScrollTimerTask(mOffset),
+            0,
+            10,
+            TimeUnit.MILLISECONDS
         )
         changeScrollState(SCROLL_STATE_SCROLLING)
     }
@@ -431,37 +439,42 @@ class WheelView : View {
         var k1 = 0
         while (k1 < itemsVisibleCount) {
             var topIndex = preCurrentIndex - (itemsVisibleCount / 2 - k1)
-            if (isLoop) {
-                while (topIndex < 0) {
-                    topIndex += items.size
+            when {
+                isLoop -> {
+                    while (topIndex < 0) {
+                        topIndex += items.size
+                    }
+                    while (topIndex > items.size - 1) {
+                        topIndex -= items.size
+                    }
+                    drawingStrings[k1] = items[topIndex]
                 }
-                while (topIndex > items.size - 1) {
-                    topIndex -= items.size
+                topIndex < 0 -> {
+                    drawingStrings[k1] = IndexString()
                 }
-                drawingStrings[k1] = items.get(topIndex)
-            } else if (topIndex < 0) {
-                drawingStrings[k1] = IndexString()
-            } else if (topIndex > items.size - 1) {
-                drawingStrings[k1] = IndexString()
-            } else {
-                drawingStrings[k1] = items.get(topIndex)
+                topIndex > items.size - 1 -> {
+                    drawingStrings[k1] = IndexString()
+                }
+                else -> {
+                    drawingStrings[k1] = items[topIndex]
+                }
             }
             k1++
         }
         //绘制分割线
         canvas.drawLine(
-                paddingLeft.toFloat(),
-                oneLineY,
-                measuredWidth.toFloat(),
-                oneLineY,
-                paintIndicator
+            paddingLeft.toFloat(),
+            oneLineY,
+            measuredWidth.toFloat(),
+            oneLineY,
+            paintIndicator
         )
         canvas.drawLine(
-                paddingLeft.toFloat(),
-                twoLineY,
-                measuredWidth.toFloat(),
-                twoLineY,
-                paintIndicator
+            paddingLeft.toFloat(),
+            twoLineY,
+            measuredWidth.toFloat(),
+            twoLineY,
+            paintIndicator
         )
         var i = 0
         while (i < itemsVisibleCount) {
@@ -471,7 +484,8 @@ class WheelView : View {
             if (radian >= Math.PI || radian <= 0) {
                 canvas.restore()
             } else {
-                val translateY = (radius.toDouble() - cos(radian) * radius - sin(radian) * itemTextHeight / 2.0f).toFloat()
+                val translateY =
+                    (radius.toDouble() - cos(radian) * radius - sin(radian) * itemTextHeight / 2.0f).toFloat()
                 canvas.translate(0.0f, translateY)
                 canvas.scale(1.0f, sin(radian).toFloat())
                 if (translateY <= oneLineY && translateY + itemTextHeight >= oneLineY) {
@@ -481,12 +495,7 @@ class WheelView : View {
                     drawOuterText(canvas, i)
                     canvas.restore()
                     canvas.save()
-                    canvas.clipRect(
-                            0f,
-                            oneLineY.toInt() - translateY,
-                            measuredWidth.toFloat(),
-                            itemHeight.toFloat()
-                    )
+                    canvas.clipRect(0f, oneLineY.toInt() - translateY, measuredWidth.toFloat(), itemHeight.toFloat())
                     drawCenterText(canvas, i)
                     canvas.restore()
                 } else if (translateY <= twoLineY && translateY + itemTextHeight >= twoLineY) {
@@ -496,12 +505,7 @@ class WheelView : View {
                     drawCenterText(canvas, i)
                     canvas.restore()
                     canvas.save()
-                    canvas.clipRect(
-                            0f,
-                            twoLineY.toInt() - translateY,
-                            measuredWidth.toFloat(),
-                            itemHeight.toFloat()
-                    )
+                    canvas.clipRect(0f, twoLineY.toInt() - translateY, measuredWidth.toFloat(), itemHeight.toFloat())
                     drawOuterText(canvas, i)
                     canvas.restore()
                 } else if (translateY >= oneLineY && itemTextHeight + translateY <= twoLineY) {
@@ -522,11 +526,11 @@ class WheelView : View {
             lastScrollState = currentScrollState
             if (mOnItemScrollListener != null) {
                 mOnItemScrollListener!!.onItemScrollStateChanged(
-                        this,
-                        getSelectedItem(),
-                        oldScrollState,
-                        currentScrollState,
-                        totalScrollY
+                    this,
+                    getSelectedItem(),
+                    oldScrollState,
+                    currentScrollState,
+                    totalScrollY
                 )
             }
 
@@ -534,10 +538,10 @@ class WheelView : View {
         if (currentScrollState == SCROLL_STATE_DRAGGING || currentScrollState == SCROLL_STATE_SCROLLING) {
             if (mOnItemScrollListener != null) {
                 mOnItemScrollListener!!.onItemScrolling(
-                        this,
-                        getSelectedItem(),
-                        currentScrollState,
-                        totalScrollY
+                    this,
+                    getSelectedItem(),
+                    currentScrollState,
+                    totalScrollY
                 )
             }
         }
@@ -545,23 +549,24 @@ class WheelView : View {
 
     private fun drawOuterText(canvas: Canvas, position: Int) {
         canvas.drawText(
-                drawingStrings[position]!!.content,
-                getTextX(drawingStrings[position]!!.content, outerTextPaint, tempRect).toFloat(),
-                getDrawingY().toFloat(),
-                outerTextPaint
+            drawingStrings[position]!!.content,
+            getTextX(drawingStrings[position]!!.content, outerTextPaint, tempRect).toFloat(),
+            getDrawingY().toFloat(),
+            outerTextPaint
         )
     }
 
     private fun drawCenterText(canvas: Canvas, position: Int) {
         canvas.drawText(
-                drawingStrings[position]!!.content,
-                getTextX(drawingStrings[position]!!.content, outerTextPaint, tempRect).toFloat(),
-                getDrawingY().toFloat(),
-                centerTextPaint
+            drawingStrings[position]!!.content,
+            getTextX(drawingStrings[position]!!.content, outerTextPaint, tempRect).toFloat(),
+            getDrawingY().toFloat(),
+            centerTextPaint
         )
     }
 
-    private fun getDrawingY(): Int = if (itemTextHeight > textHeight) itemTextHeight - (itemTextHeight - textHeight) / 2 else itemTextHeight
+    private fun getDrawingY(): Int =
+        if (itemTextHeight > textHeight) itemTextHeight - (itemTextHeight - textHeight) / 2 else itemTextHeight
 
 
     // text start drawing position
@@ -629,9 +634,11 @@ class WheelView : View {
     inner class InertiaTimerTask(private var velocityY: Int) : Runnable {
         private val TAG = "InertiaTimerTask"
         private var realVelocityY = Integer.MAX_VALUE.toFloat()
+
         init {
             Log.i(TAG, "InertiaTimerTask----init--->")
         }
+
         override fun run() {
             Log.i(TAG, "velocityY--->$velocityY")
             Log.i(TAG, "realVelocityY--->$realVelocityY")
@@ -682,11 +689,11 @@ class WheelView : View {
          * @param totalScrollY 滚动距离
          */
         fun onItemScrollStateChanged(
-                loopView: WheelView,
-                currentPassItem: Int,
-                oldScrollState: Int,
-                scrollState: Int,
-                totalScrollY: Int
+            loopView: WheelView,
+            currentPassItem: Int,
+            oldScrollState: Int,
+            scrollState: Int,
+            totalScrollY: Int
         )
 
         /***
@@ -697,26 +704,26 @@ class WheelView : View {
          * @param totalScrollY 滚动距离
          */
         fun onItemScrolling(
-                loopView: WheelView,
-                currentPassItem: Int,
-                scrollState: Int,
-                totalScrollY: Int
+            loopView: WheelView,
+            currentPassItem: Int,
+            scrollState: Int,
+            totalScrollY: Int
         )
     }
 
     inner class GestureListener : GestureDetector.SimpleOnGestureListener() {
         //用户按下触摸屏、快速移动后松开
         override fun onFling(
-                e1: MotionEvent?,
-                e2: MotionEvent?,
-                velocityX: Float,
-                velocityY: Float
+            e1: MotionEvent?,
+            e2: MotionEvent?,
+            velocityX: Float,
+            velocityY: Float
         ): Boolean {
             cancelFuture()
-            Log.i("WheelView","onFling--------->")
+            Log.i("WheelView", "onFling--------->")
             mFuture = mExecutor.scheduleWithFixedDelay(
-                    InertiaTimerTask(velocityY.toInt()), 0, 10L,
-                    TimeUnit.MILLISECONDS
+                InertiaTimerTask(velocityY.toInt()), 0, 10L,
+                TimeUnit.MILLISECONDS
             )
             changeScrollState(SCROLL_STATE_DRAGGING)
             return true

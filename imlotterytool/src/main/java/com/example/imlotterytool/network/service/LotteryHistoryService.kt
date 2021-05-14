@@ -16,7 +16,7 @@ interface LotteryHistoryService {
     suspend fun queryHistory(
         @Query("key") key: String,
         @Query("lottery_id") lotteryId: String,
-        @Query("page") page: String,
+        @Query("page") page: String="1",
         @Query(" page_size") pageSize: String = "50"
     ): Response<LotteryResponse>
 

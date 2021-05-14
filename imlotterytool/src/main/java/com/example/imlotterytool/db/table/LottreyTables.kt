@@ -54,7 +54,7 @@ data class OneLotteryNum(val num: String, val ballType: Int = MISS_TYPE)
 
 @Entity
 data class LotteryEntity(
-    @SerializedName("lottery_date") @PrimaryKey @ColumnInfo(name = "lottery_date") val lotteryDate: String,
+    @SerializedName("lottery_date") @PrimaryKey @ColumnInfo(name = "lottery_date")  val lotteryDate: String,
     @SerializedName("lottery_id") @ColumnInfo(name = "lottery_id") val lotteryId: String,
     @SerializedName("lottery_res") @ColumnInfo(name = "lottery_res") val lotteryRes: String,
     @SerializedName("lottery_no") @ColumnInfo(name = "lottery_no") val lotteryNo: String

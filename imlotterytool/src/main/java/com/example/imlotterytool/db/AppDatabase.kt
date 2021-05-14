@@ -4,7 +4,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.imlotterytool.network.entity.LotteryData
+import com.example.imlotterytool.db.dao.LotteryDao
+import com.example.imlotterytool.db.table.LotteryEntity
 
 /**
 @author Anthony.H
@@ -12,11 +13,11 @@ import com.example.imlotterytool.network.entity.LotteryData
 @desription:
  */
 
-@Database(entities = [], version = 1)
+@Database(entities = [LotteryEntity::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
 
 
-    abstract fun weatherDao(): LotteryData
+    abstract fun weatherDao(): LotteryDao
 
 
     companion object {

@@ -2,6 +2,7 @@ package com.example.imlotterytool.db.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.imlotterytool.db.table.LotteryEntity
 
@@ -13,7 +14,7 @@ import com.example.imlotterytool.db.table.LotteryEntity
 
 @Dao
 abstract class LotteryDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insertDatas(fcsdTable: List<LotteryEntity>)
 
     @Query("SELECT * FROM LotteryEntity")
@@ -21,7 +22,7 @@ abstract class LotteryDao {
 
 
     //
-    @Query("SELECT * FROM LotteryEntity WHERE lottery_date < :lotteryDate")
+    @Query("SELECT * FROM LotteryEntity WHERE lottery_date <=:lotteryDate")
     abstract suspend fun getDatasOverDate(lotteryDate: String?): List<LotteryEntity>?
 
 

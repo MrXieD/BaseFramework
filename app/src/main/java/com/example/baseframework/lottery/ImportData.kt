@@ -30,7 +30,7 @@ object ImportData {
     private var tmpBlueNumberList = ArrayList<Int>()
     private var job:Job?=null
     fun run(context: Context, importListener: ImportDataListener) {
-        context!!.run {
+        context.run {
             try {
                 job?.run {
                     if (isActive) {

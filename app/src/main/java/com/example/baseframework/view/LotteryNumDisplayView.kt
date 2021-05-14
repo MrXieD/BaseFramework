@@ -242,6 +242,9 @@ class LotteryNumDisplayView : View {
         measureNumWH()
     }
 
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+    }
 
     private fun measureNumWH() {
         numWidth = (width - dateWidth) / displayLineNum.toFloat()

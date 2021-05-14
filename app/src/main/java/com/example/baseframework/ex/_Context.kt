@@ -124,10 +124,6 @@ val Context.screenSize: Point
         }
         return p
 
-//        return when (resources.configuration.orientation) {
-//            Configuration.ORIENTATION_LANDSCAPE -> Point(max(p.x, p.y), min(p.x, p.y)) // 横屏
-//            else -> Point(min(p.x, p.y), max(p.x, p.y)) // 竖屏
-//        }
     }
 
 val Context.statusBarHeight: Int

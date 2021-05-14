@@ -13,7 +13,7 @@ import org.jetbrains.anko.startActivity
 
 class MainActivity : BaseVBActivity<ActivityMainBinding>() {
 
-    companion object {
+    companion object{
 
         private const val TAG = "MainActivity"
     }

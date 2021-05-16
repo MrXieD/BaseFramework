@@ -17,7 +17,7 @@ object InjectorUtil {
     }
 
 
-    fun getLotteryViewModelFatory(context: Context) = LotteryViewModelFactory(getLotteryRepositery(context))
+    fun getLotteryViewModelFatory(context: Context) = LotteryViewModelFactory(context,getLotteryRepositery(context))
 
 
 }

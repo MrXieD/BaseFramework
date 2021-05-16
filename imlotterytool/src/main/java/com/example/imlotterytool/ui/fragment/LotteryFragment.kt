@@ -24,27 +24,7 @@ class LotteryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        observeData()
     }
 
-    private fun observeData() {
-        lotteryViewModel.fcsdLiveData.observe(viewLifecycleOwner) {
-            when (it.status) {
-                Status.LOADING -> {
-
-                }
-                Status.SUCCESS -> {
-                    val data = it.data
-                    data?.let {
-                        //显示数据
-                    }
-                }
-                Status.ERROR -> {
-
-                }
-            }
-        }
-
-    }
 
 }

@@ -13,7 +13,7 @@ import com.example.imlotterytool.db.table.LotteryEntity
 @desription:
  */
 
-@Database(entities = [LotteryEntity::class], version = 1)
+@Database(entities = [LotteryEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
 

@@ -2,7 +2,7 @@ package com.example.imlotterytool.util
 
 import android.content.Context
 import com.example.imlotterytool.repository.LotteryRepository
-import com.example.imlotterytool.ui.LotteryViewModelFactory
+import com.example.imlotterytool.viewmodel.LotteryViewModelFactory
 
 /**
 @author Anthony.H
@@ -17,7 +17,8 @@ object InjectorUtil {
     }
 
 
-    fun getLotteryViewModelFatory(context: Context) = LotteryViewModelFactory(context,getLotteryRepositery(context))
+    fun getLotteryViewModelFatory(context: Context) =
+        LotteryViewModelFactory(context, getLotteryRepositery(context))
 
 
 }

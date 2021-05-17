@@ -1,5 +1,6 @@
 package com.example.imlotterytool.util
 
+import com.example.imlotterytool.LotteryType
 import com.example.imlotterytool.db.table.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -87,3 +88,23 @@ fun daysBetween(beforeDate: String, afterDate: String): Int {
     return (((timeAfter - timeBefore) / (1000 * 3600 * 24)).toInt())
 }
 
+
+fun getTitleListByLotteryType(lotteryType: LotteryType): List<String> {
+    val arrayList = ArrayList<String>()
+
+    when (lotteryType) {
+        LotteryType.FCSD -> {
+            for (outterIndex in 0..2) {
+                for (innerIndex in 0..9) {
+                    arrayList.add(innerIndex.toString())
+                }
+            }
+
+        }
+
+        LotteryType.SSQ -> {
+
+        }
+    }
+    return arrayList
+}

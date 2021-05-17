@@ -23,6 +23,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.anim.BrokenActivity" />
+        <activity android:name=".MainActivity">
+
+        </activity>
     </application>
 
 </manifest>

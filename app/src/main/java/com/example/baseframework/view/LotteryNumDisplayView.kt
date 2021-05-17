@@ -17,6 +17,8 @@ import android.view.ScaleGestureDetector
 import android.view.View
 import com.example.baseframework.R
 import com.example.baseframework.ex.*
+import com.example.baseframework.log.XLog
+import com.example.baseframework.utils.StringUtils
 import com.example.imlotterytool.db.table.BLUE_BALL_TYPE
 import com.example.imlotterytool.db.table.LotteryItem
 import com.example.imlotterytool.db.table.OneLotteryNum
@@ -62,11 +64,11 @@ class LotteryNumDisplayView : View {
 
     //起始行Index
     @Volatile
-    private var offRowIndex = 0
+    private var offStartRowIndex = 0
 
     //起始行Index
     @Volatile
-    private var offLineIndex = 0
+    private var offStartLineIndex = 0
 
     //数据List
     private var dataList = mutableListOf<LotteryItem>()
@@ -255,25 +257,26 @@ class LotteryNumDisplayView : View {
     private fun measureNumWH() {
         if (dataList.isEmpty()) return
 
-        numWidth = (width - dateWidth) / displayLineNum.toFloat()
+        numWidth = (width - dateWidth) / displayLineNum
         //
         numHeight = height / (displayRowNum + 1f)
 
         dateHeight = numHeight
         //画笔字体自适应计算
-        var testString = "9"
+        var testString = ""
         dataList[0].numbers.forEach {
-            if (it.num.length > testString.length) {
+            if (it.num.length > testString.length && StringUtils.isNumeric(it.num)) {
                 testString = it.num
             }
         }
-        autoMeasureTextSizeToPaint(testString,mNumTextPaint)
-        autoMeasureTextSizeToPaint(dataList[0].issues,mIssuesTextPaint)
+        autoMeasureTextSizeToPaint(testString,0.5f,numWidth,mNumTextPaint)
+        autoMeasureTextSizeToPaint(dataList[0].issues,0.8f,dateWidth,mIssuesTextPaint)
     }
 
-    private fun autoMeasureTextSizeToPaint(testString: String, targetPaint: NumTextCenterPaint) {
+    private fun autoMeasureTextSizeToPaint(testString: String,textScale:Float, formWidth:Float,targetPaint:
+    NumTextCenterPaint) {
         val nowWidth = targetPaint.measureText(testString)
-        val maxWidth = min(numWidth * 0.6f, numHeight * 0.6f)
+        val maxWidth = min(formWidth * textScale, formWidth * textScale)
         val scale = nowWidth / targetPaint.textSize
         val newTextSize = maxWidth / scale
         targetPaint.textSize = newTextSize
@@ -287,7 +290,8 @@ class LotteryNumDisplayView : View {
             totalScrollX = 0
             return false
         } else if (abs(totalScrollX) + width >= totalLines * numWidth + dateWidth) {
-            totalScrollX = (-(totalLines * numWidth + dateWidth - width)).toInt()
+            //这里的+1 之所以要+1是因为需要对float转int时损失的精度作为补偿
+            totalScrollX = (-(totalLines * numWidth + dateWidth - width+1)).toInt()
             return false
         }
         return true
@@ -390,13 +394,17 @@ class LotteryNumDisplayView : View {
         if (dataList.isEmpty()) return
 
         meshScrollX = totalScrollX % numWidth
-        offLineIndex = abs(totalScrollX / numWidth).toInt()
+
+        offStartLineIndex = abs(totalScrollX / numWidth).toInt()
+
+        XLog.i("meshScrollX----> $meshScrollX ，offStartLineIndex--->$offStartLineIndex")
+
 
         meshScrollY = totalScrollY % numHeight
-        offRowIndex = abs(totalScrollY / numHeight).toInt()
+        offStartRowIndex = abs(totalScrollY / numHeight).toInt()
 
-        val startRowsIndex = offRowIndex
-        val startLinesIndex = offLineIndex
+        val startRowsIndex = offStartRowIndex
+        val startLinesIndex = offStartLineIndex
 
         canvas.saveAndRestore {
 //            scaleCanvas(canvas)
@@ -434,9 +442,9 @@ class LotteryNumDisplayView : View {
                 canvas.translate(dateWidth, 0f)
                 canvas.translate(meshScrollX, 0f)
                 canvas.saveAndRestore {
-                    val list = numTextList
                     val endLinesIndex =
-                        if (startLinesIndex + displayLineNum < list.size) startLinesIndex + displayLineNum else list.size - 1
+                        if (startLinesIndex + displayLineNum < numTextList.size) startLinesIndex + displayLineNum else numTextList.size - 1
+                    XLog.i("startLinesIndex----> $startLinesIndex , endLinesIndex--->$endLinesIndex ")
                     for (i in startLinesIndex..endLinesIndex) {
                         canvas.saveAndRestore {
                             if (i == startLinesIndex) {
@@ -444,7 +452,7 @@ class LotteryNumDisplayView : View {
                             }
                             canvas.drawLine(0f, 0f, 0f, numHeight, mMeshPaint)
                             canvas.drawLine(0f, numHeight, numWidth, numHeight, mMeshPaint)
-                            val numText = list[i]
+                            val numText = numTextList[i]
                             mNumTextPaint.getTextBounds(numText, 0, numText.length, tempRect)
                             mNumTextPaint.color = context.getColorResource(R.color.black)
                             drawText(canvas, numText, numWidth, numHeight, mNumTextPaint)

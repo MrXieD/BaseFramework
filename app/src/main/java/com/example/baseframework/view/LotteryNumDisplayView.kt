@@ -261,7 +261,7 @@ class LotteryNumDisplayView : View {
 
         dateHeight = numHeight
         //画笔字体自适应计算
-        var testString = "0"
+        var testString = "9"
         dataList[0].numbers.forEach {
             if (it.num.length > testString.length) {
                 testString = it.num
@@ -405,7 +405,7 @@ class LotteryNumDisplayView : View {
             val date = "期号"
             mNumTextPaint.getTextBounds(date, 0, date.length, tempRect)
             mNumTextPaint.color = context.getColorResource(R.color.black)
-            drawText(canvas, date, dateWidth, numHeight, mNumTextPaint)
+            drawText(canvas, date, dateWidth, numHeight, mIssuesTextPaint)
             //绘制期号Title
             canvas.saveAndRestore {
                 canvas.translate(0f, numHeight)

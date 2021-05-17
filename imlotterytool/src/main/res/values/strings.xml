@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">ImLotteryTool</string>
+    <string name="juhe_lottery_key">902624041c2fd8a631a797ec4fb088aa</string>
+    <string name="fcsd">福彩3d</string>
+    <string name="ssq">双色球</string>
+</resources>

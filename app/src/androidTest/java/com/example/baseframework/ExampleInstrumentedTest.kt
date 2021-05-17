@@ -23,7 +23,6 @@ class ExampleInstrumentedTest {
     @Test
     fun useAppContext() {
         for (i in 1..20){
-            XLog.i(randomNum(i).toString())
         }
 
         // Context of the app under test.
@@ -54,38 +53,5 @@ class ExampleInstrumentedTest {
         Thread.sleep(20 * TimeUtils.SECOND)
     }
 
-    private fun randomNum(i:Int): LotteryNumDisplayView.LotteryNumData {
-        val stringBuilder = StringBuilder()
-        val numList = mutableListOf<Int>()
-        //大乐透前五位 1-35
-        for (k in 0..4){
-            var  num = Random.nextInt(1,35)
-            while (numList.contains(num)){
-                num = Random.nextInt(1,35)
-            }
-            numList.add(num)
-        }
-        numList.sort()
-        numList.forEach {
-            stringBuilder.append(it)
-            stringBuilder.append(",")
-        }
-        numList.clear()
-        //区号 1-12
-        for (k in 0..1){
-            var  num = Random.nextInt(1,12)
-            while (numList.contains(num)){
-                num = Random.nextInt(1,12)
-            }
-            numList.add(num)
-        }
-        numList.sort()
-        numList.forEach {
-            stringBuilder.append(it)
-            stringBuilder.append(",")
-        }
-        val result =stringBuilder.toString()
-        return LotteryNumDisplayView.LotteryNumData(i.toString(), result.substring(0, result.length - 1))
-    }
 
 }

@@ -26,7 +26,7 @@ fun LotteryNumDisplayView.bindLotteryContent(lotteryNotifyEntity: LotteryNotifyE
                 val data = it.resource.data
                 data?.let {
                     //显示数据
-                    refreshData(it@ data, getTitleListByLotteryType(it@ lotteryNotifyEntity.lotteryType))
+                    refreshData(it@data, getTitleListByLotteryType(it@ lotteryNotifyEntity.lotteryType))
                 }
             }
             Status.ERROR -> {

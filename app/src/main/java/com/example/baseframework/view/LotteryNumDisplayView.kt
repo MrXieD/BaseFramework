@@ -17,6 +17,7 @@ import android.view.ScaleGestureDetector
 import android.view.View
 import com.example.baseframework.R
 import com.example.baseframework.ex.*
+import com.example.imlotterytool.db.table.BLUE_BALL_TYPE
 import com.example.imlotterytool.db.table.LotteryItem
 import com.example.imlotterytool.db.table.OneLotteryNum
 import java.util.concurrent.Executors
@@ -537,10 +538,10 @@ class LotteryNumDisplayView : View {
     private fun realDrawNum(num: OneLotteryNum, canvas: Canvas) {
         mNumTextPaint.getTextBounds(num.num, 0, num.num.length, tempRect)
         (num.ballType > 0).doIf({
-            mNumTextPaint.color = if (num.ballType == 1) {
-                Color.RED
-            } else {
+            mNumTextPaint.color = if (num.ballType == BLUE_BALL_TYPE) {
                 Color.BLUE
+            } else   {
+                Color.RED
             }
             canvas.drawCircle(
                 numWidth / 2,

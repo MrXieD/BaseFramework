@@ -5,6 +5,8 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.example.baseframework.view.LotteryNumDisplayView
+import com.example.imlotterytool.db.table.LotteryItem
+import com.example.imlotterytool.db.table.OneLotteryNum
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -28,7 +30,7 @@ object ImportData {
     private val mainHandler = Handler(Looper.getMainLooper())
     private var tmpRedNumberList = ArrayList<Int>()
     private var tmpBlueNumberList = ArrayList<Int>()
-    private var job:Job?=null
+    private var job: Job? = null
     fun run(context: Context, importListener: ImportDataListener) {
         context!!.run {
             try {
@@ -48,7 +50,7 @@ object ImportData {
     }
 
     private fun callBackSuc(
-        lotteryList: ArrayList<LotteryNumDisplayView.OneDateLotteryData>,
+        lotteryList: ArrayList<LotteryItem>,
         listener: ImportDataListener
     ) {
         listener?.run { mainHandler.post { onSuccced(lotteryList) } }
@@ -66,7 +68,7 @@ object ImportData {
     private fun doImport(context: Context, importListener: ImportDataListener) {
         val inputStream = context.resources.assets.open("lottery_history.xls")
         if (inputStream != null) {
-            val lotteryList = ArrayList<LotteryNumDisplayView.OneDateLotteryData>()
+            val lotteryList = ArrayList<LotteryItem>()
             val workbook = HSSFWorkbook(inputStream)
             val sheet = workbook.getSheetAt(0)
             val rowCount = sheet.physicalNumberOfRows
@@ -104,11 +106,11 @@ object ImportData {
                                 add(formulaEvaluator.evaluate(row.getCell(8)).numberValue.toInt())
                             }
                             val rowData = createItemData(
-                                    tmpRedNumberList,
-                                    tmpBlueNumberList,
-                                    lssueNumber,
-                                    lotteryList
-                                )
+                                tmpRedNumberList,
+                                tmpBlueNumberList,
+                                lssueNumber,
+                                lotteryList
+                            )
                             lotteryList.add(rowData)
                         }
                     } catch (e: Exception) {
@@ -127,48 +129,48 @@ object ImportData {
         tmpRedNumberList: ArrayList<Int>,
         tmpBlueNumberList: ArrayList<Int>,
         lssueNumber: Int,
-        lotteryList: ArrayList<LotteryNumDisplayView.OneDateLotteryData>
-    ): LotteryNumDisplayView.OneDateLotteryData {
-        val list = ArrayList<LotteryNumDisplayView.OneLotteryNum>()
+        lotteryList: ArrayList<LotteryItem>
+    ): LotteryItem {
+        val list = ArrayList<OneLotteryNum>()
         for (redBall in 1..35) {
             if (tmpRedNumberList.contains(redBall)) {
-                list.add(LotteryNumDisplayView.OneLotteryNum(redBall.toString(), true, 1))
+                list.add(OneLotteryNum(redBall.toString(), 1))
             } else {
                 var missIndex = 1
                 if (lotteryList.isNotEmpty()) {
                     val lastLottery = lotteryList.last()
-                    val lastRow = lastLottery.numList
-                    if (!lastRow[redBall - 1].isLottery) {
+                    val lastRow = lastLottery.numbers
+                    if (lastRow[redBall - 1].num.toInt() < 0) {
                         missIndex = lastRow[redBall - 1].num.toInt() + 1
                     }
                 }
-                list.add(LotteryNumDisplayView.OneLotteryNum(missIndex.toString(), false, -1))
+                list.add(OneLotteryNum(missIndex.toString(), -1))
             }
         }
 
         for (blueBall in 1..12) {
             if (tmpBlueNumberList.contains(blueBall)) {
-                list.add(LotteryNumDisplayView.OneLotteryNum(blueBall.toString(), true, 2))
+                list.add(OneLotteryNum(blueBall.toString(), 2))
             } else {
                 var missIndex = 1
                 if (lotteryList.isNotEmpty()) {
                     val lastLottery = lotteryList.last()
-                    val lastRow = lastLottery.numList
-                    if (!lastRow[34 + blueBall].isLottery) {
+                    val lastRow = lastLottery.numbers
+                    if (lastRow[34 + blueBall].num.toInt() < 0) {
                         missIndex = lastRow[34 + blueBall].num.toInt() + 1
                     }
                 }
-                list.add(LotteryNumDisplayView.OneLotteryNum(missIndex.toString(), false, -1))
+                list.add(OneLotteryNum(missIndex.toString(), -1))
             }
         }
 
-        return LotteryNumDisplayView.OneDateLotteryData(lssueNumber.toString(), list)
+        return LotteryItem(lssueNumber.toString(), list)
     }
 
 
     interface ImportDataListener {
         fun onProgress(index: Long)
-        fun onSuccced(list: ArrayList<LotteryNumDisplayView.OneDateLotteryData>)
+        fun onSuccced(list: ArrayList<LotteryItem>)
         fun onError(e: Exception)
     }
 

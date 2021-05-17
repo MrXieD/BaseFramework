@@ -1,5 +1,5 @@
 plugins {
-    id 'com.android.application'
+    id 'com.android.library'
     id 'kotlin-android'
 
 }
@@ -11,7 +11,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "com.example.imlotterytool"
+//        applicationId "com.example.imlotterytool"
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
@@ -60,8 +60,8 @@ dependencies {
     // optional - Kotlin Extensions and Coroutines support for Room
     implementation "androidx.room:room-ktx:$rootProject.room_version"
     //navigation
-    implementation "androidx.navigation:navigation-fragment-ktx:$rootProject.nav_version"
-    implementation "androidx.navigation:navigation-ui-ktx:$rootProject.nav_version"
+//    implementation "androidx.navigation:navigation-fragment-ktx:$rootProject.nav_version"
+//    implementation "androidx.navigation:navigation-ui-ktx:$rootProject.nav_version"
     //lifecycle
     implementation "androidx.lifecycle:lifecycle-common-java8:$rootProject.lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$rootProject.lifecycle_version"

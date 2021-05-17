@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-android'
 //    id 'com.baseframework.reinforce'
 }
+apply plugin: 'kotlin-kapt'
 //apply plugin: ApkDistPlugin
 //class ApkDistPlugin implements Plugin<Project> {
 //    @Override
@@ -50,6 +51,9 @@ android {
     viewBinding {
         enabled = true
     }
+    buildFeatures {
+        dataBinding = true
+    }
 }
 
 dependencies {
@@ -68,10 +72,17 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    //retrofit
-    implementation "com.squareup.retrofit2:retrofit:$rootProject.retrofit_version"
-    implementation "com.squareup.retrofit2:converter-gson:$rootProject.converter_gson_version"
     //协程
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.kotlin_coroutines_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
+    //retrofit
+    implementation "com.squareup.retrofit2:retrofit:$rootProject.retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$rootProject.converter_gson_version"
+    implementation 'com.squareup.retrofit2:converter-scalars:2.5.0'
+
+    //navigation
+    implementation "androidx.navigation:navigation-fragment-ktx:$rootProject.nav_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$rootProject.nav_version"
+    implementation project(':imlotterytool')
+
 }

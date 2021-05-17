@@ -1,6 +1,7 @@
 package com.example.imlotterytool.repository
 
 import android.content.Context
+import android.util.Log
 import com.example.imlotterytool.R
 import com.example.imlotterytool.db.AppDatabase
 import com.example.imlotterytool.db.dao.LotteryDao
@@ -24,6 +25,7 @@ class LotteryRepository private constructor(
 ) :
     ILotteryRepository {
 
+
     /**
      *
      *
@@ -36,10 +38,11 @@ class LotteryRepository private constructor(
      *
      *
      */
-    override fun requestFcsdData(context: Context, date: String?, count: Int): Flow<Resource<List<LotteryItem>>> {
+    override fun requestFcsdData(context: Context, date: String, count: Int): Flow<Resource<List<LotteryItem>>> {
 
+        Log.e(TAG, "requestFcsdData: ")
         return object : DataGetPolicy<List<LotteryItem>, Response<LotteryResponse>, List<LotteryEntity>>() {
-            var checkDate: String = date ?: getLatestFcsdDate()//如果日期为空则从最近一期开始返回，否则从该日期返回
+            var checkDate: String = if (date == "null") getLatestFcsdDate() else date//如果日期为空则从最近一期开始返回，否则从该日期返回
 
             override suspend fun saveCallResult(item: List<LotteryEntity>) {
                 item?.let {
@@ -48,7 +51,7 @@ class LotteryRepository private constructor(
             }
 
             override fun shouldFetch(data: List<LotteryEntity>?): Boolean {
-                return null == data
+                return null == data || data.isEmpty()
             }
 
 
@@ -57,6 +60,7 @@ class LotteryRepository private constructor(
             }
 
             override suspend fun createCall(): Response<LotteryResponse> {
+                Log.e(TAG, "createCall: ${checkDate}")
                 return when (checkDate) {
                     date -> {
                         lotteryHistoryService.queryHistory(
@@ -83,7 +87,7 @@ class LotteryRepository private constructor(
 
             override suspend fun db2Result(dbResult: List<LotteryEntity>?): List<LotteryItem>? {
                 dbResult?.let {
-                    convert2FcsdDBData(dbResult)
+                    return convert2FcsdDBData(dbResult)
                 }
                 return null
             }
@@ -92,6 +96,7 @@ class LotteryRepository private constructor(
     }
 
     companion object {
+        private const val TAG = "LotteryRepository"
         private var instance: LotteryRepository? = null
         fun getInstance(context: Context): LotteryRepository {
             if (instance == null) {

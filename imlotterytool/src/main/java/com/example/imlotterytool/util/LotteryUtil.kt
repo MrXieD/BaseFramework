@@ -24,6 +24,7 @@ fun convert2FcsdDBData(dataList: List<LotteryEntity>?): List<LotteryItem>? {
                 var type: Int = MISS_TYPE
                 if (ballIndex == numberArray[0]) {//选中了这个号
                     type = NORMAL_TYPE
+                    numberShow = numberArray[0].toString()
                 } else {//该号码未选中，不管遗漏值
                 }
                 oneList.add(OneLotteryNum(numberShow, type))

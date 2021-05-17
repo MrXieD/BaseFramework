@@ -13,6 +13,7 @@ import com.example.imlotterytool.network.service.LotteryHistoryService
 import com.example.imlotterytool.util.*
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
+import java.util.*
 
 
 /**
@@ -45,7 +46,7 @@ class LotteryRepository private constructor(
             var checkDate: String = if (date == "null") getLatestFcsdDate() else date//如果日期为空则从最近一期开始返回，否则从该日期返回
 
             override suspend fun saveCallResult(item: List<LotteryEntity>) {
-                item?.let {
+                item.let {
                     lotteryDao.insertDatas(item)
                 }
             }

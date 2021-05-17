@@ -24,7 +24,6 @@ import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import kotlin.math.min
-import kotlin.random.Random
 
 /**
  * 彩票中奖号码展示View https://datachart.500.com/dlt/
@@ -79,7 +78,10 @@ class LotteryNumDisplayView : View {
     private var totalRows = 0
 
     //数字画笔
-    private val mNumTextPaint: Paint = Paint()
+    private val mNumTextPaint: NumTextCenterPaint = NumTextCenterPaint()
+
+    //期号画笔
+    private val mIssuesTextPaint: NumTextCenterPaint = NumTextCenterPaint()
 
     //网格画笔
     private val mMeshPaint: Paint = Paint()
@@ -87,9 +89,6 @@ class LotteryNumDisplayView : View {
     //用于计算字体宽高
     private val tempRect = Rect()
 
-    //用来计算文字绘制基线的辅助距离，和画笔字体大小有关系
-    //原理可以参考:https://www.jianshu.com/p/8b97627b21c4
-    private var textVerDistance: Float = 0f
 
     private var mLastX = 0
     private var mLastY = 0
@@ -161,6 +160,12 @@ class LotteryNumDisplayView : View {
         mNumTextPaint.color = context.getColorResource(R.color.black)
         mNumTextPaint.textSize = context.sp2px(numTextSize)
         mNumTextPaint.textAlign = Paint.Align.CENTER
+
+        mIssuesTextPaint.isAntiAlias = true
+        mIssuesTextPaint.color = context.getColorResource(R.color.black)
+        mIssuesTextPaint.textSize = context.sp2px(numTextSize)
+        mIssuesTextPaint.textAlign = Paint.Align.CENTER
+
 //        for (i in 1..100) {
 //            dataList.add(randomBuildNum(i))
 //        }
@@ -247,27 +252,33 @@ class LotteryNumDisplayView : View {
 
 
     private fun measureNumWH() {
+        if (dataList.isEmpty()) return
+
         numWidth = (width - dateWidth) / displayLineNum.toFloat()
         //
         numHeight = height / (displayRowNum + 1f)
 
         dateHeight = numHeight
-
-        if (dataList.isEmpty()) return
         //画笔字体自适应计算
-        var testString = ""
+        var testString = "0"
         dataList[0].numbers.forEach {
             if (it.num.length > testString.length) {
                 testString = it.num
             }
         }
-        val nowWidth = mNumTextPaint.measureText(testString)
+        autoMeasureTextSizeToPaint(testString,mNumTextPaint)
+        autoMeasureTextSizeToPaint(dataList[0].issues,mIssuesTextPaint)
+    }
+
+    private fun autoMeasureTextSizeToPaint(testString: String, targetPaint: NumTextCenterPaint) {
+        val nowWidth = targetPaint.measureText(testString)
         val maxWidth = min(numWidth * 0.6f, numHeight * 0.6f)
-        val scale = nowWidth / mNumTextPaint.textSize
+        val scale = nowWidth / targetPaint.textSize
         val newTextSize = maxWidth / scale
-        mNumTextPaint.textSize = newTextSize
-        textVerDistance =
-            (mNumTextPaint.fontMetrics.bottom - mNumTextPaint.fontMetrics.top) / 2 - mNumTextPaint.fontMetrics.bottom
+        targetPaint.textSize = newTextSize
+        targetPaint.textVerDistance =
+            (targetPaint.fontMetrics.bottom - targetPaint.fontMetrics.top) / 2 - targetPaint.fontMetrics.bottom
+
     }
 
     private fun checkScrollX(): Boolean {
@@ -409,9 +420,9 @@ class LotteryNumDisplayView : View {
                             canvas.drawLine(0f, 0f, dateWidth, 0f, mMeshPaint)
                             canvas.drawLine(dateWidth, 0f, dateWidth, numHeight, mMeshPaint)
                             val dateNum = dataList[i]
-                            mNumTextPaint.getTextBounds(dateNum.itemNumber, 0, dateNum.itemNumber.length, tempRect)
+                            mNumTextPaint.getTextBounds(dateNum.issues, 0, dateNum.issues.length, tempRect)
                             mNumTextPaint.color = context.getColorResource(R.color.black)
-                            drawText(canvas, dateNum.itemNumber, dateWidth, numHeight, mNumTextPaint)
+                            drawText(canvas, dateNum.issues, dateWidth, numHeight, mIssuesTextPaint)
                         }
                         canvas.translate(0f, numHeight)
                     }
@@ -435,7 +446,7 @@ class LotteryNumDisplayView : View {
                             val numText = list[i]
                             mNumTextPaint.getTextBounds(numText, 0, numText.length, tempRect)
                             mNumTextPaint.color = context.getColorResource(R.color.black)
-                            drawText(canvas, numText, numWidth, numHeight, mNumTextPaint);
+                            drawText(canvas, numText, numWidth, numHeight, mNumTextPaint)
                         }
                         canvas.translate(numWidth, 0f)
                     }
@@ -545,8 +556,8 @@ class LotteryNumDisplayView : View {
         })
     }
 
-    private fun drawText(canvas: Canvas, text: String, latticeWidth: Float, latticeHeight: Float, paint: Paint) {
-        canvas.drawText(text, latticeWidth / 2, latticeHeight / 2 + textVerDistance, paint)
+    private fun drawText(canvas: Canvas, text: String, latticeWidth: Float, latticeHeight: Float, paint: NumTextCenterPaint) {
+        canvas.drawText(text, latticeWidth / 2, latticeHeight / 2 + paint.textVerDistance, paint)
     }
 
 
@@ -712,5 +723,11 @@ class LotteryNumDisplayView : View {
         const val SCROLL_STATE_SCROLLING = 10002 // 依靠惯性滚动
         const val MAX_SCROLL_VELOCITY = 2000f
         private val TAG = "LotteryNumDisplayView"
+    }
+
+    internal class NumTextCenterPaint() : Paint() {
+        //用来计算文字绘制基线的辅助距离，和画笔字体大小有关系
+        //原理可以参考:https://www.jianshu.com/p/8b97627b21c4
+        var textVerDistance: Float = 0f
     }
 }

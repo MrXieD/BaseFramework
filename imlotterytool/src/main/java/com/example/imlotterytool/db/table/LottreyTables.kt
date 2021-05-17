@@ -42,7 +42,7 @@ import com.google.gson.annotations.SerializedName
 //
 
 
-data class LotteryItem(val itemNumber: String, val numbers: List<OneLotteryNum>)
+data class LotteryItem(val issues: String, val numbers: List<OneLotteryNum>)
 
 /**[ballType]代表球的种类0:代表遗漏  1：红球 2:蓝球 3:无颜色球（比如3d这种，没有颜色）
 

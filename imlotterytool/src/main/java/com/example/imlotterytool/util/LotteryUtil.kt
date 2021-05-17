@@ -4,9 +4,6 @@ import com.example.imlotterytool.LotteryType
 import com.example.imlotterytool.db.table.*
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
-
-
 /**
  *将福彩3d数据转换成数据库存储格式
  *

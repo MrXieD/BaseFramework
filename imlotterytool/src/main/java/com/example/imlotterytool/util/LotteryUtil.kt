@@ -29,6 +29,31 @@ fun convert2FcsdDBData(dataList: List<LotteryEntity>?): List<LotteryItem>? {
                 }
                 oneList.add(OneLotteryNum(numberShow, type))
             }
+
+            //十位
+            for (ballIndex in 0..9) {
+                var numberShow = "-"
+                var type: Int = MISS_TYPE
+                if (ballIndex == numberArray[1]) {//选中了这个号
+                    type = NORMAL_TYPE
+                    numberShow = numberArray[1].toString()
+                } else {//该号码未选中，不管遗漏值
+                }
+                oneList.add(OneLotteryNum(numberShow, type))
+            }
+
+            //个位
+            for (ballIndex in 0..9) {
+                var numberShow = "-"
+                var type: Int = MISS_TYPE
+                if (ballIndex == numberArray[2]) {//选中了这个号
+                    type = NORMAL_TYPE
+                    numberShow = numberArray[2].toString()
+                } else {//该号码未选中，不管遗漏值
+                }
+                oneList.add(OneLotteryNum(numberShow, type))
+            }
+
             fcsddbList.add(LotteryItem(lotterData.lotteryNo, oneList))
         }
         return fcsddbList

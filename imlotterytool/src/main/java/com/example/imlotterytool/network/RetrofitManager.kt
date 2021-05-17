@@ -13,7 +13,6 @@ object RetrofitManager {
     const val JUHEBASEURL = "http://apis.juhe.cn"
 
     fun <T> createService(retrofit: Retrofit = juheRetrofit, clazz: Class<T>): T {
-
         return retrofit.create(clazz)
     }
 

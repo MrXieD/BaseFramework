@@ -5,7 +5,7 @@ import com.example.LotteryNumDisplayView
 import com.example.imlotterytool.db.table.LotteryItem
 import com.example.imlotterytool.repository.Resource
 import com.example.imlotterytool.repository.Status
-import com.example.imlotterytool.ui.fragment.LotteryViewModel
+import java.util.*
 
 /**
 @author Anthony.H
@@ -26,9 +26,9 @@ fun LotteryNumDisplayView.bindLotteryContent(resource: Resource<List<LotteryItem
             }
             Status.SUCCESS -> {
                 val data = it.data
-                data?.let {
-                    //显示数据
-                }
+//                data?.let {
+//                    //显示数据
+//                }
             }
             Status.ERROR -> {
 

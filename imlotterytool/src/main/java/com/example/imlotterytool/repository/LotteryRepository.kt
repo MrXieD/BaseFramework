@@ -13,6 +13,7 @@ import com.example.imlotterytool.network.service.LotteryHistoryService
 import com.example.imlotterytool.util.*
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
+import java.lang.Exception
 import java.util.*
 
 
@@ -45,10 +46,30 @@ class LotteryRepository private constructor(
 
             override suspend fun saveCallResult(netResult: Response<LotteryResponse>?) {
                 netResult?.let {
-                    Log.d(TAG, "saveCallResult: ")
-                    val list = it.body()?.result?.lotteryResList
-                    list?.let {
-                        lotteryDao.insertDatas(it@ list)
+                    if (it.code() == 200) {
+                        if (it.isSuccessful) {
+                            Log.d(TAG, "saveCallResult: ")
+                            val resultBody = it.body()
+                            resultBody?.let {
+                                if (resultBody.errorCode != 0) {
+                                    throw Exception(
+                                        "error:${resultBody.errorCode},and message= ${
+                                            resultBody.reason
+                                                .toString()
+                                        }"
+                                    )
+                                }
+                            }
+                            val list = resultBody?.result?.lotteryResList
+                            list?.let {
+                                lotteryDao.insertDatas(it@ list)
+                                return
+                            }
+                        } else {
+                            throw Exception("error:${it.code()},but ${it.errorBody().toString()}")
+                        }
+                    } else {
+                        throw Exception("error:${it.code()},and message= ${it.errorBody().toString()}")
                     }
                 }
             }

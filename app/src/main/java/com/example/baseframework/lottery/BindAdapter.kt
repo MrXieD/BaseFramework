@@ -18,7 +18,7 @@ import com.google.android.material.navigation.NavigationView
 
 @BindingAdapter("bindLotteryContent")
 fun LotteryNumDisplayView.bindLotteryContent(resource: Resource<LotteryHistory>?) {
-    Log.e("bindLotteryContent", "bindLotteryContent: ----->")
+    Log.d("bindLotteryContent", "bindLotteryContent: ----->")
     resource?.let { resource ->
         when (resource.status) {
             Status.LOADING

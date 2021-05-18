@@ -1,23 +1,23 @@
 package com.example.imlotterytool.repository
 
 import kotlinx.coroutines.flow.flow
+import java.lang.Exception
 
 /**
 @author Anthony.H
 @date: 2021/5/18
-@desription:
+@desription:数据获取管理策略
  */
 abstract class DataGetPolicyEx<DBTYPE, NETRESPONSETYPE, RESULTTYPE> {
-    private val COUNTOUT = 2
+    private val COUNTOUT = 6
     val flow = flow<Resource<RESULTTYPE>> {
-
 
         emit(Resource.loading(null))
         var dbResult: DBTYPE? = null
         var loopCount = 0
         while (true) {
             if (loopCount >= COUNTOUT) {
-                //todo,error
+                throw Exception("获取数据失败次数超限")
                 break
             }
             dbResult = loadFromDb()
@@ -25,7 +25,8 @@ abstract class DataGetPolicyEx<DBTYPE, NETRESPONSETYPE, RESULTTYPE> {
             if (!fetch) {
                 break
             }
-            saveCallResult(createCall())
+            val netResult = createCall()
+            saveCallResult(netResult)
             loopCount++
         }
         val finalResult = db2Result(dbResult)

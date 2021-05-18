@@ -3,6 +3,8 @@ package com.example.imlotterytool.viewmodel
 import android.content.Context
 import androidx.lifecycle.*
 import com.example.imlotterytool.repository.ILotteryRepository
+import com.example.imlotterytool.repository.Resource
+import kotlinx.coroutines.flow.catch
 
 /**
 @author Anthony.H
@@ -33,7 +35,10 @@ class LotteryViewModel(private val context: Context, private val lotteryReposito
 //    }
 
     val lotteryLiveData = _lotteryLiveData.switchMap {
-        lotteryRepository.requestLotteryHistory(context, it.lotteryId, it.date, it.count).asLiveData()
+        lotteryRepository.requestLotteryHistory(context, it.lotteryId, it.date, it.count)
+            .catch { cause ->
+                emit(Resource.error(cause.message, null))
+            }.asLiveData()
     }
 
 

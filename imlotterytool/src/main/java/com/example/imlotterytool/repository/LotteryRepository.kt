@@ -26,75 +26,82 @@ class LotteryRepository private constructor(
 ) :
     ILotteryRepository {
 
+    override fun requestLotteryHistory(
+        context: Context,
+        lotteryId: String,
+        date: String?,
+        count: Int
+    ): Flow<Resource<LotteryHistory>> {
+        return object : DataGetPolicyEx<List<LotteryEntity>, Response<LotteryResponse>, LotteryHistory>() {
+            var latestDate = getLatestFcsdDate()
+            var checkDate: String = date ?: latestDate//如果日期为空则从最近一期开始返回，否则从该日期返回
+            override fun db2Result(dbResult: List<LotteryEntity>?): LotteryHistory? {
+                dbResult?.let {
+                    Log.d(TAG, "db2Result: ")
+                    return LotteryHistory(convertDb2Result(lotteryId, it), lotteryId)
+                }
+                return null
+            }
 
-    /**
-     *
-     *
-     * [date]参数为空：
-     *      1、昨天数据没有，直接网络获取昨天起的一批数据，再从数据库返回一批
-     *       2、昨天的数据有，直接从数据库返回一批数据
-     * [date]参数不为空：（对于UI来说，应该请求的是当前期以后的那一期）
-     *       1、[date]期数据存在，直接返回从此起以前的一批数据
-     *       2、[date]期数据不存在，网络获取[date]起的一批数据，再从数据库返回一批
-     *
-     *
-     */
-    override fun requestFcsdData(context: Context, date: String, count: Int): Flow<Resource<List<LotteryItem>>> {
-
-        Log.e(TAG, "requestFcsdData: ")
-        return object : DataGetPolicy<List<LotteryItem>, Response<LotteryResponse>, List<LotteryEntity>>() {
-            var checkDate: String = if (date == "null") getLatestFcsdDate() else date//如果日期为空则从最近一期开始返回，否则从该日期返回
-
-            override suspend fun saveCallResult(item: List<LotteryEntity>) {
-                item.let {
-                    lotteryDao.insertDatas(item)
+            override suspend fun saveCallResult(netResult: Response<LotteryResponse>?) {
+                netResult?.let {
+                    Log.d(TAG, "saveCallResult: ")
+                    val list = it.body()?.result?.lotteryResList
+                    list?.let {
+                        lotteryDao.insertDatas(it@ list)
+                    }
                 }
             }
 
-            override fun shouldFetch(data: List<LotteryEntity>?): Boolean {
-                return null == data || data.isEmpty()
+
+            override suspend fun createCall(): Response<LotteryResponse>? {
+                Log.d(TAG, "createCall: $checkDate")
+                return when (checkDate) {
+                    date -> {//应该是已存最近日期和当前最近开奖日期对别
+                        lotteryHistoryService.queryHistory(
+                            context.resources.getString(R.string.juhe_lottery_key),
+                            lotteryId, calRequestPage(date!!)
+                        )
+                    }
+                    else -> {//直接获取最新数据
+                        lotteryHistoryService.queryHistory(
+                            context.resources.getString(R.string.juhe_lottery_key),
+                            lotteryId
+                        )
+                    }
+                }
             }
 
+            override fun shouldFetch(dbResult: List<LotteryEntity>?): Boolean {
+                Log.d(TAG, "shouldFetch: ")
+                return when (dbResult) {
+                    null -> {
+                        true
+                    }
+
+                    else -> {
+                        if (dbResult.isEmpty()) {
+                            return true
+                        }
+                        when (checkDate) {
+                            latestDate -> {//如果是查询最新数据，保证数据库最新该类型数据和最近开奖日期一样
+                                dbResult.last().lotteryDate != latestDate
+                            }
+                            else -> { //如果是查询指定日期，只需要保证返回的数据不为空即可
+                                true
+                            }
+                        }
+                    }
+                }
+            }
 
             override suspend fun loadFromDb(): List<LotteryEntity>? {
-                return lotteryDao.getDatasOverDate(checkDate)
+                Log.d(TAG, "loadFromDb: ")
+                return lotteryDao.getDatasByTypeAndDate(lotteryId, checkDate)
             }
-
-            override suspend fun createCall(): Response<LotteryResponse> {
-                Log.e(TAG, "createCall: ${checkDate}")
-                return when (checkDate) {
-                    date -> {
-                        lotteryHistoryService.queryHistory(
-                            context.resources.getString(R.string.juhe_lottery_key),
-                            LOTTERY_TYPE_FCSD, calRequestPage(date!!)
-                        )
-
-                    }
-                    else -> {
-                        lotteryHistoryService.queryHistory(
-                            context.resources.getString(R.string.juhe_lottery_key),
-                            LOTTERY_TYPE_FCSD
-                        )
-                    }
-                }
-            }
-
-            override suspend fun net2Db(netResult: Response<LotteryResponse>?): List<LotteryEntity>? {
-                netResult?.let {
-                    return it.body()!!.result!!.lotteryResList
-                }
-                return null
-            }
-
-            override suspend fun db2Result(dbResult: List<LotteryEntity>?): List<LotteryItem>? {
-                dbResult?.let {
-                    return convert2FcsdDBData(dbResult)
-                }
-                return null
-            }
-
         }.flow
     }
+
 
     companion object {
         private const val TAG = "LotteryRepository"

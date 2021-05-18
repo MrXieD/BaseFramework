@@ -1,5 +1,6 @@
 package com.example.baseframework
 
+import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.baseframework.http.NetManager
@@ -22,7 +23,7 @@ import kotlin.random.Random
 class ExampleInstrumentedTest {
     @Test
     fun useAppContext() {
-        for (i in 1..20){
+        for (i in 1..20) {
         }
 
         // Context of the app under test.
@@ -31,13 +32,14 @@ class ExampleInstrumentedTest {
 
 
     }
+
     @Test
-    fun httpTest(){
+    fun httpTest() {
         XLog.i("Hello Test")
         val API_SERVER_URL = "http://test.dfiee.cn:32318/"
-        val url = API_SERVER_URL+"thirdLogin/identifyCode"
-        val params = hashMapOf("phoneNumber" to "18180349758","msgMode" to "3")
-        NetManager.post(url, params , object : OnNetCallback<Response> {
+        val url = API_SERVER_URL + "thirdLogin/identifyCode"
+        val params = hashMapOf("phoneNumber" to "18180349758", "msgMode" to "3")
+        NetManager.post(url, params, object : OnNetCallback<Response> {
             override fun onSuccess(result: Response) {
                 XLog.i("Http-----onSuccess--->$result")
                 result.close()
@@ -53,5 +55,11 @@ class ExampleInstrumentedTest {
         Thread.sleep(20 * TimeUtils.SECOND)
     }
 
+    @Test
+    fun testStringEq() {
+        val a = "2021-05-17"
+        val b = "2021-05-17"
+        Log.e("testStringEq", "testStringEq:${a == b} ")
+    }
 
 }

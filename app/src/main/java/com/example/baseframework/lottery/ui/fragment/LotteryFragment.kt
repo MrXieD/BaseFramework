@@ -1,6 +1,8 @@
 package com.example.baseframework.lottery.ui.fragment
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +19,7 @@ import com.example.imlotterytool.viewmodel.LotteryViewModel
 @date: 2021/5/14
 @desription:
  */
-class LotteryFragment : Fragment() {
+class LotteryFragment : Fragment(), DataSiwchListener {
 
     companion object {
         private const val TAG = "LotteryFragment"
@@ -38,11 +40,30 @@ class LotteryFragment : Fragment() {
         binding = DataBindingUtil.bind<FragmentLotteryBinding>(view)
         binding?.lotteryViewModel = lotteryViewModel
         binding?.lifecycleOwner = this
-        binding?.root?.postDelayed({
-            lotteryViewModel.requestFcsdHistory("null")
-        }, 3000)
         return view
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is LotteryFragmentCallBack) {
+            context.setMainMenuListener(this)
+        }
+    }
 
+    override fun swictchTo(lotteryId: String) {
+        
+        Log.d(TAG, "query: $lotteryId")
+        lotteryViewModel.requestHistory(lotteryId)
+    }
+}
+
+
+interface LotteryFragmentCallBack {
+
+    fun setMainMenuListener(dataSiwchListener: DataSiwchListener)
+}
+
+
+interface DataSiwchListener {
+    fun swictchTo(lotteryId: String)
 }

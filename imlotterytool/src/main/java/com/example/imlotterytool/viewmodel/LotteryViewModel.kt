@@ -1,38 +1,42 @@
 package com.example.imlotterytool.viewmodel
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.*
-import com.example.imlotterytool.LotteryType
-import com.example.imlotterytool.db.table.LotteryItem
-import com.example.imlotterytool.repository.LotteryRepository
-import com.example.imlotterytool.repository.Resource
+import com.example.imlotterytool.repository.ILotteryRepository
 
 /**
 @author Anthony.H
 @date: 2021/5/14
 @desription:
  */
-class LotteryViewModel(private val context: Context, private val lotteryRepository: LotteryRepository) : ViewModel() {
-
-    private val _fcsdLiveDate = MutableLiveData<String>()
+class LotteryViewModel(private val context: Context, private val lotteryRepository: ILotteryRepository) : ViewModel() {
 
 
-    fun requestFcsdHistory(date: String, count: Int = 50) {
-        Log.e("requestFcsdHistory", "requestFcsdHistory:$date ")
-        _fcsdLiveDate.value = date
+    private val _fcsdLiveData = MutableLiveData<String?>()
+
+    private val _lotteryLiveData = MutableLiveData<QueryParam>()
+
+    fun requestFcsdHistory(date: String?, count: Int = 50) {
+        _fcsdLiveData.value = date
     }
 
 
-    val fcsdLiveData = _fcsdLiveDate.switchMap {
-        Log.e("switchMap", ": ---------->$it")
-        lotteryRepository.requestFcsdData(context, it).asLiveData()
-    }.map {
-        LotteryNotifyEntity(it, LotteryType.FCSD)
+    fun requestHistory(lotteryId: String, date: String? = null, count: Int = 50) {
+        _lotteryLiveData.value = QueryParam(lotteryId, date, count)
+    }
+
+
+//    val fcsdLiveData = _fcsdLiveData.switchMap {
+//        lotteryRepository.requestFcsdData(context, it).asLiveData()
+//    }.map {
+//        LotteryNotifyEntity(it, LotteryType.FCSD)
+//    }
+
+    val lotteryLiveData = _lotteryLiveData.switchMap {
+        lotteryRepository.requestLotteryHistory(context, it.lotteryId, it.date, it.count).asLiveData()
     }
 
 
 }
 
-
-class LotteryNotifyEntity(val resource: Resource<List<LotteryItem>>, val lotteryType: LotteryType)
+class QueryParam(val lotteryId: String, val date: String?, val count: Int = 50)

@@ -1,9 +1,144 @@
 package com.example.imlotterytool.util
 
-import com.example.imlotterytool.LotteryType
 import com.example.imlotterytool.db.table.*
 import java.text.SimpleDateFormat
 import java.util.*
+
+
+fun convertDb2Result(lotteryId: String, dataList: List<LotteryEntity>?): List<LotteryItem>? {
+    dataList?.let {
+        when (lotteryId) {
+            LOTTERY_TYPE_FCSD -> {
+                return convert2FcsdDBData(dataList)
+            }
+            LOTTERY_TYPE_SSQ -> {
+                return convert2SsqDBData(dataList)
+            }
+            LOTTERY_TYPE_CJDLT -> {
+                return convert2CjdltDBData(dataList)
+            }
+            else -> {
+            }
+        }
+    }
+    return null
+}
+
+fun convert2CjdltDBData(dataList: List<LotteryEntity>): List<LotteryItem>? {
+    dataList?.let {
+        val allList = ArrayList<LotteryItem>()
+        for (lotterData in it) {
+            val oneList = ArrayList<OneLotteryNum>()
+            val numberArray = convert2Numbers(lotterData.lotteryRes)
+            //红球
+            for (ballIndex in 1..33) {
+                var numberShow = "-"
+                var type: Int = MISS_TYPE
+                val selectedNumbder = checkCjdltRedIsSelect(ballIndex, numberArray)
+                numberShow = if (selectedNumbder > 0) {
+                    type = RED_BALL_TYPE
+                    selectedNumbder.toString()
+                } else numberShow
+                oneList.add(OneLotteryNum(numberShow, type))
+            }
+            //蓝球
+            for (ballIndex in 1..12) {
+                var numberShow = "-"
+                var type: Int = MISS_TYPE
+                val selectedNumbder = checkCjdltBlueIsSelect(ballIndex, numberArray)
+                numberShow = if (selectedNumbder > 0) {
+                    type = BLUE_BALL_TYPE
+                    selectedNumbder.toString()
+                } else numberShow
+                oneList.add(OneLotteryNum(numberShow, type))
+            }
+            allList.add(LotteryItem(lotterData.lotteryNo, oneList))
+        }
+        return allList
+    }
+    return null
+}
+
+fun checkCjdltBlueIsSelect(ballIndex: Int, numberArray: Array<Int>): Int {
+    numberArray.run {
+        for (index in 5 until numberArray.size) {
+            if (numberArray[index] == ballIndex) {
+                return numberArray[index]
+            }
+        }
+    }
+    return -1
+}
+
+fun checkCjdltRedIsSelect(ballIndex: Int, numberArray: Array<Int>): Int {
+    numberArray.run {
+        for (index in 0..4) {
+            if (numberArray[index] == ballIndex) {
+                return numberArray[index]
+            }
+        }
+    }
+    return -1
+}
+
+fun convert2SsqDBData(dataList: List<LotteryEntity>): List<LotteryItem>? {
+
+    dataList?.let {
+        val fcsddbList = ArrayList<LotteryItem>()
+        for (lotterData in it) {
+            val oneList = ArrayList<OneLotteryNum>()
+            val numberArray = convert2Numbers(lotterData.lotteryRes)
+            //红球
+            for (ballIndex in 1..33) {
+                var numberShow = "-"
+                var type: Int = MISS_TYPE
+                val selectedNumbder = checkSsqRedIsSelect(ballIndex, numberArray)
+                numberShow = if (selectedNumbder > 0) {
+                    type = RED_BALL_TYPE
+                    selectedNumbder.toString()
+                } else numberShow
+                oneList.add(OneLotteryNum(numberShow, type))
+            }
+            //蓝球
+            for (ballIndex in 1..16) {
+                var numberShow = "-"
+                var type: Int = MISS_TYPE
+                val selectedNumbder = checkSsqBlueIsSelect(ballIndex, numberArray)
+                numberShow = if (selectedNumbder > 0) {
+                    type = BLUE_BALL_TYPE
+                    selectedNumbder.toString()
+                } else numberShow
+                oneList.add(OneLotteryNum(numberShow, type))
+            }
+            fcsddbList.add(LotteryItem(lotterData.lotteryNo, oneList))
+        }
+        return fcsddbList
+    }
+    return null
+}
+
+fun checkSsqBlueIsSelect(ballIndex: Int, numberArray: Array<Int>): Int {
+    numberArray?.run {
+        if (numberArray[6] == ballIndex) {
+            return numberArray[6]
+        }
+    }
+    return -1
+}
+
+
+fun checkSsqRedIsSelect(ballIndex: Int, numberArray: Array<Int>): Int {
+    numberArray.run {
+        for (index in 0..5) {
+            if (numberArray[index] == ballIndex) {
+                return numberArray[index]
+            }
+        }
+    }
+    return -1
+}
+
+
 /**
  *将福彩3d数据转换成数据库存储格式
  *
@@ -12,7 +147,6 @@ fun convert2FcsdDBData(dataList: List<LotteryEntity>?): List<LotteryItem>? {
     dataList?.let {
         val fcsddbList = ArrayList<LotteryItem>()
         for (lotterData in it) {
-
             val oneList = ArrayList<OneLotteryNum>()
             val numberArray = convert2Numbers(lotterData.lotteryRes)
             //百位
@@ -112,21 +246,34 @@ fun daysBetween(beforeDate: String, afterDate: String): Int {
 }
 
 
-fun getTitleListByLotteryType(lotteryType: LotteryType): List<String> {
+fun getTitleListByLotteryType(lotteryId: String): List<String> {
     val arrayList = ArrayList<String>()
 
-    when (lotteryType) {
-        LotteryType.FCSD -> {
+    when (lotteryId) {
+        LOTTERY_TYPE_FCSD -> {
             for (outterIndex in 0..2) {
                 for (innerIndex in 0..9) {
                     arrayList.add(innerIndex.toString())
                 }
             }
-
         }
 
-        LotteryType.SSQ -> {
+        LOTTERY_TYPE_SSQ -> {
+            for (redIndex in 1..33) {
+                arrayList.add(redIndex.toString())
+            }
+            for (blueIndex in 1..16) {
+                arrayList.add(blueIndex.toString())
+            }
+        }
 
+        LOTTERY_TYPE_CJDLT -> {
+            for (redIndex in 1..35) {
+                arrayList.add(redIndex.toString())
+            }
+            for (blueIndex in 1..12) {
+                arrayList.add(blueIndex.toString())
+            }
         }
     }
     return arrayList

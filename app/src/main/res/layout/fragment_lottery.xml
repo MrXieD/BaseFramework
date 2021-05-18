@@ -14,5 +14,5 @@
         android:id="@+id/lottert_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:bindLotteryContent="@{lotteryViewModel.fcsdLiveData}"></com.example.baseframework.view.LotteryNumDisplayView>
+        app:bindLotteryContent="@{lotteryViewModel.lotteryLiveData}" />
 </layout>

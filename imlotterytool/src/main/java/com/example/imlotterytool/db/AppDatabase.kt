@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.imlotterytool.network.entity.LotteryData
 
 /**
 @author Anthony.H
@@ -16,7 +15,7 @@ import com.example.imlotterytool.network.entity.LotteryData
 abstract class AppDatabase : RoomDatabase() {
 
 
-    abstract fun weatherDao(): LotteryData
+//    abstract fun weatherDao(): LotteryData
 
 
     companion object {

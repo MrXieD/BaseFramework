@@ -19,6 +19,4 @@ interface LotteryHistoryService {
         @Query("page") page: String,
         @Query(" page_size") pageSize: String = "50"
     ): Response<LotteryResponse>
-
-
 }

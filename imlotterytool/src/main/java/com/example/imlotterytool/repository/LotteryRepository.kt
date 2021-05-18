@@ -34,7 +34,7 @@ class LotteryRepository(private val lotteryDao: LotteryDao, private val lotteryH
         return object : DataGetPolicy<List<LotteryItem>, Response<LotteryResponse>, List<LotteryEntity>>() {
 
             override suspend fun saveCallResult(item: List<LotteryEntity>) {
-                item?.let {
+                item.let {
                     lotteryDao.insertDatas(item)
                 }
             }

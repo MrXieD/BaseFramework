@@ -8,7 +8,7 @@ import com.example.baseframework.databinding.ActivityMainBinding
 import com.example.baseframework.ex.onClick
 import com.example.baseframework.lottery.ImportData
 import com.example.baseframework.ui.anim.BrokenActivity
-import com.example.baseframework.view.LotteryNumDisplayView
+import com.example.imlotterytool.db.table.LotteryItem
 import org.jetbrains.anko.startActivity
 
 class MainActivity : BaseVBActivity<ActivityMainBinding>() {
@@ -44,19 +44,19 @@ class MainActivity : BaseVBActivity<ActivityMainBinding>() {
                 }
             }
 
-            override fun onSuccced(list: ArrayList<LotteryNumDisplayView.OneDateLotteryData>) {
+            override fun onSuccced(list: ArrayList<LotteryItem>) {
                 alertDialog.dismiss()
                 Log.e(TAG, "onSuccced: ")
                 //大乐透
-                val numberTitleList = ArrayList<LotteryNumDisplayView.OneLotteryNum>()
+                val numberTitleList = ArrayList<String>()
                 for (ball in 1..47) {
                     if (ball <= 35) {
-                        numberTitleList.add(LotteryNumDisplayView.OneLotteryNum(ball.toString(), false, -2))
+                        numberTitleList.add(ball.toString())
                     } else {
-                        numberTitleList.add(LotteryNumDisplayView.OneLotteryNum((ball - 35).toString(), false, -2))
+                        numberTitleList.add((ball - 35).toString())
                     }
                 }
-                mViewContainer.lotteryView.refreshData(list,numberTitleList.map { it.num })
+                mViewContainer.lotteryView.refreshData(list,numberTitleList)
             }
 
             override fun onError(e: Exception) {

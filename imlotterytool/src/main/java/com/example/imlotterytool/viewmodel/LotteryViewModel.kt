@@ -14,14 +14,7 @@ import kotlinx.coroutines.flow.catch
 class LotteryViewModel(private val context: Context, private val lotteryRepository: ILotteryRepository) : ViewModel() {
 
 
-    private val _fcsdLiveData = MutableLiveData<String?>()
-
     private val _lotteryLiveData = MutableLiveData<QueryParam>()
-
-    fun requestFcsdHistory(date: String?, count: Int = 50) {
-        _fcsdLiveData.value = date
-    }
-
 
     fun requestHistory(lotteryId: String, date: String? = null, count: Int = 50) {
         _lotteryLiveData.value = QueryParam(lotteryId, date, count)

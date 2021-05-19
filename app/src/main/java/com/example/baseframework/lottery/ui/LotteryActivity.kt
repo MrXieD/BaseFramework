@@ -8,6 +8,7 @@ import com.example.baseframework.activity.BaseDBActivity
 import com.example.baseframework.databinding.ActivityLotteryBinding
 import com.example.baseframework.lottery.ui.fragment.DataSwitchListener
 import com.example.baseframework.lottery.ui.fragment.LotteryFragmentCallBack
+import com.example.imlotterytool.db.AppDatabase
 import com.example.imlotterytool.util.LOTTERY_TYPE_DLT
 import com.example.imlotterytool.util.LOTTERY_TYPE_FCSD
 import com.example.imlotterytool.util.LOTTERY_TYPE_SSQ

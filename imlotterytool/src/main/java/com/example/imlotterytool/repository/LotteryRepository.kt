@@ -99,9 +99,9 @@ class LotteryRepository private constructor(
                     null -> {
                         true
                     }
-
                     else -> {
                         if (dbResult.isEmpty()) {
+
                             return true
                         }
                         when (checkDate) {

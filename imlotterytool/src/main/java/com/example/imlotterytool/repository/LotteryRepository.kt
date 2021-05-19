@@ -34,7 +34,7 @@ class LotteryRepository private constructor(
         count: Int
     ): Flow<Resource<LotteryHistory>> {
         return object : DataGetPolicyEx<List<LotteryEntity>, Response<LotteryResponse>, LotteryHistory>() {
-            var latestDate = getLatestFcsdDate()
+            var latestDate = getLatestLotteryDateByType(lotteryId)
             var checkDate: String = date ?: latestDate//如果日期为空则从最近一期开始返回，否则从该日期返回
             override fun db2Result(dbResult: List<LotteryEntity>?): LotteryHistory? {
                 dbResult?.let {

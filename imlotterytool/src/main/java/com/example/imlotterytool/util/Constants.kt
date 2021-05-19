@@ -7,5 +7,4 @@ package com.example.imlotterytool.util
  */
 const val LOTTERY_TYPE_FCSD = "fcsd"
 const val LOTTERY_TYPE_SSQ = "ssq"
-const val LOTTERY_TYPE_CJDLT = "cjdlt"
-const val LOTTERY_MAX_PAGE_SIZE = "50"
+const val LOTTERY_TYPE_DLT = "dlt"

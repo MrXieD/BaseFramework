@@ -14,7 +14,7 @@ fun convertDb2Result(lotteryId: String, dataList: List<LotteryEntity>?): List<Lo
             LOTTERY_TYPE_SSQ -> {
                 return convert2SsqDBData(dataList)
             }
-            LOTTERY_TYPE_CJDLT -> {
+            LOTTERY_TYPE_DLT -> {
                 return convert2CjdltDBData(dataList)
             }
             else -> {
@@ -205,6 +205,21 @@ fun convert2Numbers(lotteryRes: String): Array<Int> {
 }
 
 
+fun getLatestLotteryDateByType(lotteryId: String): String {
+    return when (lotteryId) {
+        LOTTERY_TYPE_FCSD -> {
+            getLatestFcsdDate()
+        }
+        LOTTERY_TYPE_SSQ -> {
+
+            getLatestSsqDate()
+        }
+        else -> {
+            getLatestCjdltDate()
+        }
+    }
+}
+
 /**
  *
  * 获取最近一次3d开奖的时间，3d开奖是每天21:15分以后，一般延迟半个小时才能获取数据
@@ -226,10 +241,83 @@ fun getLatestFcsdDate(): String {
 }
 
 /**
+ *
+ * 获取最近一次双色球开奖的时间，开奖是每周二、四、七 21:15分以后，一般延迟十五分钟到半个小时才能获取数据
+ */
+fun getLatestSsqDate(): String {
+    val df = SimpleDateFormat("yyyy-MM-dd")
+    val nowClendar = Calendar.getInstance()
+    var w = nowClendar[Calendar.DAY_OF_WEEK]
+    val openCalendar = Calendar.getInstance()//依据当前时间来推算开奖时间
+    when (w) {
+        Calendar.TUESDAY, Calendar.THURSDAY, Calendar.SUNDAY -> {//二四七，当日开奖
+            openCalendar.let {
+                it.set(Calendar.HOUR_OF_DAY, 21)
+                it.set(Calendar.MINUTE, 30)
+            }
+            if (nowClendar.after(openCalendar) || nowClendar.equals(openCalendar)) {
+                return df.format(nowClendar.time)
+            }
+            var deltaDay = -2
+            if (w == Calendar.SUNDAY) {
+                deltaDay = -3
+            }
+            nowClendar.add(Calendar.DAY_OF_MONTH, deltaDay)
+            return df.format(nowClendar.time)
+        }
+        Calendar.MONDAY, Calendar.WEDNESDAY, Calendar.FRIDAY -> {//一三五，前一天开奖
+            nowClendar.add(Calendar.DAY_OF_MONTH, -1)
+            return df.format(nowClendar.time)
+        }
+        else -> {//六，倒推两天开奖
+            nowClendar.add(Calendar.DAY_OF_MONTH, -2)
+            return df.format(nowClendar.time)
+        }
+    }
+}
+
+/**
+ *
+ * 获取最近一次超级大乐透开奖的时间，开奖是每周一、三、六 20:30分以后，一般延迟十五分钟到半个小时才能获取数据
+ */
+fun getLatestCjdltDate(): String {
+    val df = SimpleDateFormat("yyyy-MM-dd")
+    val nowClendar = Calendar.getInstance()
+    var w = nowClendar[Calendar.DAY_OF_WEEK]
+    val openCalendar = Calendar.getInstance()//依据当前时间来推算开奖时间
+    when (w) {
+        Calendar.MONDAY, Calendar.WEDNESDAY, Calendar.SATURDAY -> {//一三六，当日开奖
+            openCalendar.let {
+                it.set(Calendar.HOUR_OF_DAY, 20)
+                it.set(Calendar.MINUTE, 45)
+            }
+            if (nowClendar.after(openCalendar) || nowClendar.equals(openCalendar)) {
+                return df.format(nowClendar.time)
+            }
+            var deltaDay = -2
+            if (w == Calendar.SATURDAY) {
+                deltaDay = -3
+            }
+            nowClendar.add(Calendar.DAY_OF_MONTH, deltaDay)
+            return df.format(nowClendar.time)
+        }
+        Calendar.TUESDAY, Calendar.THURSDAY, Calendar.SUNDAY -> {//二四七，前一天开奖
+            nowClendar.add(Calendar.DAY_OF_MONTH, -1)
+            return df.format(nowClendar.time)
+        }
+        else -> {//五，倒推两天开奖
+            nowClendar.add(Calendar.DAY_OF_MONTH, -2)
+            return df.format(nowClendar.time)
+        }
+    }
+}
+
+
+/**
  * 根据所求日期和每页50期，算出需要请求第几页
  */
-fun calRequestPage(date: String): String {
 
+fun calRequestPage(date: String): String {
     val latestDate = getLatestFcsdDate()
     val deltaDay = daysBetween(date, latestDate)
     return (deltaDay / 50 + 1).toString()
@@ -267,7 +355,7 @@ fun getTitleListByLotteryType(lotteryId: String): List<String> {
             }
         }
 
-        LOTTERY_TYPE_CJDLT -> {
+        LOTTERY_TYPE_DLT -> {
             for (redIndex in 1..35) {
                 arrayList.add(redIndex.toString())
             }

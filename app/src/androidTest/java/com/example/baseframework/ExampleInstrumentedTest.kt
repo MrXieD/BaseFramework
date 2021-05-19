@@ -9,6 +9,9 @@ import com.example.baseframework.http.interfaces.callback.OnNetCallback
 import com.example.baseframework.log.XLog
 import com.example.baseframework.utils.TimeUtils
 import com.example.baseframework.view.LotteryNumDisplayView
+import com.example.imlotterytool.util.getLatestCjdltDate
+import com.example.imlotterytool.util.getLatestFcsdDate
+import com.example.imlotterytool.util.getLatestSsqDate
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,6 +63,13 @@ class ExampleInstrumentedTest {
         val a = "2021-05-17"
         val b = "2021-05-17"
         Log.e("testStringEq", "testStringEq:${a == b} ")
+    }
+
+    @Test
+    fun testOpenDate() {
+        Log.e("testOpenDate", "getLatestFcsdDate: ${getLatestFcsdDate()}")
+        Log.e("testOpenDate", "getLatestSsqDate: ${getLatestSsqDate()}")
+        Log.e("testOpenDate", "getLatestCjdltDate: ${getLatestCjdltDate()}")
     }
 
 }

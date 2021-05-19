@@ -9,7 +9,7 @@ import java.lang.Exception
 @desription:数据获取管理策略
  */
 abstract class DataGetPolicyEx<DBTYPE, NETRESPONSETYPE, RESULTTYPE> {
-    private val COUNTOUT = 6
+    private val COUNTOUT = 2
     val flow = flow<Resource<RESULTTYPE>> {
 
         emit(Resource.loading(null))

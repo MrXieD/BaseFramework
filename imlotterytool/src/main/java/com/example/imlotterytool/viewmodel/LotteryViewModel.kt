@@ -28,12 +28,6 @@ class LotteryViewModel(private val context: Context, private val lotteryReposito
     }
 
 
-//    val fcsdLiveData = _fcsdLiveData.switchMap {
-//        lotteryRepository.requestFcsdData(context, it).asLiveData()
-//    }.map {
-//        LotteryNotifyEntity(it, LotteryType.FCSD)
-//    }
-
     val lotteryLiveData = _lotteryLiveData.switchMap {
         lotteryRepository.requestLotteryHistory(context, it.lotteryId, it.date, it.count)
             .catch { cause ->

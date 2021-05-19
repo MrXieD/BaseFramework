@@ -28,6 +28,7 @@ class LotteryFragment : Fragment(), DataSwitchListener {
         private const val TAG = "LotteryFragment"
     }
 
+    private lateinit var fragmentCallBack: LotteryFragmentCallBack
     private val lotteryViewModel by viewModels<LotteryViewModel>(
         factoryProducer = {
             InjectorUtil.getLotteryViewModelFatory(
@@ -41,7 +42,6 @@ class LotteryFragment : Fragment(), DataSwitchListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_lottery, container, false)
         binding = DataBindingUtil.bind<FragmentLotteryBinding>(view)
-//        binding?.lotteryViewModel = lotteryViewModel
         binding?.lifecycleOwner = this
         return view
     }
@@ -49,7 +49,8 @@ class LotteryFragment : Fragment(), DataSwitchListener {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is LotteryFragmentCallBack) {
-            context.setMainMenuListener(this)
+            fragmentCallBack = context
+            fragmentCallBack.setMainMenuListener(this)
         }
     }
 
@@ -71,6 +72,7 @@ class LotteryFragment : Fragment(), DataSwitchListener {
                                 showSnackBar("获取数据成功！")
                                 //显示数据
                                 binding?.lottertView?.refreshData(dataList, getTitleListByLotteryType(data.lotteryId))
+                                fragmentCallBack.selectMenuItem(data.lotteryId)
                             }
                         }
                     }
@@ -103,6 +105,7 @@ class LotteryFragment : Fragment(), DataSwitchListener {
 interface LotteryFragmentCallBack {
 
     fun setMainMenuListener(dataSiwchListener: DataSwitchListener)
+    fun selectMenuItem(lotteryId: String)
 }
 
 

@@ -85,6 +85,7 @@ class LotteryActivity : BaseDBActivity<ActivityLotteryBinding>(), LotteryFragmen
     override fun onBackPressed() {
         if (dataBinding.drawerLayout.isOpen) {
             dataBinding.drawerLayout.close()
+            AppDatabase.getInstance(applicationContext).close()
         } else {
             super.onBackPressed()
         }

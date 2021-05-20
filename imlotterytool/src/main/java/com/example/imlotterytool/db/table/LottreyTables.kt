@@ -52,9 +52,9 @@ data class OneLotteryNum(val num: String, val ballType: Int = MISS_TYPE)
 
 //////////////////////////
 
-@Entity
+@Entity(primaryKeys = ["lottery_date", "lottery_id"])//用日期和类型联合确定唯一性
 data class LotteryEntity(
-    @PrimaryKey(autoGenerate = true) val id: Long,
+//    @PrimaryKey(autoGenerate = true) val id: Long,
     @SerializedName("lottery_date") @ColumnInfo(name = "lottery_date") val lotteryDate: String,
     @SerializedName("lottery_id") @ColumnInfo(name = "lottery_id") val lotteryId: String,
     @SerializedName("lottery_res") @ColumnInfo(name = "lottery_res") val lotteryRes: String,

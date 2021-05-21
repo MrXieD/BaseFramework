@@ -3,9 +3,11 @@ package com.example.baseframework.lottery
 import android.util.Log
 import androidx.databinding.BindingAdapter
 import com.example.baseframework.view.LotteryNumDisplayView
+import com.example.imlotterytool.repository.LotteryHistory
+import com.example.imlotterytool.repository.Resource
 import com.example.imlotterytool.repository.Status
 import com.example.imlotterytool.util.getTitleListByLotteryType
-import com.example.imlotterytool.viewmodel.LotteryNotifyEntity
+import com.google.android.material.navigation.NavigationView
 
 /**
 @author Anthony.H
@@ -15,18 +17,21 @@ import com.example.imlotterytool.viewmodel.LotteryNotifyEntity
 
 
 @BindingAdapter("bindLotteryContent")
-fun LotteryNumDisplayView.bindLotteryContent(lotteryNotifyEntity: LotteryNotifyEntity?) {
-    Log.e("bindLotteryContent", "bindLotteryContent: ----->")
-    lotteryNotifyEntity?.let {
-        when (it.resource.status) {
-            Status.LOADING -> {
-
+fun LotteryNumDisplayView.bindLotteryContent(resource: Resource<LotteryHistory>?) {
+    Log.d("bindLotteryContent", "bindLotteryContent: ----->")
+    resource?.let { resource ->
+        when (resource.status) {
+            Status.LOADING
+            -> {
             }
             Status.SUCCESS -> {
-                val data = it.resource.data
-                data?.let {
-                    //显示数据
-                    refreshData(it@data, getTitleListByLotteryType(it@ lotteryNotifyEntity.lotteryType))
+                val data = resource.data
+                data?.let { data ->
+                    val dataList = data.list
+                    dataList?.let {
+                        //显示数据
+                        refreshData(dataList, getTitleListByLotteryType(data.lotteryId))
+                    }
                 }
             }
             Status.ERROR -> {
@@ -35,4 +40,11 @@ fun LotteryNumDisplayView.bindLotteryContent(lotteryNotifyEntity: LotteryNotifyE
         }
     }
 
+}
+
+@BindingAdapter("bindSelectListener")
+fun NavigationView.bindSelectListener(onNavigationItemReselectedListener: NavigationView.OnNavigationItemSelectedListener?) {
+    onNavigationItemReselectedListener?.let {
+        setNavigationItemSelectedListener(it)
+    }
 }

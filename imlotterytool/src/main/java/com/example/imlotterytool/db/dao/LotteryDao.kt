@@ -17,12 +17,12 @@ abstract class LotteryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insertDatas(fcsdTable: List<LotteryEntity>)
 
-    @Query("SELECT * FROM LotteryEntity")
+    @Query("SELECT * FROM LotteryEntity ORDER BY lottery_date ASC")
     abstract suspend fun getAllDatas(): List<LotteryEntity>?
 
 
     //
-    @Query("SELECT * FROM LotteryEntity WHERE lottery_date <=:lotteryDate")
+    @Query("SELECT * FROM LotteryEntity WHERE lottery_date <=:lotteryDate ORDER BY lottery_date ASC")
     abstract suspend fun getDatasOverDate(lotteryDate: String?): List<LotteryEntity>?
 
 
@@ -48,7 +48,11 @@ abstract class LotteryDao {
     /**
      * 根据日期返回上一期
      */
-    @Query("SELECT * FROM LotteryEntity WHERE lottery_date=(:lotteryDate)")
+    @Query("SELECT * FROM LotteryEntity WHERE lottery_date=(:lotteryDate) ORDER BY lottery_date ASC")
     abstract suspend fun getDataByDate(lotteryDate: String): LotteryEntity?
+
+
+    @Query("SELECT * FROM LotteryEntity WHERE lottery_id=:lotteryId AND  lottery_date <=:lotteryDate ORDER BY lottery_date ASC")
+    abstract suspend fun getDatasByTypeAndDate(lotteryId: String, lotteryDate: String?): List<LotteryEntity>?
 
 }

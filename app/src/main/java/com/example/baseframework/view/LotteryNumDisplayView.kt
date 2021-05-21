@@ -395,14 +395,8 @@ class LotteryNumDisplayView : View {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (dataList.isEmpty()) return
-
         meshScrollX = totalScrollX % numWidth
-
         offStartLineIndex = abs(totalScrollX / numWidth).toInt()
-
-        XLog.i("meshScrollX----> $meshScrollX ，offStartLineIndex--->$offStartLineIndex")
-
-
         meshScrollY = totalScrollY % numHeight
         offStartRowIndex = abs(totalScrollY / numHeight).toInt()
 
@@ -447,7 +441,6 @@ class LotteryNumDisplayView : View {
                 canvas.saveAndRestore {
                     val endLinesIndex =
                         if (startLinesIndex + displayLineNum < numTextList.size) startLinesIndex + displayLineNum else numTextList.size - 1
-                    XLog.i("startLinesIndex----> $startLinesIndex , endLinesIndex--->$endLinesIndex ")
                     for (i in startLinesIndex..endLinesIndex) {
                         canvas.saveAndRestore {
                             if (i == startLinesIndex) {

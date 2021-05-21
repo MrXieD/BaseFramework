@@ -25,24 +25,20 @@ class LotteryFragment : Fragment() {
 
     private val lotteryViewModel by viewModels<LotteryViewModel>(
         factoryProducer = {
-            InjectorUtil.getLotteryViewModelFatory(
-                requireContext().applicationContext
-            )
+            InjectorUtil.getLotteryViewModelFatory(requireContext().applicationContext)
         }
     )
 
 
-    var binding: FragmentLotteryBinding? = null
+    lateinit var binding: FragmentLotteryBinding
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_lottery, container, false)
-        binding = DataBindingUtil.bind<FragmentLotteryBinding>(view)
-        binding?.lotteryViewModel = lotteryViewModel
-        binding?.lifecycleOwner = this
-        binding?.root?.postDelayed({
+        binding = DataBindingUtil.bind(view)!!
+        binding.lotteryViewModel = lotteryViewModel
+        binding.lifecycleOwner = this
+        binding.root.postDelayed({
             lotteryViewModel.requestFcsdHistory("null")
         }, 3000)
         return view
     }
-
-
 }

@@ -61,6 +61,7 @@ data class LotteryEntity(
     @SerializedName("lottery_no") @ColumnInfo(name = "lottery_no") val lotteryNo: String
 )
 
+
 const val MISS_TYPE = 0x0
 
 const val RED_BALL_TYPE = 0x1

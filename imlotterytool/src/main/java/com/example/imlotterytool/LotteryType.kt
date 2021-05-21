@@ -6,8 +6,8 @@ package com.example.imlotterytool
 @desription:
  */
 enum class LotteryType {
-    FCSD,
-    SSQ,
-    CJDLT
+    FCSD,//福彩3D
+    SSQ,//双色球
+    CJDLT//体彩大乐透
 
 }

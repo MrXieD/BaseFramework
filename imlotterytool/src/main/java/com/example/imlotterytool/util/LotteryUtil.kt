@@ -12,7 +12,6 @@ fun convert2FcsdDBData(dataList: List<LotteryEntity>?): List<LotteryItem>? {
     dataList?.let {
         val fcsddbList = ArrayList<LotteryItem>()
         for (lotterData in it) {
-
             val oneList = ArrayList<OneLotteryNum>()
             val numberArray = convert2Numbers(lotterData.lotteryRes)
             //百位
@@ -58,17 +57,20 @@ fun convert2FcsdDBData(dataList: List<LotteryEntity>?): List<LotteryItem>? {
     return null
 }
 
-fun convert2Numbers(lotteryRes: String): Array<Int> {
+fun convert2Numbers(lotteryRes: String): List<Int> = lotteryRes.split(",").map{ it.toInt() }
+//fun convert2Numbers(lotteryRes: String): Array<Int> {
+//
+//    val strArray = lotteryRes.split(",")
+//
+//    val numberArray = Array(strArray.size) { it }
+//
+//    for (index in numberArray.indices) {
+//        numberArray[index] = strArray[index].toInt()
+//    }
+//    return numberArray
+//}
 
-    val strArray = lotteryRes.split(",")
 
-    val numberArray = Array(strArray.size) { it }
-
-    for (index in numberArray.indices) {
-        numberArray[index] = strArray[index].toInt()
-    }
-    return numberArray
-}
 
 
 /**

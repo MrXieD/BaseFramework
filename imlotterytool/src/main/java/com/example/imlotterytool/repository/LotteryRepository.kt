@@ -23,8 +23,7 @@ import java.util.*
 class LotteryRepository private constructor(
     private val lotteryDao: LotteryDao,
     private val lotteryHistoryService: LotteryHistoryService
-) :
-    ILotteryRepository {
+) : ILotteryRepository {
 
 
     /**
@@ -47,7 +46,7 @@ class LotteryRepository private constructor(
 
             override suspend fun saveCallResult(item: List<LotteryEntity>) {
                 item.let {
-                    lotteryDao.insertDatas(item)
+                    lotteryDao.insertDatas(it)
                 }
             }
 
@@ -66,9 +65,9 @@ class LotteryRepository private constructor(
                     date -> {
                         lotteryHistoryService.queryHistory(
                             context.resources.getString(R.string.juhe_lottery_key),
-                            LOTTERY_TYPE_FCSD, calRequestPage(date!!)
+                            LOTTERY_TYPE_FCSD,
+                            calRequestPage(date)
                         )
-
                     }
                     else -> {
                         lotteryHistoryService.queryHistory(

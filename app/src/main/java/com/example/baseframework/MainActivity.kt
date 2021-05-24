@@ -1,8 +1,12 @@
 package com.example.baseframework
 
 import android.app.AlertDialog
+import android.content.ComponentName
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
+import androidx.recyclerview.widget.RecyclerView
 import com.example.baseframework.activity.BaseVBActivity
 import com.example.baseframework.databinding.ActivityMainBinding
 import com.example.baseframework.ex.onClick
@@ -13,7 +17,7 @@ import org.jetbrains.anko.startActivity
 
 class MainActivity : BaseVBActivity<ActivityMainBinding>() {
 
-    companion object{
+    companion object {
 
         private const val TAG = "MainActivity"
     }
@@ -56,7 +60,7 @@ class MainActivity : BaseVBActivity<ActivityMainBinding>() {
                         numberTitleList.add((ball - 35).toString())
                     }
                 }
-                mViewContainer.lotteryView.refreshData(list,numberTitleList)
+                mViewContainer.lotteryView.refreshData(list, numberTitleList)
             }
 
             override fun onError(e: Exception) {
@@ -69,5 +73,8 @@ class MainActivity : BaseVBActivity<ActivityMainBinding>() {
 
         })
 
+
     }
+
+
 }

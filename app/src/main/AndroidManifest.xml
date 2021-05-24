@@ -15,8 +15,7 @@
         android:theme="@style/BaseFramework"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
-        <activity android:name=".lottery.ui.LotteryActivity"
-            >
+        <activity android:name=".recycletest.RecycleActivity">
             <!--            android:screenOrientation="landscape"-->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

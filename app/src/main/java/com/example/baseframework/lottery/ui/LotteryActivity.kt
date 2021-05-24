@@ -38,15 +38,15 @@ class LotteryActivity : BaseDBActivity<ActivityLotteryBinding>(), LotteryFragmen
                     dataSiwchListener.switchTo(LOTTERY_TYPE_DLT)
                 }
             }
-            dataBinding?.drawerLayout?.close()
+            dataBinding.drawerLayout.close()
             false//return true to display the item as the selected item
         }
 
     override fun init() {
-        dataBinding?.let {
-            it.designNavigationView?.itemIconTintList = null
+        dataBinding.let {
+            it.designNavigationView.itemIconTintList = null
             it.lotteryActivity = this
-            it.root?.post {//默认获取第一种类型数据
+            it.root.post {//默认获取第一种类型数据
                 it.designNavigationView.menu.performIdentifierAction(
                     R.id.menu_item_cjdlt,
                     Menu.FLAG_PERFORM_NO_CLOSE

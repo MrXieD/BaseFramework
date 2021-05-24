@@ -30,11 +30,7 @@ class LotteryFragment : Fragment(), DataSwitchListener {
 
     private lateinit var fragmentCallBack: LotteryFragmentCallBack
     private val lotteryViewModel by viewModels<LotteryViewModel>(
-        factoryProducer = {
-            InjectorUtil.getLotteryViewModelFatory(
-                requireContext().applicationContext
-            )
-        }
+        factoryProducer = { InjectorUtil.getLotteryViewModelFatory(requireContext().applicationContext) }
     )
 
 
@@ -55,7 +51,6 @@ class LotteryFragment : Fragment(), DataSwitchListener {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
         super.onViewCreated(view, savedInstanceState)
         lotteryViewModel.lotteryLiveData.observe(viewLifecycleOwner) { resource ->
             resource?.let { resource ->
@@ -71,7 +66,7 @@ class LotteryFragment : Fragment(), DataSwitchListener {
                             dataList?.let {
                                 showSnackBar("获取数据成功！")
                                 //显示数据
-                                binding?.lottertView?.refreshData(dataList, getTitleListByLotteryType(data.lotteryId))
+                                binding?.lottertView?.refreshData(it, getTitleListByLotteryType(data.lotteryId))
                                 fragmentCallBack.selectMenuItem(data.lotteryId)
                             }
                         }
@@ -103,7 +98,6 @@ class LotteryFragment : Fragment(), DataSwitchListener {
 
 
 interface LotteryFragmentCallBack {
-
     fun setMainMenuListener(dataSiwchListener: DataSwitchListener)
     fun selectMenuItem(lotteryId: String)
 }

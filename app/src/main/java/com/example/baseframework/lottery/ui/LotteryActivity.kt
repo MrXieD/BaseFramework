@@ -47,10 +47,7 @@ class LotteryActivity : BaseDBActivity<ActivityLotteryBinding>(), LotteryFragmen
             it.designNavigationView.itemIconTintList = null
             it.lotteryActivity = this
             it.root.post {//默认获取第一种类型数据
-                it.designNavigationView.menu.performIdentifierAction(
-                    R.id.menu_item_cjdlt,
-                    Menu.FLAG_PERFORM_NO_CLOSE
-                )
+                it.designNavigationView.menu.performIdentifierAction(R.id.menu_item_fcsd, Menu.FLAG_PERFORM_NO_CLOSE)
             }
         }
     }
@@ -78,7 +75,7 @@ class LotteryActivity : BaseDBActivity<ActivityLotteryBinding>(), LotteryFragmen
                     0
                 }
             }
-        dataBinding?.designNavigationView.menu[menuItem].isChecked = true
+        dataBinding.designNavigationView.menu[menuItem].isChecked = true
     }
 
 

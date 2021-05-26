@@ -9,9 +9,8 @@ import java.lang.Exception
 @desription:数据获取管理策略
  */
 abstract class DataGetPolicyEx<DBTYPE, NETRESPONSETYPE, RESULTTYPE> {
-    private val COUNTOUT = 2
+    private val COUNTOUT = 3
     val flow = flow<Resource<RESULTTYPE>> {
-
         emit(Resource.loading(null))
         var dbResult: DBTYPE? = null
         var loopCount = 0
@@ -22,8 +21,12 @@ abstract class DataGetPolicyEx<DBTYPE, NETRESPONSETYPE, RESULTTYPE> {
             }
             dbResult = loadFromDb()
             val fetch = shouldFetch(dbResult)
-            if (!fetch) {
-                break
+            if (!fetch){
+                if(needPassNum()){
+                    if(!needMoreDataToShowMissNum(dbResult!!)){
+                        break
+                    }
+                }else break
             }
             val netResult = createCall()
             saveCallResult(netResult)
@@ -31,7 +34,6 @@ abstract class DataGetPolicyEx<DBTYPE, NETRESPONSETYPE, RESULTTYPE> {
         }
         val finalResult = db2Result(dbResult)
         emit(Resource.success(finalResult))
-
     }
 
     abstract fun db2Result(dbResult: DBTYPE?): RESULTTYPE?
@@ -42,6 +44,9 @@ abstract class DataGetPolicyEx<DBTYPE, NETRESPONSETYPE, RESULTTYPE> {
 
     abstract fun shouldFetch(dbResult: DBTYPE?): Boolean
 
-    abstract suspend fun loadFromDb(): DBTYPE?
-
+    abstract suspend fun loadFromDb(date:String? = null): DBTYPE?
+    //是否需要显示遗漏号码
+    abstract fun needPassNum():Boolean
+    //是否需要加载更多数据来显示遗漏号码
+    abstract fun needMoreDataToShowMissNum(dbResult: DBTYPE):Boolean
 }

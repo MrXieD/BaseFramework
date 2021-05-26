@@ -381,8 +381,8 @@ fun getLatestCjdltDate(): String {
 
 fun calRequestPage(date: String): String {
     val latestDate = getLatestFcsdDate()
-    val deltaDay = daysBetween(date, latestDate)
-    return (deltaDay / 50 + 1).toString()
+    val deltaDay = daysBetween(date, latestDate)+1
+    return (deltaDay / PAGE_SIZE + 1).toString()
 }
 
 fun daysBetween(beforeDate: String, afterDate: String): Int {

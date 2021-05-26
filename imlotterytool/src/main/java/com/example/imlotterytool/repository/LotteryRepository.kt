@@ -26,7 +26,6 @@ class LotteryRepository private constructor(
     private val lotteryDao: LotteryDao,
     private val lotteryHistoryService: LotteryHistoryService
 ) : ILotteryRepository {
-
     override fun requestLotteryHistory(
         context: Context,
         lotteryType: String,
@@ -41,7 +40,7 @@ class LotteryRepository private constructor(
                     cacheList.sortBy { it.lotteryDate }
                     return LotteryHistory(convertDb2Result(lotteryType, cacheList)!!.toMutableList().also {
                         var i = 0
-                        while (i < 49) {
+                        while (i < PAGE_SIZE-1) {
                             it.removeFirst()
                             i++
                         }
@@ -151,8 +150,8 @@ class LotteryRepository private constructor(
                 cacheList.addAll(dbResult)
                 //更新日期
                 checkDate = dbResult.first().lotteryDate
-                if(cacheList.size<=50){
-                    //只有五十条数量应该是不够的
+                if(cacheList.size<=PAGE_SIZE){
+                    //只有最近五十条数量不能满足第一条能显示遗漏数据，所以需要再往前获取一页数据
                     return true
                 }
                 //应该是对每一位是否在前50条里出现过进行统计，

@@ -134,7 +134,7 @@ class LotteryNumDisplayView : View {
     private var forceIntercptMove = false
 
     //是否可以斜角滑动
-    private var isSlantMove = true
+    private var isSlantMove = false
 
     constructor(context: Context) : super(context) {
 

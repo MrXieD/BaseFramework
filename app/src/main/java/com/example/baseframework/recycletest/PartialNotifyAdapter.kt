@@ -15,13 +15,23 @@ import com.example.baseframework.R
 @date: 2021/5/21
 @desription:测试[RecyclerView]局部刷新
  */
-class PartialNotifyAdapter(var list: MutableList<String>) : RecyclerView.Adapter<ViewHolder>() {
+class PartialNotifyAdapter(var list: MutableList<String>) : RecyclerView.Adapter<PartialNotifyAdapter.ViewHolder>() {
 
 
     companion object {
         private const val TAG = "Adapter"
     }
 
+
+    private var itemClickListener = object : ItemClickListener {
+        override fun onItemClick(position: Int) {
+            Log.e(TAG, "onItemClick: $position")
+            var data = list[position].toInt()
+            data += 100
+            list[position] = data.toString()
+            notifyItemChanged(position, "flagSuc")
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val viewDataBinding: ViewDataBinding = DataBindingUtil.inflate(
@@ -37,21 +47,18 @@ class PartialNotifyAdapter(var list: MutableList<String>) : RecyclerView.Adapter
         Log.e(TAG, "onBindViewHolder: $position")
         holder.viewDataBinding.let {
             it.setVariable(BR.text, list[position])
-            it.setVariable(BR.clickListener, ItemClickWrapper(position))
         }
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
-        super.onBindViewHolder(holder, position, payloads)
+
         Log.e(
             TAG, "onBindViewHolder-->: ${position};===>,${payloads.isEmpty()}"
         )
-
         if (payloads.isEmpty()) {
             onBindViewHolder(holder, position)
         } else {//如果payloads不为空，则可以只刷新（绑定值）此item中感兴趣的控件；否则就调用 onBindViewHolder(holder, position)的此item的全量绑定
             holder.viewDataBinding?.let {
-
                 it.setVariable(BR.text, list[position])
             }
         }
@@ -62,18 +69,28 @@ class PartialNotifyAdapter(var list: MutableList<String>) : RecyclerView.Adapter
     }
 
 
-    inner class ItemClickWrapper(private val position: Int) : View.OnClickListener {
-        override fun onClick(v: View?) {
-            Log.e(TAG, "onClick: $position")
-            var old = list!![position].toInt()
-            old += 100
-            list[position] = old.toString()
-            notifyItemChanged(position, position)
+    val onClickListener = View.OnClickListener {
+        val pos = (it.parent as RecyclerView).getChildAdapterPosition(it)
+
+        itemClickListener.onItemClick(pos)
+    }
+
+    inner class ViewHolder(
+        val viewDataBinding: ViewDataBinding,
+    ) : RecyclerView.ViewHolder(viewDataBinding.root) {
+        init {
+            viewDataBinding.let {
+                it.setVariable(BR.clickListener, onClickListener)
+            }
         }
+    }
+
+      interface ItemClickListener {
+        fun onItemClick(position: Int)
     }
 
 }
 
 
-class ViewHolder(val viewDataBinding: ViewDataBinding) : RecyclerView.ViewHolder(viewDataBinding.root)
+
 

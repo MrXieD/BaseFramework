@@ -196,8 +196,11 @@ class LotteryNumDisplayView : View {
         totalRows = dataList.size
         totalLines = this.numTextList.size
         measureNumWH()
+        totalScrollX=0
+        totalScrollY=0
 //        requestLayout()
         //由于requestLayout()时，VIew的w,h都没有改变，并且也没有执行任何动画，所以onDraw函数没有被执行
+
         invalidate()
     }
 
@@ -243,8 +246,6 @@ class LotteryNumDisplayView : View {
     }
 
     override fun onSaveInstanceState(): Parcelable? {
-
-
         return super.onSaveInstanceState()
     }
 

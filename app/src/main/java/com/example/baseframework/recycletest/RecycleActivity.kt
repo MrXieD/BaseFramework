@@ -1,6 +1,7 @@
 package com.example.baseframework.recycletest
 
 import android.os.Bundle
+import android.widget.BaseAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.baseframework.R
@@ -24,14 +25,14 @@ class RecycleActivity : BaseDBActivity<ActivityRecycleBinding>() {
     override fun init() {
         dataBinding?.let { binding ->
             binding.recycleview.layoutManager = LinearLayoutManager(this)
-            val list = MutableList<String>(5) { it.toString() }
+            val list = MutableList<String>(16) { it.toString() }
             binding.adapter = PartialNotifyAdapter(list)
         }
     }
 
     override fun getLayoutId(): Int {
+        val adapter: BaseAdapter
         return R.layout.activity_recycle
     }
-
 
 }

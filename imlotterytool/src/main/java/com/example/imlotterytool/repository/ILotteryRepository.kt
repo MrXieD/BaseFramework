@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
  */
 interface ILotteryRepository {
 
+
     fun requestLotteryHistory(
         context: Context,
         lotteryId: String,

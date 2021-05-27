@@ -11,8 +11,8 @@ import com.example.imlotterytool.viewmodel.LotteryViewModelFactory
  */
 object InjectorUtil {
 
-    private fun getLotteryRepositery(context: Context): LotteryRepository {
 
+    private fun getLotteryRepositery(context: Context): LotteryRepository {
         return LotteryRepository.getInstance(context)
     }
 

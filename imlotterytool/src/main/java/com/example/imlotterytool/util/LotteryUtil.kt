@@ -6,11 +6,15 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-fun convertDb2Result(lotteryId: String, dataList: List<LotteryEntity>?,isShowMiss:Boolean = true): List<LotteryItem>? {
+fun convertDb2Result(
+    lotteryId: String,
+    dataList: List<LotteryEntity>?,
+    isShowMiss: Boolean = true
+): List<LotteryItem>? {
     dataList?.let {
         when (lotteryId) {
             LOTTERY_TYPE_FCSD -> {
-                return convert2_FCSD_BData(it,isShowMiss)
+                return convert2_FCSD_BData(it, isShowMiss)
             }
             LOTTERY_TYPE_SSQ -> {
                 return convert2SsqDBData(it)
@@ -32,7 +36,7 @@ fun convert2CjdltDBData(dataList: List<LotteryEntity>): List<LotteryItem>? {
             val oneList = ArrayList<OneLotteryNum>()
             val numberArray = convert2Numbers(lotterData.lotteryRes)
             //红球
-            for (ballIndex in 1..33) {
+            for (ballIndex in 1..35) {
                 var numberShow = "-"
                 var type: Int = MISS_TYPE
                 val selectedNumbder = checkCjdltRedIsSelect(ballIndex, numberArray)
@@ -144,7 +148,7 @@ fun checkSsqRedIsSelect(ballIndex: Int, numberArray: List<Int>): Int {
  *将福彩3d数据转换成数据库存储格式
  *
  */
-fun convert2_FCSD_BData(dataList: List<LotteryEntity>?,isShowMiss:Boolean = true): List<LotteryItem>? {
+fun convert2_FCSD_BData(dataList: List<LotteryEntity>?, isShowMiss: Boolean = true): List<LotteryItem>? {
     dataList?.let {
         val fcsddbList = ArrayList<LotteryItem>()
         for (i in it.indices) {
@@ -157,7 +161,7 @@ fun convert2_FCSD_BData(dataList: List<LotteryEntity>?,isShowMiss:Boolean = true
                 if (ballIndex == numberArray[0]) {//选中了这个号
                     type = NORMAL_TYPE
                     numberShow = numberArray[0].toString()
-                } else if(isShowMiss) {//该号码未选中，不管遗漏值
+                } else if (isShowMiss) {//该号码未选中，不管遗漏值
                     var missNum = "1"
                     if (i != 0) {
                         val lastNumData = fcsddbList.last().numbers[ballIndex]
@@ -176,10 +180,10 @@ fun convert2_FCSD_BData(dataList: List<LotteryEntity>?,isShowMiss:Boolean = true
                 if (ballIndex == numberArray[1]) {//选中了这个号
                     type = NORMAL_TYPE
                     numberShow = numberArray[1].toString()
-                } else if(isShowMiss) {//该号码未选中，不管遗漏值
+                } else if (isShowMiss) {//该号码未选中，不管遗漏值
                     var missNum = "1"
                     if (i != 0) {
-                        val lastNumData = fcsddbList.last().numbers[ballIndex+10]
+                        val lastNumData = fcsddbList.last().numbers[ballIndex + 10]
                         missNum = if (lastNumData.ballType == MISS_TYPE) (lastNumData.num.toInt() + 1).toString()
                         else "1"
                     }
@@ -195,10 +199,10 @@ fun convert2_FCSD_BData(dataList: List<LotteryEntity>?,isShowMiss:Boolean = true
                 if (ballIndex == numberArray[2]) {//选中了这个号
                     type = NORMAL_TYPE
                     numberShow = numberArray[2].toString()
-                } else if(isShowMiss){//该号码未选中，不管遗漏值
+                } else if (isShowMiss) {//该号码未选中，不管遗漏值
                     var missNum = "1"
                     if (i != 0) {
-                        val lastNumData = fcsddbList.last().numbers[ballIndex+20]
+                        val lastNumData = fcsddbList.last().numbers[ballIndex + 20]
                         missNum = if (lastNumData.ballType == MISS_TYPE) (lastNumData.num.toInt() + 1).toString()
                         else "1"
                     }
@@ -381,7 +385,7 @@ fun getLatestCjdltDate(): String {
 
 fun calRequestPage(date: String): String {
     val latestDate = getLatestFcsdDate()
-    val deltaDay = daysBetween(date, latestDate)+1
+    val deltaDay = daysBetween(date, latestDate) + 1
     return (deltaDay / PAGE_SIZE + 1).toString()
 }
 

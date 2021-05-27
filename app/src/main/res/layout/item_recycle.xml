@@ -9,13 +9,11 @@
 
         <variable
             name="clickListener"
-            type="com.example.baseframework.recycletest.PartialNotifyAdapter.ItemClickWrapper" />
-
+            type="android.view.View.OnClickListener" />
     </data>
 
     <TextView
         android:layout_width="match_parent"
-
         android:layout_height="60dp"
         android:onClick="@{clickListener}"
         android:text="@{text}">

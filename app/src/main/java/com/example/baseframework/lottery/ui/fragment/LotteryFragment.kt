@@ -49,7 +49,7 @@ class LotteryFragment : Fragment(), DataSwitchListener {
             fragmentCallBack.setMainMenuListener(this)
         }
     }
-
+    private var index=0
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         lotteryViewModel.lotteryLiveData.observe(viewLifecycleOwner) { resource ->
@@ -68,6 +68,7 @@ class LotteryFragment : Fragment(), DataSwitchListener {
                                 //显示数据
                                 binding?.lottertView?.refreshData(it, getTitleListByLotteryType(data.lotteryId))
                                 fragmentCallBack.selectMenuItem(data.lotteryId)
+                                binding?.lottertView?.setItemPosition(25-7)
                             }
                         }
                     }

@@ -49,7 +49,7 @@ class LotteryNumDisplayView : View {
     //期号宽度
     private var dateWidth = context.dip2px(64f)
 
-    //期号宽度
+    //期号高度
     private var dateHeight = context.dip2px(64f)
 
 
@@ -59,6 +59,9 @@ class LotteryNumDisplayView : View {
     //数字方框宽度
     private var numHeight: Float = context.dip2px(16f)
 
+    //滚动条长度和宽度
+    private val scrollBarWidth : Float = context.dip2px(4f)
+    private val scrollBarHeight : Float = context.dip2px(24f)
     //字体大小
     private var numTextSize = 16f
 
@@ -88,6 +91,9 @@ class LotteryNumDisplayView : View {
 
     //网格画笔
     private val mMeshPaint: Paint = Paint()
+
+    //滚动条画笔
+    private val mScrollBarPaint: Paint = Paint()
 
     //用于计算字体宽高
     private val tempRect = Rect()
@@ -159,6 +165,13 @@ class LotteryNumDisplayView : View {
         mMeshPaint.style = Paint.Style.STROKE
         mMeshPaint.strokeWidth = 1f
 
+
+        mScrollBarPaint.isAntiAlias = true
+        mScrollBarPaint.color = context.getColorResource(R.color.color_outerTextColor)
+        mScrollBarPaint.style = Paint.Style.FILL
+        //设置为圆角
+        mScrollBarPaint.strokeCap = Paint.Cap.ROUND
+
         mNumTextPaint.isAntiAlias = true
         mNumTextPaint.color = context.getColorResource(R.color.black)
         mNumTextPaint.textSize = context.sp2px(numTextSize)
@@ -204,6 +217,15 @@ class LotteryNumDisplayView : View {
         invalidate()
     }
 
+    fun setItemPosition(position:Int){
+        if(position>dataList.size) return
+        totalScrollX = 0
+        val realPosition = if (position + displayRowNum>= dataList.size) dataList.size-displayRowNum else position
+        totalScrollY = -(realPosition * numHeight).toInt()
+        mLastX = 0
+        mLastY = totalScrollY
+        invalidate()
+    }
 
 //    fun randomBuildNum(i: Int): LotteryItem {
 //        val lotteryNumFrontList = ArrayList<OneLotteryNum>(5)
@@ -320,6 +342,7 @@ class LotteryNumDisplayView : View {
         val y = event.y.toInt()
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
+                isDown= true
                 forceIntercptMove = false
                 //按下时停止滚动
                 cancelFuture()
@@ -352,6 +375,10 @@ class LotteryNumDisplayView : View {
             // 直到下一次重新触发actionDown事件
             MotionEvent.ACTION_POINTER_UP -> {
                 forceIntercptMove = true
+            }
+            MotionEvent.ACTION_UP ->{
+                isDown =false
+                invalidate()
             }
         }
         mLastX = x
@@ -403,6 +430,7 @@ class LotteryNumDisplayView : View {
 
         val startRowsIndex = offStartRowIndex
         val startLinesIndex = offStartLineIndex
+        val currScrollY  = totalScrollY
 
         canvas.saveAndRestore {
 //            scaleCanvas(canvas)
@@ -467,6 +495,13 @@ class LotteryNumDisplayView : View {
                 drawNum(canvas, startRowsIndex, startLinesIndex)
             }
         }
+        //绘制滚动条,带有一定透明度，暂不支持触控滚动条
+        mScrollBarPaint.alpha = if (isScroll || isDown) 128 else 255
+        val totalHeight = (totalRows-displayRowNum+1.5f) * numHeight
+        val scrollBarPosY =abs(currScrollY/totalHeight * (height-numHeight)) +  numHeight
+        val realScrollBarPosY = if(scrollBarPosY + scrollBarHeight >= height)
+            height - scrollBarHeight else scrollBarPosY
+        canvas.drawRect(width - scrollBarWidth,realScrollBarPosY,width.toFloat(),realScrollBarPosY+scrollBarHeight, mScrollBarPaint)
     }
 
     private fun drawMesh(canvas: Canvas) {
@@ -566,7 +601,8 @@ class LotteryNumDisplayView : View {
         canvas.drawText(text, latticeWidth / 2, latticeHeight / 2 + paint.textVerDistance, paint)
     }
 
-
+    private var isScroll = false
+    private var isDown = false
     /**
      * issue -> 期号
      *
@@ -614,6 +650,7 @@ class LotteryNumDisplayView : View {
                 }
             }
             if (!forceIntercptMove) {
+                isScroll = true
                 mFuture = mExecutor.scheduleWithFixedDelay(
                     InertiaScrollTimerTask(vX.toInt(), vY.toInt()), 0, 7L,
                     TimeUnit.MILLISECONDS
@@ -628,6 +665,8 @@ class LotteryNumDisplayView : View {
         if (mFuture != null && !mFuture!!.isCancelled) {
             mFuture!!.cancel(true)
             mFuture = null
+            isScroll = false
+            postInvalidate()
         }
     }
 

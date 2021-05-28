@@ -60,8 +60,9 @@ class LotteryNumDisplayView : View {
     private var numHeight: Float = context.dip2px(16f)
 
     //滚动条长度和宽度
-    private val scrollBarWidth : Float = context.dip2px(4f)
-    private val scrollBarHeight : Float = context.dip2px(24f)
+    private val scrollBarWidth: Float = context.dip2px(4f)
+    private val scrollBarHeight: Float = context.dip2px(24f)
+
     //字体大小
     private var numTextSize = 16f
 
@@ -209,18 +210,18 @@ class LotteryNumDisplayView : View {
         totalRows = dataList.size
         totalLines = this.numTextList.size
         measureNumWH()
-        totalScrollX=0
-        totalScrollY=0
+        totalScrollX = 0
+        totalScrollY = 0
 //        requestLayout()
         //由于requestLayout()时，VIew的w,h都没有改变，并且也没有执行任何动画，所以onDraw函数没有被执行
 
         invalidate()
     }
 
-    fun setItemPosition(position:Int){
-        if(position>dataList.size) return
+    fun setItemPosition(position: Int) {
+        if (position > dataList.size) return
         totalScrollX = 0
-        val realPosition = if (position + displayRowNum>= dataList.size) dataList.size-displayRowNum else position
+        val realPosition = if (position + displayRowNum >= dataList.size) dataList.size - displayRowNum else position
         totalScrollY = -(realPosition * numHeight).toInt()
         mLastX = 0
         mLastY = totalScrollY
@@ -295,12 +296,14 @@ class LotteryNumDisplayView : View {
                 testString = it.num
             }
         }
-        autoMeasureTextSizeToPaint(testString,0.5f,numWidth,mNumTextPaint)
-        autoMeasureTextSizeToPaint(dataList[0].issues,0.8f,dateWidth,mIssuesTextPaint)
+        autoMeasureTextSizeToPaint(testString, 0.5f, numWidth, mNumTextPaint)
+        autoMeasureTextSizeToPaint(dataList[0].issues, 0.8f, dateWidth, mIssuesTextPaint)
     }
 
-    private fun autoMeasureTextSizeToPaint(testString: String,textScale:Float, formWidth:Float,targetPaint:
-    NumTextCenterPaint) {
+    private fun autoMeasureTextSizeToPaint(
+        testString: String, textScale: Float, formWidth: Float, targetPaint:
+        NumTextCenterPaint
+    ) {
         val nowWidth = targetPaint.measureText(testString)
         val maxWidth = min(formWidth * textScale, formWidth * textScale)
         val scale = nowWidth / targetPaint.textSize
@@ -317,7 +320,7 @@ class LotteryNumDisplayView : View {
             return false
         } else if (abs(totalScrollX) + width >= totalLines * numWidth + dateWidth) {
             //这里的+1 之所以要+1是因为需要对float转int时损失的精度作为补偿
-            totalScrollX = (-(totalLines * numWidth + dateWidth - width+1)).toInt()
+            totalScrollX = (-(totalLines * numWidth + dateWidth - width + 1)).toInt()
             return false
         }
         return true
@@ -342,7 +345,7 @@ class LotteryNumDisplayView : View {
         val y = event.y.toInt()
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                isDown= true
+                isDown = true
                 forceIntercptMove = false
                 //按下时停止滚动
                 cancelFuture()
@@ -376,8 +379,8 @@ class LotteryNumDisplayView : View {
             MotionEvent.ACTION_POINTER_UP -> {
                 forceIntercptMove = true
             }
-            MotionEvent.ACTION_UP ->{
-                isDown =false
+            MotionEvent.ACTION_UP -> {
+                isDown = false
                 invalidate()
             }
         }
@@ -430,7 +433,7 @@ class LotteryNumDisplayView : View {
 
         val startRowsIndex = offStartRowIndex
         val startLinesIndex = offStartLineIndex
-        val currScrollY  = totalScrollY
+        val currScrollY = totalScrollY
 
         canvas.saveAndRestore {
 //            scaleCanvas(canvas)
@@ -497,11 +500,15 @@ class LotteryNumDisplayView : View {
         }
         //绘制滚动条,带有一定透明度，暂不支持触控滚动条
         mScrollBarPaint.alpha = if (isScroll || isDown) 128 else 255
-        val totalHeight = (totalRows-displayRowNum+1.5f) * numHeight
-        val scrollBarPosY =abs(currScrollY/totalHeight * (height-numHeight)) +  numHeight
-        val realScrollBarPosY = if(scrollBarPosY + scrollBarHeight >= height)
-            height - scrollBarHeight else scrollBarPosY
-        canvas.drawRect(width - scrollBarWidth,realScrollBarPosY,width.toFloat(),realScrollBarPosY+scrollBarHeight, mScrollBarPaint)
+        val totalHeight = totalRows * numHeight + dateHeight - height
+        val scrollBarPosY = abs(currScrollY) / totalHeight * (height - numHeight - scrollBarHeight) + numHeight
+        canvas.drawRect(
+            width - scrollBarWidth,
+            scrollBarPosY,
+            width.toFloat(),
+            scrollBarPosY + scrollBarHeight,
+            mScrollBarPaint
+        )
     }
 
     private fun drawMesh(canvas: Canvas) {
@@ -580,7 +587,7 @@ class LotteryNumDisplayView : View {
         (num.ballType > 0).doIf({
             mNumTextPaint.color = if (num.ballType == BLUE_BALL_TYPE) {
                 Color.BLUE
-            } else   {
+            } else {
                 Color.RED
             }
             canvas.drawCircle(
@@ -597,7 +604,13 @@ class LotteryNumDisplayView : View {
         })
     }
 
-    private fun drawText(canvas: Canvas, text: String, latticeWidth: Float, latticeHeight: Float, paint: NumTextCenterPaint) {
+    private fun drawText(
+        canvas: Canvas,
+        text: String,
+        latticeWidth: Float,
+        latticeHeight: Float,
+        paint: NumTextCenterPaint
+    ) {
         canvas.drawText(text, latticeWidth / 2, latticeHeight / 2 + paint.textVerDistance, paint)
     }
 

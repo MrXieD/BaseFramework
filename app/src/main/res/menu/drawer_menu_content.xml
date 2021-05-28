@@ -16,5 +16,17 @@
             android:id="@+id/menu_item_cjdlt"
             android:icon="@mipmap/cjdlt"
             android:title="@string/cjdlt" />
+        <item
+            android:id="@+id/menu_item_pls"
+            android:icon="@mipmap/cjdlt"
+            android:title="@string/pl3" />
+        <item
+            android:id="@+id/menu_item_plw"
+            android:icon="@mipmap/cjdlt"
+            android:title="@string/pl5" />
+        <item
+            android:id="@+id/menu_item_qxc"
+            android:icon="@mipmap/cjdlt"
+            android:title="@string/qxc" />
     </group>
 </menu>

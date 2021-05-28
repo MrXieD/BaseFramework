@@ -68,7 +68,6 @@ class LotteryFragment : Fragment(), DataSwitchListener {
                                 //显示数据
                                 binding?.lottertView?.refreshData(it, getTitleListByLotteryType(data.lotteryId))
                                 fragmentCallBack.selectMenuItem(data.lotteryId)
-                                binding?.lottertView?.setItemPosition(25-7)
                             }
                         }
                     }

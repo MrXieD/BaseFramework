@@ -9,9 +9,7 @@ import com.example.baseframework.databinding.ActivityLotteryBinding
 import com.example.baseframework.lottery.ui.fragment.DataSwitchListener
 import com.example.baseframework.lottery.ui.fragment.LotteryFragmentCallBack
 import com.example.imlotterytool.db.AppDatabase
-import com.example.imlotterytool.util.LOTTERY_TYPE_DLT
-import com.example.imlotterytool.util.LOTTERY_TYPE_FCSD
-import com.example.imlotterytool.util.LOTTERY_TYPE_SSQ
+import com.example.imlotterytool.util.*
 import com.google.android.material.navigation.NavigationView
 
 class LotteryActivity : BaseDBActivity<ActivityLotteryBinding>(), LotteryFragmentCallBack {
@@ -25,17 +23,24 @@ class LotteryActivity : BaseDBActivity<ActivityLotteryBinding>(), LotteryFragmen
     //fragment显示相应的数据类型
     val onNavigationItemSelectedListener =
         NavigationView.OnNavigationItemSelectedListener { item ->
-
             when (item.itemId) {
                 R.id.menu_item_fcsd -> {
                     dataSiwchListener.switchTo(LOTTERY_TYPE_FCSD)
                 }
                 R.id.menu_item_ssq -> {
-
                     dataSiwchListener.switchTo(LOTTERY_TYPE_SSQ)
                 }
                 R.id.menu_item_cjdlt -> {
                     dataSiwchListener.switchTo(LOTTERY_TYPE_DLT)
+                }
+                R.id.menu_item_pls -> {
+                    dataSiwchListener.switchTo(LOTTERY_TYPE_PL3)
+                }
+                R.id.menu_item_plw -> {
+                    dataSiwchListener.switchTo(LOTTERY_TYPE_PL5)
+                }
+                R.id.menu_item_qxc -> {
+                    dataSiwchListener.switchTo(LOTTERY_TYPE_7XC)
                 }
             }
             dataBinding.drawerLayout.close()
@@ -61,19 +66,20 @@ class LotteryActivity : BaseDBActivity<ActivityLotteryBinding>(), LotteryFragmen
     override fun selectMenuItem(lotteryId: String) {
         val menuItem =
             when (lotteryId) {
-                LOTTERY_TYPE_FCSD -> {
-                    0
-                }
-                LOTTERY_TYPE_SSQ -> {
-                    1
-                }
-                LOTTERY_TYPE_DLT -> {
-                    2
+                LOTTERY_TYPE_FCSD -> 0
 
-                }
-                else -> {
-                    0
-                }
+                LOTTERY_TYPE_SSQ -> 1
+
+                LOTTERY_TYPE_DLT -> 2
+
+                LOTTERY_TYPE_PL3 -> 3
+
+                LOTTERY_TYPE_PL5 -> 4
+
+                LOTTERY_TYPE_7XC -> 5
+
+                else -> 0
+
             }
         dataBinding.designNavigationView.menu[menuItem].isChecked = true
     }

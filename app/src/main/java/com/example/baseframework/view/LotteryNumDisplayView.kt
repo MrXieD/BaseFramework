@@ -499,7 +499,7 @@ class LotteryNumDisplayView : View {
             }
         }
         //绘制滚动条,带有一定透明度，暂不支持触控滚动条
-        mScrollBarPaint.alpha = if (isScroll || isDown) 128 else 255
+        mScrollBarPaint.alpha = if (isScroll || isDown) 128 else 192
         val totalHeight = totalRows * numHeight + dateHeight - height
         val scrollBarPosY = abs(currScrollY) / totalHeight * (height - numHeight - scrollBarHeight) + numHeight
         canvas.drawRect(

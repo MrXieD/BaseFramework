@@ -143,7 +143,7 @@ class LotteryRepositoryImpl private constructor(
             override fun needMoreDataToShowMissNum(dbResult: List<LotteryEntity>): Boolean {
                 Log.d(TAG, "db2Result: ")
                 cacheList.addAll(dbResult)
-                cacheList = cacheList.distinctBy { it.lotteryDate }.toMutableList()
+                cacheList = cacheList.distinctBy { it.lotteryDate }.sortedBy { it.lotteryNo }.toMutableList()
                 checkDate = dbResult.first().lotteryDate
                 if (cacheList.size <= PAGE_SIZE+1) {
                     //只有最近五十条数量不能满足第一条能显示遗漏数据，所以需要再往前获取一页数据
@@ -151,15 +151,16 @@ class LotteryRepositoryImpl private constructor(
                 }
                 //应该是对每一位是否在前50条里出现过进行统计，
                 //如果没有全部出现那就在获取一次
+                val front=cacheList.slice(0 until cacheList.size-PAGE_SIZE)
                 when (lotteryType) {
                     LOTTERY_TYPE_FCSD, LOTTERY_TYPE_PL3 -> {
-                        return isMissNum(cacheList,3)
+                        return isMissNum(front,3)
                     }
                     LOTTERY_TYPE_PL5->{
-                        return isMissNum(cacheList,5)
+                        return isMissNum(front,5)
                     }
                     LOTTERY_TYPE_7XC->{
-                        return isMissNum(cacheList,7)
+                        return isMissNum(front,7)
                     }
                 }
                 return true

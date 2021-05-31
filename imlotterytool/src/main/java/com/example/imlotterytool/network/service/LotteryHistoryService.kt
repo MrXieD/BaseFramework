@@ -1,6 +1,7 @@
 package com.example.imlotterytool.network.service
 
 import com.example.imlotterytool.network.entity.LotteryResponse
+import com.example.imlotterytool.util.PAGE_SIZE
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -17,6 +18,6 @@ interface LotteryHistoryService {
         @Query("key") key: String,
         @Query("lottery_id") lotteryId: String,
         @Query("page") page: String="1",
-        @Query(" page_size") pageSize: String = "50"
+        @Query(" page_size") pageSize: String = PAGE_SIZE.toString()
     ): Response<LotteryResponse>
 }

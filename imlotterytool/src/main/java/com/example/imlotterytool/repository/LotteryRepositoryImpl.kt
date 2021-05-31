@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 import java.lang.Exception
 import java.util.*
-import kotlin.collections.HashMap
 import kotlin.collections.HashSet
 
 
@@ -22,7 +21,7 @@ import kotlin.collections.HashSet
 @date: 2021/5/13
 @desription:
  */
-class LotteryRepository private constructor(
+class LotteryRepositoryImpl private constructor(
     private val lotteryDao: LotteryDao,
     private val lotteryHistoryService: LotteryHistoryService
 ) : ILotteryRepository {
@@ -37,10 +36,10 @@ class LotteryRepository private constructor(
             var checkDate: String = date ?: latestDate//如果日期为空则从最近一期开始返回，否则从该日期返回
             override fun db2Result(dbResult: List<LotteryEntity>?): LotteryHistory? {
                 if (needPassNum()) {
-                    cacheList.sortBy { it.lotteryDate }
-                    return LotteryHistory(convertDb2Result(lotteryType, cacheList)!!.toMutableList().also {
+                    cacheList.sortBy { it.lotteryNo }
+                    return LotteryHistory(convertDb2Result(lotteryType, cacheList.distinctBy { it.lotteryDate })!!.also {
                         var i = 0
-                        while (i < PAGE_SIZE-1) {
+                        while (i < PAGE_SIZE - 1) {
                             it.removeFirst()
                             i++
                         }
@@ -135,50 +134,32 @@ class LotteryRepository private constructor(
 
             override fun needPassNum(): Boolean {
                 return when (lotteryType) {
-                    LOTTERY_TYPE_FCSD -> true
-                    else  ->  false
+                    LOTTERY_TYPE_FCSD,LOTTERY_TYPE_PL3,LOTTERY_TYPE_PL5,LOTTERY_TYPE_7XC -> true
+                    else -> false
                 }
             }
 
-            private var cacheList: LinkedList<LotteryEntity> = LinkedList<LotteryEntity>()
+            private var cacheList: MutableList<LotteryEntity> = mutableListOf()
             override fun needMoreDataToShowMissNum(dbResult: List<LotteryEntity>): Boolean {
                 Log.d(TAG, "db2Result: ")
-                if (cacheList.isNotEmpty()) {
-                    //去除日期相同的
-                    cacheList.removeFirst()
-                }
                 cacheList.addAll(dbResult)
-                //更新日期
+                cacheList = cacheList.distinctBy { it.lotteryDate }.toMutableList()
                 checkDate = dbResult.first().lotteryDate
-                if(cacheList.size<=PAGE_SIZE){
+                if (cacheList.size <= PAGE_SIZE+1) {
                     //只有最近五十条数量不能满足第一条能显示遗漏数据，所以需要再往前获取一页数据
                     return true
                 }
                 //应该是对每一位是否在前50条里出现过进行统计，
                 //如果没有全部出现那就在获取一次
                 when (lotteryType) {
-                    LOTTERY_TYPE_FCSD -> {
-                        val baiMap = HashSet<Int>()
-                        val shiMap = HashSet<Int>()
-                        val geMap = HashSet<Int>()
-                        cacheList.forEach {
-                            val numberArray = convert2Numbers(it.lotteryRes)
-                            //百位
-                            val bai = numberArray[0]
-                            if (!baiMap.contains(bai)) {
-                                baiMap.add(bai)
-                            }
-                            val shi = numberArray[1]
-                            if (!shiMap.contains(shi)) {
-                                shiMap.add(shi)
-                            }
-                            val ge = numberArray[2]
-                            if (!geMap.contains(ge)) {
-                                geMap.add(ge)
-                            }
-                        }
-                        Log.i("needMoreDatam","baiMap.size-->${baiMap.size} ,shiMap.size--->${shiMap.size} ,geMap.size-->${geMap.size} ")
-                        return !(baiMap.size == 10 && shiMap.size == 10 && geMap.size == 10)
+                    LOTTERY_TYPE_FCSD, LOTTERY_TYPE_PL3 -> {
+                        return isMissNum(cacheList,3)
+                    }
+                    LOTTERY_TYPE_PL5->{
+                        return isMissNum(cacheList,5)
+                    }
+                    LOTTERY_TYPE_7XC->{
+                        return isMissNum(cacheList,7)
                     }
                 }
                 return true
@@ -186,15 +167,38 @@ class LotteryRepository private constructor(
         }.flow
     }
 
+    //bit 有几位，并且从高到低
+    private fun isMissNum(numList: List<LotteryEntity>, bit: Int): Boolean {
+        val bitList = mutableListOf<HashSet<Int>>()
+        for (i in 0 until bit) {
+            bitList.add(HashSet<Int>())
+        }
+        numList.forEach {
+            val numberArray = convert2Numbers(it.lotteryRes)
+            //百位
+            for (i in 0 until bit) {
+                val bitNum = numberArray[i]
+                val bitSet = bitList[i]
+                if (!bitSet.contains(bitNum)) {
+                    bitSet.add(bitNum)
+                }
+            }
+        }
+        bitList.forEach {
+            if (it.size < 10) return true
+        }
+        return false
+    }
+
 
     companion object {
         private const val TAG = "LotteryRepository"
-        private var instance: LotteryRepository? = null
-        fun getInstance(context: Context): LotteryRepository {
+        private var instance: LotteryRepositoryImpl? = null
+        fun getInstance(context: Context): LotteryRepositoryImpl {
             if (instance == null) {
-                synchronized(LotteryRepository::class.java) {
+                synchronized(LotteryRepositoryImpl::class.java) {
                     if (instance == null) {
-                        instance = LotteryRepository(
+                        instance = LotteryRepositoryImpl(
                             AppDatabase.getInstance(context).weatherDao(),
                             RetrofitManager.createService(clazz = LotteryHistoryService::class.java)
                         )

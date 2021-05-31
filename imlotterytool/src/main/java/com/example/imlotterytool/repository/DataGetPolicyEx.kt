@@ -21,12 +21,22 @@ abstract class DataGetPolicyEx<DBTYPE, NETRESPONSETYPE, RESULTTYPE> {
             }
             dbResult = loadFromDb()
             val fetch = shouldFetch(dbResult)
-            if (!fetch){
-                if(needPassNum()){
-                    if(!needMoreDataToShowMissNum(dbResult!!)){
+            if (!fetch) {
+                if (needPassNum()) {
+                    var loops = 0
+                    var needNet = true
+                    while (loops < COUNTOUT-1) {
+                        if (!needMoreDataToShowMissNum(dbResult!!)) {
+                            needNet = false
+                            break
+                        }
+                        dbResult = loadFromDb()
+                        loops++
+                    }
+                    if(!needNet){
                         break
                     }
-                }else break
+                } else break
             }
             val netResult = createCall()
             saveCallResult(netResult)
@@ -44,9 +54,11 @@ abstract class DataGetPolicyEx<DBTYPE, NETRESPONSETYPE, RESULTTYPE> {
 
     abstract fun shouldFetch(dbResult: DBTYPE?): Boolean
 
-    abstract suspend fun loadFromDb(date:String? = null): DBTYPE?
+    abstract suspend fun loadFromDb(date: String? = null): DBTYPE?
+
     //是否需要显示遗漏号码
-    abstract fun needPassNum():Boolean
+    abstract fun needPassNum(): Boolean
+
     //是否需要加载更多数据来显示遗漏号码
-    abstract fun needMoreDataToShowMissNum(dbResult: DBTYPE):Boolean
+    abstract fun needMoreDataToShowMissNum(dbResult: DBTYPE): Boolean
 }

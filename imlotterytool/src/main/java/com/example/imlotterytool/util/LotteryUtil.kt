@@ -2,6 +2,7 @@ package com.example.imlotterytool.util
 
 import android.util.Log
 import com.example.imlotterytool.db.table.*
+import java.lang.NullPointerException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -10,11 +11,17 @@ fun convertDb2Result(
     lotteryId: String,
     dataList: List<LotteryEntity>?,
     isShowMiss: Boolean = true
-): List<LotteryItem>? {
+): MutableList<LotteryItem>? {
     dataList?.let {
         when (lotteryId) {
-            LOTTERY_TYPE_FCSD -> {
-                return convert2_FCSD_BData(it, isShowMiss)
+            LOTTERY_TYPE_FCSD,LOTTERY_TYPE_PL3 -> {
+                return convert2_FCSD_BData(it,3)
+            }
+            LOTTERY_TYPE_PL5 -> {
+                return convert2_FCSD_BData(it,5)
+            }
+            LOTTERY_TYPE_7XC -> {
+                return convert2_FCSD_BData(it,7)
             }
             LOTTERY_TYPE_SSQ -> {
                 return convert2SsqDBData(it)
@@ -23,13 +30,14 @@ fun convertDb2Result(
                 return convert2CjdltDBData(it)
             }
             else -> {
+                throw NullPointerException("未指定的彩票类型")
             }
         }
     }
     return null
 }
 
-fun convert2CjdltDBData(dataList: List<LotteryEntity>): List<LotteryItem>? {
+fun convert2CjdltDBData(dataList: List<LotteryEntity>): MutableList<LotteryItem>? {
     dataList.let {
         val allList = ArrayList<LotteryItem>()
         for (lotterData in it) {
@@ -86,7 +94,7 @@ fun checkCjdltRedIsSelect(ballIndex: Int, numberArray: List<Int>): Int {
     return -1
 }
 
-fun convert2SsqDBData(dataList: List<LotteryEntity>): List<LotteryItem>? {
+fun convert2SsqDBData(dataList: List<LotteryEntity>): MutableList<LotteryItem>? {
 
     dataList?.let {
         val fcsddbList = ArrayList<LotteryItem>()
@@ -148,141 +156,57 @@ fun checkSsqRedIsSelect(ballIndex: Int, numberArray: List<Int>): Int {
  *将福彩3d数据转换成数据库存储格式
  *
  */
-fun convert2_FCSD_BData(dataList: List<LotteryEntity>?, isShowMiss: Boolean = true): List<LotteryItem>? {
+fun convert2_FCSD_BData(dataList: List<LotteryEntity>?,bitCount:Int, isShowMiss: Boolean = true):
+        MutableList<LotteryItem>? {
     dataList?.let {
         val fcsddbList = ArrayList<LotteryItem>()
         for (i in it.indices) {
             val oneList = ArrayList<OneLotteryNum>()
             val numberArray = convert2Numbers(it[i].lotteryRes)
-            //百位
-            for (ballIndex in 0..9) {
-                var numberShow = "-"
-                var type: Int = MISS_TYPE
-                if (ballIndex == numberArray[0]) {//选中了这个号
-                    type = NORMAL_TYPE
-                    numberShow = numberArray[0].toString()
-                } else if (isShowMiss) {//该号码未选中，不管遗漏值
-                    var missNum = "1"
-                    if (i != 0) {
-                        val lastNumData = fcsddbList.last().numbers[ballIndex]
-                        missNum = if (lastNumData.ballType == MISS_TYPE) (lastNumData.num.toInt() + 1).toString()
-                        else "1"
+            for (bitIndex in 0 until bitCount){
+                for (ballIndex in 0..9) {
+                    var numberShow = "-"
+                    var type: Int = MISS_TYPE
+                    if (ballIndex == numberArray[bitIndex]) {//选中了这个号
+                        type = NORMAL_TYPE
+                        numberShow = numberArray[bitIndex].toString()
+                    } else if (isShowMiss) {//该号码未选中，不管遗漏值
+                        var missNum = "1"
+                        if (i != 0) {
+                            val lastNumData = fcsddbList.last().numbers[ballIndex + 10 * bitIndex]
+                            missNum = if (lastNumData.ballType == MISS_TYPE) (lastNumData.num.toInt() + 1).toString()
+                            else "1"
+                        }
+                        numberShow = missNum
                     }
-                    numberShow = missNum
+                    oneList.add(OneLotteryNum(numberShow, type))
                 }
-                oneList.add(OneLotteryNum(numberShow, type))
-            }
-
-            //十位
-            for (ballIndex in 0..9) {
-                var numberShow = "-"
-                var type: Int = MISS_TYPE
-                if (ballIndex == numberArray[1]) {//选中了这个号
-                    type = NORMAL_TYPE
-                    numberShow = numberArray[1].toString()
-                } else if (isShowMiss) {//该号码未选中，不管遗漏值
-                    var missNum = "1"
-                    if (i != 0) {
-                        val lastNumData = fcsddbList.last().numbers[ballIndex + 10]
-                        missNum = if (lastNumData.ballType == MISS_TYPE) (lastNumData.num.toInt() + 1).toString()
-                        else "1"
-                    }
-                    numberShow = missNum
-                }
-                oneList.add(OneLotteryNum(numberShow, type))
-            }
-
-            //个位
-            for (ballIndex in 0..9) {
-                var numberShow = "-"
-                var type: Int = MISS_TYPE
-                if (ballIndex == numberArray[2]) {//选中了这个号
-                    type = NORMAL_TYPE
-                    numberShow = numberArray[2].toString()
-                } else if (isShowMiss) {//该号码未选中，不管遗漏值
-                    var missNum = "1"
-                    if (i != 0) {
-                        val lastNumData = fcsddbList.last().numbers[ballIndex + 20]
-                        missNum = if (lastNumData.ballType == MISS_TYPE) (lastNumData.num.toInt() + 1).toString()
-                        else "1"
-                    }
-                    numberShow = missNum
-                }
-                oneList.add(OneLotteryNum(numberShow, type))
             }
             fcsddbList.add(LotteryItem(it[i].lotteryNo, oneList))
         }
-//        for (lotterData in it) {
-//            val oneList = ArrayList<OneLotteryNum>()
-//            val numberArray = convert2Numbers(lotterData.lotteryRes)
-//            //百位
-//            for (ballIndex in 0..9) {
-//                var numberShow = "-"
-//                var type: Int = MISS_TYPE
-//                if (ballIndex == numberArray[0]) {//选中了这个号
-//                    type = NORMAL_TYPE
-//                    numberShow = numberArray[0].toString()
-//                } else {//该号码未选中，不管遗漏值
-//
-//                }
-//                oneList.add(OneLotteryNum(numberShow, type))
-//            }
-//
-//            //十位
-//            for (ballIndex in 0..9) {
-//                var numberShow = "-"
-//                var type: Int = MISS_TYPE
-//                if (ballIndex == numberArray[1]) {//选中了这个号
-//                    type = NORMAL_TYPE
-//                    numberShow = numberArray[1].toString()
-//                } else {//该号码未选中，不管遗漏值
-//                }
-//                oneList.add(OneLotteryNum(numberShow, type))
-//            }
-//
-//            //个位
-//            for (ballIndex in 0..9) {
-//                var numberShow = "-"
-//                var type: Int = MISS_TYPE
-//                if (ballIndex == numberArray[2]) {//选中了这个号
-//                    type = NORMAL_TYPE
-//                    numberShow = numberArray[2].toString()
-//                } else {//该号码未选中，不管遗漏值
-//                }
-//                oneList.add(OneLotteryNum(numberShow, type))
-//            }
-//            fcsddbList.add(LotteryItem(lotterData.lotteryNo, oneList))
-//        }
         return fcsddbList
     }
     return null
 }
 
 fun convert2Numbers(lotteryRes: String): List<Int> = lotteryRes.split(",").map { it.toInt() }
-//fun convert2Numbers(lotteryRes: String): Array<Int> {
-//
-//    val strArray = lotteryRes.split(",")
-//
-//    val numberArray = Array(strArray.size) { it }
-//
-//    for (index in numberArray.indices) {
-//        numberArray[index] = strArray[index].toInt()
-//    }
-//    return numberArray
-//}
 
 
 fun getLatestLotteryDateByType(lotteryId: String): String {
     return when (lotteryId) {
-        LOTTERY_TYPE_FCSD -> {
+        LOTTERY_TYPE_FCSD,LOTTERY_TYPE_PL3,LOTTERY_TYPE_PL5 -> {
             getLatestFcsdDate()
         }
         LOTTERY_TYPE_SSQ -> {
             getLatestSsqDate()
         }
-        else -> {
+        LOTTERY_TYPE_DLT -> {
             getLatestCjdltDate()
         }
+        LOTTERY_TYPE_7XC -> {
+            getLatestQXCDate()
+        }
+        else -> throw NullPointerException("未指定的彩票类型")
     }
 }
 
@@ -332,6 +256,41 @@ fun getLatestSsqDate(): String {
             return df.format(nowClendar.time)
         }
         Calendar.MONDAY, Calendar.WEDNESDAY, Calendar.FRIDAY -> {//一三五，前一天开奖
+            nowClendar.add(Calendar.DAY_OF_MONTH, -1)
+            return df.format(nowClendar.time)
+        }
+        else -> {//六，倒推两天开奖
+            nowClendar.add(Calendar.DAY_OF_MONTH, -2)
+            return df.format(nowClendar.time)
+        }
+    }
+}
+/**
+ *
+ * 获取最近一次七星彩开奖的时间，开奖是每周二、五、七 21:15分以后，一般延迟十五分钟到半个小时才能获取数据
+ */
+fun getLatestQXCDate(): String {
+    val df = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA)
+    val nowClendar = Calendar.getInstance()
+    var w = nowClendar[Calendar.DAY_OF_WEEK]
+    val openCalendar = Calendar.getInstance()//依据当前时间来推算开奖时间
+    when (w) {
+        Calendar.TUESDAY, Calendar.FRIDAY, Calendar.SUNDAY -> {//二五七，当日开奖
+            openCalendar.let {
+                it.set(Calendar.HOUR_OF_DAY, 20)
+                it.set(Calendar.MINUTE, 45)
+            }
+            if (nowClendar.after(openCalendar) || nowClendar.equals(openCalendar)) {
+                return df.format(nowClendar.time)
+            }
+            var deltaDay = -2
+            if (w == Calendar.FRIDAY) {
+                deltaDay = -3
+            }
+            nowClendar.add(Calendar.DAY_OF_MONTH, deltaDay)
+            return df.format(nowClendar.time)
+        }
+        Calendar.MONDAY, Calendar.WEDNESDAY, Calendar.SATURDAY -> {//一三六，前一天开奖
             nowClendar.add(Calendar.DAY_OF_MONTH, -1)
             return df.format(nowClendar.time)
         }
@@ -402,16 +361,28 @@ fun daysBetween(beforeDate: String, afterDate: String): Int {
 
 fun getTitleListByLotteryType(lotteryId: String): List<String> {
     val arrayList = ArrayList<String>()
-
     when (lotteryId) {
-        LOTTERY_TYPE_FCSD -> {
+        LOTTERY_TYPE_FCSD,LOTTERY_TYPE_PL3 -> {
             for (outterIndex in 0..2) {
                 for (innerIndex in 0..9) {
                     arrayList.add(innerIndex.toString())
                 }
             }
         }
-
+        LOTTERY_TYPE_PL5 -> {
+            for (outterIndex in 0..4) {
+                for (innerIndex in 0..9) {
+                    arrayList.add(innerIndex.toString())
+                }
+            }
+        }
+        LOTTERY_TYPE_7XC -> {
+            for (outterIndex in 0..6) {
+                for (innerIndex in 0..9) {
+                    arrayList.add(innerIndex.toString())
+                }
+            }
+        }
         LOTTERY_TYPE_SSQ -> {
             for (redIndex in 1..33) {
                 arrayList.add(redIndex.toString())

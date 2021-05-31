@@ -1,7 +1,7 @@
 package com.example.imlotterytool.util
 
 import android.content.Context
-import com.example.imlotterytool.repository.LotteryRepository
+import com.example.imlotterytool.repository.LotteryRepositoryImpl
 import com.example.imlotterytool.viewmodel.LotteryViewModelFactory
 
 /**
@@ -12,8 +12,8 @@ import com.example.imlotterytool.viewmodel.LotteryViewModelFactory
 object InjectorUtil {
 
 
-    private fun getLotteryRepositery(context: Context): LotteryRepository {
-        return LotteryRepository.getInstance(context)
+    private fun getLotteryRepositery(context: Context): LotteryRepositoryImpl {
+        return LotteryRepositoryImpl.getInstance(context)
     }
 
 

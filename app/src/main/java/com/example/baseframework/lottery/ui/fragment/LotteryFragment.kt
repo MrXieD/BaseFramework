@@ -12,8 +12,7 @@ import androidx.fragment.app.viewModels
 import com.example.baseframework.R
 import com.example.baseframework.databinding.FragmentLotteryBinding
 import com.example.imlotterytool.repository.Status
-import com.example.imlotterytool.util.InjectorUtil
-import com.example.imlotterytool.util.getTitleListByLotteryType
+import com.example.imlotterytool.util.*
 import com.example.imlotterytool.viewmodel.LotteryViewModel
 import com.google.android.material.snackbar.Snackbar
 
@@ -66,8 +65,16 @@ class LotteryFragment : Fragment(), DataSwitchListener {
                             dataList?.let {
                                 showSnackBar("获取数据成功！")
                                 //显示数据
+
+                                val bitCount =
+                                    when (lotteryType) {
+                                        LOTTERY_TYPE_SSQ -> 33
+                                        LOTTERY_TYPE_DLT -> 35
+                                        LOTTERY_TYPE_FCSD,LOTTERY_TYPE_PL3,LOTTERY_TYPE_PL5,LOTTERY_TYPE_7XC -> 10
+                                        else -> 0
+                                    }
+                                binding?.lottertView?.setBitCount(bitCount)
                                 binding?.lottertView?.refreshData(it, getTitleListByLotteryType(data.lotteryId))
-                                fragmentCallBack.selectMenuItem(data.lotteryId)
                             }
                         }
                     }
@@ -82,9 +89,10 @@ class LotteryFragment : Fragment(), DataSwitchListener {
             }
         }
     }
-
+    private var lotteryType = ""
     override fun switchTo(lotteryId: String) {
         Log.d(TAG, "query: $lotteryId")
+        lotteryType = lotteryId
         lotteryViewModel.requestHistory(lotteryId)
     }
 

@@ -48,7 +48,8 @@ class LotteryFragment : Fragment(), DataSwitchListener {
             fragmentCallBack.setMainMenuListener(this)
         }
     }
-    private var index=0
+
+    private var index = 0
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         lotteryViewModel.lotteryLiveData.observe(viewLifecycleOwner) { resource ->
@@ -70,10 +71,11 @@ class LotteryFragment : Fragment(), DataSwitchListener {
                                     when (lotteryType) {
                                         LOTTERY_TYPE_SSQ -> 33
                                         LOTTERY_TYPE_DLT -> 35
-                                        LOTTERY_TYPE_FCSD,LOTTERY_TYPE_PL3,LOTTERY_TYPE_PL5,LOTTERY_TYPE_7XC -> 10
+                                        LOTTERY_TYPE_FCSD, LOTTERY_TYPE_PL3, LOTTERY_TYPE_PL5, LOTTERY_TYPE_7XC -> 10
                                         else -> 0
                                     }
-                                binding?.lottertView?.setBitCount(bitCount)
+                                fragmentCallBack.selectMenuItem(data.lotteryId)
+                                binding?.lottertView?.mBitCount = bitCount
                                 binding?.lottertView?.refreshData(it, getTitleListByLotteryType(data.lotteryId))
                             }
                         }
@@ -89,6 +91,7 @@ class LotteryFragment : Fragment(), DataSwitchListener {
             }
         }
     }
+
     private var lotteryType = ""
     override fun switchTo(lotteryId: String) {
         Log.d(TAG, "query: $lotteryId")

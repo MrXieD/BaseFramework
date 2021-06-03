@@ -14,6 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/BaseFramework"
         android:usesCleartextTraffic="true"
+        android:hardwareAccelerated="false"
         tools:targetApi="m">
         <activity android:name=".lottery.ui.LotteryActivity">
             <!--            android:screenOrientation="landscape"-->

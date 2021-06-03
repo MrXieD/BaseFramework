@@ -43,21 +43,21 @@ class LotteryNumDisplayView : View {
     private var displayLineNum = 10
 
     //期号宽度
-    private var dateWidth = context.dip2px(64f)
+    private var dateWidth = context.dip2px(64)
 
     //期号高度
-    private var dateHeight = context.dip2px(64f)
+    private var dateHeight = context.dip2px(64)
 
 
     //数字方框宽度
-    private var numWidth: Float = context.dip2px(16f)
+    private var numWidth = context.dip2px(16)
 
     //数字方框宽度
-    private var numHeight: Float = context.dip2px(16f)
+    private var numHeight = context.dip2px(16)
 
     //滚动条长度和宽度
-    private val scrollBarWidth: Float = context.dip2px(4f)
-    private val scrollBarHeight: Float = context.dip2px(24f)
+    private val scrollBarWidth: Int = context.dip2px(6)
+    private val scrollBarHeight: Int = context.dip2px(32)
 
     //字体大小
     private var numTextSize = 16f
@@ -111,13 +111,13 @@ class LotteryNumDisplayView : View {
     private var totalScrollX = 0
 
     //网格X轴偏移量
-    private var meshScrollX = 0f
+    private var meshScrollX = 0
 
     @Volatile
     private var totalScrollY = 0
 
     //网格Y轴偏移量
-    private var meshScrollY = 0f
+    private var meshScrollY = 0
 
     private var flingGestureDetector: GestureDetector
 
@@ -147,7 +147,7 @@ class LotteryNumDisplayView : View {
     private var isShowBrokenLine = false
 
     //折线点位List(以列优先的形式存储point)
-    private val mBrokenLinePointsList = mutableListOf<MutableList<PointF>>()
+    private val mBrokenLinePointsList = mutableListOf<MutableList<Point>>()
 
     constructor(context: Context) : super(context) {
 
@@ -250,9 +250,9 @@ class LotteryNumDisplayView : View {
                 if(!isShowBrokenLine) return
                 mBrokenLinePointsList.clear()
                 for (i in 0 until value) {
-                    val pointList = mutableListOf<PointF>()
+                    val pointList = mutableListOf<Point>()
                     for (j in 0..displayRowNum + 2) {
-                        pointList.add(PointF())
+                        pointList.add(Point())
                     }
                     mBrokenLinePointsList.add(pointList)
                 }
@@ -273,8 +273,8 @@ class LotteryNumDisplayView : View {
         if (dataList.isEmpty()) return
 
         numWidth = (width - dateWidth) / displayLineNum
-        //
-        numHeight = height / (displayRowNum + 1f)
+
+        numHeight = height / (displayRowNum + 1)
 
         dateHeight = numHeight
         //画笔字体自适应计算
@@ -284,8 +284,8 @@ class LotteryNumDisplayView : View {
                 testString = it.num
             }
         }
-        autoMeasureTextSizeToPaint(testString, 0.5f, numWidth, mNumTextPaint)
-        autoMeasureTextSizeToPaint(dataList[0].issues, 0.8f, dateWidth, mIssuesTextPaint)
+        autoMeasureTextSizeToPaint(testString, 0.5f, numWidth.toFloat(), mNumTextPaint)
+        autoMeasureTextSizeToPaint(dataList[0].issues, 0.8f, dateWidth.toFloat(), mIssuesTextPaint)
     }
 
     private fun autoMeasureTextSizeToPaint(
@@ -308,7 +308,7 @@ class LotteryNumDisplayView : View {
             return false
         } else if (abs(totalScrollX) + width >= totalLines * numWidth + dateWidth) {
             //这里的+1 之所以要+1是因为需要对float转int时损失的精度作为补偿
-            totalScrollX = (-(totalLines * numWidth + dateWidth - width + 1)).toInt()
+            totalScrollX = -(totalLines * numWidth + dateWidth - width)
             return false
         }
         return true
@@ -320,7 +320,7 @@ class LotteryNumDisplayView : View {
             return false
         } else {
             if (abs(totalScrollY) + height >= totalRows * numHeight + dateHeight) {
-                totalScrollY = (-(totalRows * numHeight + dateHeight - height)).toInt()
+                totalScrollY = -(totalRows * numHeight + dateHeight - height)
                 return false
             }
         }
@@ -389,7 +389,7 @@ class LotteryNumDisplayView : View {
                 cX -= deltaX
                 cX = if (cX <= 0) 0f else cX
             }
-        } else if (totalScrollX == (-(totalLines * numWidth + dateWidth - width)).toInt()) {//最右边
+        } else if (totalScrollX == -(totalLines * numWidth + dateWidth - width)) {//最右边
             if (deltaX < 0 && (cX < width)) {
                 cX -= deltaX
                 cX = if (cX >= width) width.toFloat() else cX
@@ -402,7 +402,7 @@ class LotteryNumDisplayView : View {
                 cY -= deltaY
                 cY = if (cY <= 0) 0f else cY
             }
-        } else if (totalScrollY == (-(totalRows * numHeight + numHeight - height)).toInt()) {//最下边
+        } else if (totalScrollY == -(totalRows * numHeight + numHeight - height)) {//最下边
             if (deltaY < 0 && cY <= height) {
                 cY -= deltaY
                 cY = if (cY >= height) height.toFloat() else cY
@@ -420,25 +420,25 @@ class LotteryNumDisplayView : View {
         super.onDraw(canvas)
         if (dataList.isEmpty()) return
         meshScrollX = totalScrollX % numWidth
-        offStartLineIndex = abs(totalScrollX / numWidth).toInt()
+        offStartLineIndex = abs(totalScrollX / numWidth)
         meshScrollY = totalScrollY % numHeight
-        offStartRowIndex = abs(totalScrollY / numHeight).toInt()
+        offStartRowIndex = abs(totalScrollY / numHeight)
 
         val startRowsIndex = offStartRowIndex
         val startLinesIndex = offStartLineIndex
         val currScrollY = totalScrollY
 
         canvas.saveAndRestore {
-            canvas.drawLine(dateWidth, 0f, dateWidth, numHeight, mThickMeshPaint)
-            canvas.drawLine(0f, numHeight, dateWidth, numHeight, mThickMeshPaint)
+            canvas.drawLine(dateWidth.toFloat(), 0f, dateWidth.toFloat(), numHeight.toFloat(), mThickMeshPaint)
+            canvas.drawLine(0f, numHeight.toFloat(), dateWidth.toFloat(), numHeight.toFloat(), mThickMeshPaint)
             val date = "期号"
             mNumTextPaint.getTextBounds(date, 0, date.length, tempRect)
             mNumTextPaint.color = context.getColorResource(R.color.black)
-            drawText(canvas, date, dateWidth, numHeight, mIssuesTextPaint)
+            drawText(canvas, date, dateWidth.toFloat(), numHeight.toFloat(), mIssuesTextPaint)
             //绘制期号Title
             canvas.saveAndRestore {
-                canvas.translate(0f, numHeight)
-                canvas.translate(0f, meshScrollY)
+                canvas.translate(0f, numHeight.toFloat())
+                canvas.translate(0f, meshScrollY.toFloat())
                 canvas.saveAndRestore {
                     val endRowsIndex =
                         if (startRowsIndex + displayRowNum >= dataList.size) dataList.size - 1 else startRowsIndex + displayRowNum
@@ -446,26 +446,26 @@ class LotteryNumDisplayView : View {
                         canvas.saveAndRestore {
                             if (i == startRowsIndex) {
                                 canvas.clipRect(
-                                    0f, abs(meshScrollY), dateWidth + mThickMeshPaint.strokeWidth / 2,
+                                    0, abs(meshScrollY), dateWidth + (mThickMeshPaint.strokeWidth / 2).toInt(),
                                     numHeight
                                 )
                             }
                             val paint = if (i % 5 == 0) mThickMeshPaint else mMeshPaint
-                            canvas.drawLine(0f, 0f, dateWidth, 0f, paint)
-                            canvas.drawLine(dateWidth, 0f, dateWidth, numHeight, mThickMeshPaint)
+                            canvas.drawLine(0f, 0f, dateWidth.toFloat(), 0f, paint)
+                            canvas.drawLine(dateWidth.toFloat(), 0f, dateWidth.toFloat(), numHeight.toFloat(), mThickMeshPaint)
                             val dateNum = dataList[i]
                             mIssuesTextPaint.getTextBounds(dateNum.issues, 0, dateNum.issues.length, tempRect)
                             mIssuesTextPaint.color = context.getColorResource(R.color.black)
-                            drawText(canvas, dateNum.issues, dateWidth, numHeight, mIssuesTextPaint)
+                            drawText(canvas, dateNum.issues, dateWidth.toFloat(), numHeight.toFloat(), mIssuesTextPaint)
                         }
-                        canvas.translate(0f, numHeight)
+                        canvas.translate(0f, numHeight.toFloat())
                     }
                 }
             }
             //绘制数字Title
             canvas.saveAndRestore {
-                canvas.translate(dateWidth, 0f)
-                canvas.translate(meshScrollX, 0f)
+                canvas.translate(dateWidth.toFloat(), 0f)
+                canvas.translate(meshScrollX.toFloat(), 0f)
                 canvas.saveAndRestore {
                     val endLinesIndex =
                         if (startLinesIndex + displayLineNum < numTextList.size) startLinesIndex + displayLineNum else numTextList.size - 1
@@ -474,9 +474,9 @@ class LotteryNumDisplayView : View {
                             if (i == startLinesIndex) {
                                 canvas.clipRect(
                                     abs(meshScrollX),
-                                    0f,
+                                    0,
                                     numWidth,
-                                    numHeight + mThickMeshPaint.strokeWidth / 2
+                                    numHeight + (mThickMeshPaint.strokeWidth / 2).toInt()
                                 )
                             }
                             val paint = if (mBitCount > 0) {
@@ -490,21 +490,21 @@ class LotteryNumDisplayView : View {
 //                                marginInterval, marginInterval, numWidth-marginInterval, numHeight-marginInterval, if (backgroundColorIndex % 2 == 0) mBackgroundColorPaint1
 //                                else mBackgroundColorPaint2
 //                            )
-                            canvas.drawLine(0f, 0f, 0f, numHeight, paint)
-                            canvas.drawLine(0f, numHeight, numWidth, numHeight, mThickMeshPaint)
+                            canvas.drawLine(0f, 0f, 0f, numHeight.toFloat(), paint)
+                            canvas.drawLine(0f, numHeight.toFloat(), numWidth.toFloat(), numHeight.toFloat(), mThickMeshPaint)
                             val numText = numTextList[i]
                             mNumTextPaint.getTextBounds(numText, 0, numText.length, tempRect)
                             mNumTextPaint.color = context.getColorResource(R.color.black)
-                            drawText(canvas, numText, numWidth, numHeight, mNumTextPaint)
+                            drawText(canvas, numText, numWidth.toFloat(), numHeight.toFloat(), mNumTextPaint)
                         }
-                        canvas.translate(numWidth, 0f)
+                        canvas.translate(numWidth.toFloat(), 0f)
                     }
                 }
             }
 
 
             canvas.saveAndRestore {
-                canvas.translate(dateWidth, numHeight)
+                canvas.translate(dateWidth.toFloat(), numHeight.toFloat())
                 //绘制号码
                 drawNum(canvas, startRowsIndex, startLinesIndex)
                 //绘制网格
@@ -518,17 +518,17 @@ class LotteryNumDisplayView : View {
             val list = mBrokenLinePointsList[0]
             for (i in list.indices) {
                 val point = list[i]
-                if (point.x == 0f && point.y == 0f) continue
+                if (point.x == 0 && point.y == 0) continue
                 if (i == 0) {
-                    brokenPath.moveTo(point.x, point.y)
+                    brokenPath.moveTo(point.x.toFloat(), point.y.toFloat())
                 } else {
-                    brokenPath.lineTo(point.x, point.y)
+                    brokenPath.lineTo(point.x.toFloat(), point.y.toFloat())
                 }
             }
             canvas.saveAndRestore {
                 canvas.clipRect(
-                    dateWidth,
-                    numHeight,
+                    dateWidth.toFloat(),
+                    numHeight.toFloat(),
                     width.toFloat(),
                     height.toFloat()
                 )
@@ -537,14 +537,14 @@ class LotteryNumDisplayView : View {
 
         }
         //绘制滚动条,带有一定透明度，暂不支持触控滚动条
-        mScrollBarPaint.alpha = if (isScroll || isDown) 128 else 192
+        mScrollBarPaint.alpha = if (isScroll || isDown) 150 else 222
         val totalHeight = totalRows * numHeight + dateHeight - height
-        val scrollBarPosY = abs(currScrollY) / totalHeight * (height - numHeight - scrollBarHeight) + numHeight
+        val scrollBarPosY = abs(currScrollY) / totalHeight.toFloat() * (height - numHeight - scrollBarHeight) + numHeight
         canvas.drawRect(
-            width - scrollBarWidth,
+            width - scrollBarWidth.toFloat(),
             scrollBarPosY,
             width.toFloat(),
-            scrollBarPosY + scrollBarHeight,
+            scrollBarPosY + scrollBarHeight.toFloat(),
             mScrollBarPaint
         )
     }
@@ -565,7 +565,7 @@ class LotteryNumDisplayView : View {
                     val point = mBrokenLinePointsList[pointIndexOfLine][pointIndexOfRow]
                     if(endRowsIndex == dataList.size - 1 && rowIndex - realStartRowIndex > displayRowNum+1) {
                         //绝对坐标
-                        point.set(0f,0f)
+                        point.set(0,0)
                     }else{
                         //绝对坐标
                         point.x = (numLineIndex - startLinesIndex) * numWidth + numWidth / 2 + dateWidth+ meshScrollX
@@ -580,7 +580,7 @@ class LotteryNumDisplayView : View {
     private val brokenPath = Path()
     private fun drawMesh(startRowsIndex: Int, startLinesIndex: Int, canvas: Canvas) {
         canvas.saveAndRestore {
-            canvas.translate(meshScrollX, 0f)
+            canvas.translate(meshScrollX.toFloat(), 0f)
             canvas.saveAndRestore {
                 for (i in 0..displayLineNum) {
                     val paint = if (mBitCount > 0) {
@@ -592,26 +592,26 @@ class LotteryNumDisplayView : View {
 
                     if (i == 0) {
                         canvas.saveAndRestore {
-                            canvas.clipRect(abs(meshScrollX), 0f, numWidth, height.toFloat())
+                            canvas.clipRect(abs(meshScrollX), 0, numWidth, height)
                             canvas.drawLine(0f, 0f, 0f, height.toFloat(), paint)
                         }
                     } else canvas.drawLine(0f, 0f, 0f, height.toFloat(), paint)
-                    canvas.translate(numWidth, 0f)
+                    canvas.translate(numWidth.toFloat(), 0f)
                 }
             }
         }
         canvas.saveAndRestore {
-            canvas.translate(0f, meshScrollY)
+            canvas.translate(0f, meshScrollY.toFloat())
             canvas.saveAndRestore {
                 for (i in 0..displayRowNum) {
                     val paint = if ((startRowsIndex + i) % 5 == 0) mThickMeshPaint else mMeshPaint
                     if (i == 0) {
                         canvas.saveAndRestore {
-                            canvas.clipRect(0f, abs(meshScrollY), width.toFloat(), numHeight)
+                            canvas.clipRect(0, abs(meshScrollY), width, numHeight)
                             canvas.drawLine(0f, 0f, width.toFloat(), 0f, paint)
                         }
                     } else canvas.drawLine(0f, 0f, width.toFloat(), 0f, paint)
-                    canvas.translate(0f, numHeight)
+                    canvas.translate(0f, numHeight.toFloat())
                 }
             }
         }
@@ -620,7 +620,7 @@ class LotteryNumDisplayView : View {
     private fun drawNum(canvas: Canvas, startRowsIndex: Int, startLinesIndex: Int) {
 
         canvas.saveAndRestore {
-            canvas.translate(meshScrollX, meshScrollY)
+            canvas.translate(meshScrollX.toFloat(), meshScrollY.toFloat())
             val endRowsIndex =
                 if (startRowsIndex + displayRowNum >= dataList.size) dataList.size - 1 else startRowsIndex + displayRowNum
             for (rowIndex in startRowsIndex..endRowsIndex) {
@@ -629,15 +629,15 @@ class LotteryNumDisplayView : View {
                 canvas.saveAndRestore {
                     if (rowIndex == startRowsIndex) {
                         canvas.clipRect(
-                            0f,
-                            abs(meshScrollY) + mThickMeshPaint.strokeWidth / 2,
-                            width.toFloat(),
+                            0,
+                            abs(meshScrollY) + (mThickMeshPaint.strokeWidth / 2).toInt(),
+                            width,
                             numHeight
                         )
                     }
                     drawLinesNum(canvas, startLinesIndex, numText)
                 }
-                canvas.translate(0f, numHeight)
+                canvas.translate(0f, numHeight.toFloat())
             }
         }
     }
@@ -652,7 +652,8 @@ class LotteryNumDisplayView : View {
                 val num = list[numIndex]
                 canvas.saveAndRestore {
                     if (numIndex == startLinesIndex) {
-                        canvas.clipRect(abs(meshScrollX) + mThickMeshPaint.strokeWidth / 2, 0f, numWidth, numHeight)
+                        canvas.clipRect(abs(meshScrollX) + (mThickMeshPaint.strokeWidth / 2).toInt(), 0, numWidth,
+                            numHeight)
                     }
                     val backgroundColorIndex = (numIndex) / mBitCount
                     canvas.drawRect(
@@ -664,7 +665,7 @@ class LotteryNumDisplayView : View {
                     )
                     realDrawNum(num, canvas)
                 }
-                canvas.translate(numWidth, 0f)
+                canvas.translate(numWidth.toFloat(), 0f)
             }
         }
     }
@@ -679,16 +680,16 @@ class LotteryNumDisplayView : View {
                 Color.RED
             }
             canvas.drawCircle(
-                numWidth / 2,
-                numHeight / 2,
+                numWidth / 2f,
+                numHeight / 2f,
                 min(numWidth / 2f * 0.8f, numHeight / 2f * 0.8f),
                 mNumTextPaint
             )
             mNumTextPaint.color = Color.WHITE
-            drawText(canvas, num.num, numWidth, numHeight, mNumTextPaint)
+            drawText(canvas, num.num, numWidth.toFloat(), numHeight.toFloat(), mNumTextPaint)
         }, {
             mNumTextPaint.color = Color.GRAY
-            drawText(canvas, num.num, numWidth, numHeight, mNumTextPaint)
+            drawText(canvas, num.num, numWidth.toFloat(), numHeight.toFloat(), mNumTextPaint)
         })
     }
 

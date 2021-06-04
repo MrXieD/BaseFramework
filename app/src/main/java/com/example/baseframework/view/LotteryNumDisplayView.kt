@@ -144,7 +144,7 @@ class LotteryNumDisplayView : View {
     private var isSlantMove = false
 
     //是否显示折线
-    private var isShowBrokenLine = false
+    var isShowBrokenLine = false
 
     //折线点位List(以列优先的形式存储point)
     private val mBrokenLinePointsList = mutableListOf<MutableList<Point>>()
@@ -223,12 +223,16 @@ class LotteryNumDisplayView : View {
         dataList.addAll(lotteryData)
         totalRows = dataList.size
         totalLines = this.numTextList.size
+        if (totalLines % mBitCount == 0) {
+            setOneBitCount(totalLines / mBitCount)
+        } else {
+            setOneBitCount(totalLines / mBitCount + 1)
+        }
         measureNumWH()
         totalScrollX = 0
         totalScrollY = 0
 //        requestLayout()
         //由于requestLayout()时，VIew的w,h都没有改变，并且也没有执行任何动画，所以onDraw函数没有被执行
-
         invalidate()
     }
 
@@ -242,22 +246,28 @@ class LotteryNumDisplayView : View {
         invalidate()
     }
 
+    private var mBitCount = 10
+    fun setBitCount(bitCount: Int) {
+        mBitCount = bitCount
+    }
+
+    private var mOneBitCount = 1
+
     //设置彩票有好多位，用于每一位（个，十，百加粗纵列分割线）
-    var mBitCount: Int = -1
-        set(value) {
-            if (value > 0) {
-                field = value
-                if(!isShowBrokenLine) return
-                mBrokenLinePointsList.clear()
-                for (i in 0 until value) {
-                    val pointList = mutableListOf<Point>()
-                    for (j in 0..displayRowNum + 2) {
-                        pointList.add(Point())
-                    }
-                    mBrokenLinePointsList.add(pointList)
-                }
+    private fun setOneBitCount(oneBitCount: Int) {
+        if (!isShowBrokenLine) return
+        mBrokenLinePointsList.clear()
+        brokenPathList.clear()
+        mOneBitCount = oneBitCount
+        for (i in 0 until oneBitCount) {
+            val pointList = mutableListOf<Point>()
+            for (j in 0..displayRowNum + 2) {
+                pointList.add(Point())
             }
+            mBrokenLinePointsList.add(pointList)
+            brokenPathList.add(Path())
         }
+    }
 
 
     private fun initTypedArray(attrs: AttributeSet?) {
@@ -452,7 +462,13 @@ class LotteryNumDisplayView : View {
                             }
                             val paint = if (i % 5 == 0) mThickMeshPaint else mMeshPaint
                             canvas.drawLine(0f, 0f, dateWidth.toFloat(), 0f, paint)
-                            canvas.drawLine(dateWidth.toFloat(), 0f, dateWidth.toFloat(), numHeight.toFloat(), mThickMeshPaint)
+                            canvas.drawLine(
+                                dateWidth.toFloat(),
+                                0f,
+                                dateWidth.toFloat(),
+                                numHeight.toFloat(),
+                                mThickMeshPaint
+                            )
                             val dateNum = dataList[i]
                             mIssuesTextPaint.getTextBounds(dateNum.issues, 0, dateNum.issues.length, tempRect)
                             mIssuesTextPaint.color = context.getColorResource(R.color.black)
@@ -491,7 +507,13 @@ class LotteryNumDisplayView : View {
 //                                else mBackgroundColorPaint2
 //                            )
                             canvas.drawLine(0f, 0f, 0f, numHeight.toFloat(), paint)
-                            canvas.drawLine(0f, numHeight.toFloat(), numWidth.toFloat(), numHeight.toFloat(), mThickMeshPaint)
+                            canvas.drawLine(
+                                0f,
+                                numHeight.toFloat(),
+                                numWidth.toFloat(),
+                                numHeight.toFloat(),
+                                mThickMeshPaint
+                            )
                             val numText = numTextList[i]
                             mNumTextPaint.getTextBounds(numText, 0, numText.length, tempRect)
                             mNumTextPaint.color = context.getColorResource(R.color.black)
@@ -514,16 +536,20 @@ class LotteryNumDisplayView : View {
         //绘制折线
         if (isShowBrokenLine) {
             buildBrokenLinePoint(startRowsIndex, startLinesIndex)
-            brokenPath.reset()
-            val list = mBrokenLinePointsList[0]
-            for (i in list.indices) {
-                val point = list[i]
-                if (point.x == 0 && point.y == 0) continue
-                if (i == 0) {
-                    brokenPath.moveTo(point.x.toFloat(), point.y.toFloat())
-                } else {
-                    brokenPath.lineTo(point.x.toFloat(), point.y.toFloat())
+            val endLinesIndex =
+                if (startLinesIndex + displayLineNum < numTextList.size) startLinesIndex + displayLineNum else numTextList.size - 1
+            val minLineIndex = startLinesIndex / mBitCount
+            val maxLineIndex = endLinesIndex / mBitCount
+            if (minLineIndex < maxLineIndex) {
+                for (i in minLineIndex..maxLineIndex) {
+                    val brokenLine = brokenPathList[i]
+                    brokenLine.reset()
+                    tieLine(brokenLine, mBrokenLinePointsList[i],startRowsIndex)
                 }
+            } else {
+                val brokenLine = brokenPathList[minLineIndex]
+                brokenLine.reset()
+                tieLine(brokenLine, mBrokenLinePointsList[minLineIndex],startRowsIndex)
             }
             canvas.saveAndRestore {
                 canvas.clipRect(
@@ -532,14 +558,17 @@ class LotteryNumDisplayView : View {
                     width.toFloat(),
                     height.toFloat()
                 )
-                canvas.drawPath(brokenPath, mThickMeshPaint)
+                for (i in minLineIndex..maxLineIndex) {
+                    val pathList = brokenPathList[i]
+                    canvas.drawPath(pathList, mThickMeshPaint)
+                }
             }
-
         }
         //绘制滚动条,带有一定透明度，暂不支持触控滚动条
         mScrollBarPaint.alpha = if (isScroll || isDown) 150 else 222
         val totalHeight = totalRows * numHeight + dateHeight - height
-        val scrollBarPosY = abs(currScrollY) / totalHeight.toFloat() * (height - numHeight - scrollBarHeight) + numHeight
+        val scrollBarPosY =
+            abs(currScrollY) / totalHeight.toFloat() * (height - numHeight - scrollBarHeight) + numHeight
         canvas.drawRect(
             width - scrollBarWidth.toFloat(),
             scrollBarPosY,
@@ -549,35 +578,75 @@ class LotteryNumDisplayView : View {
         )
     }
 
+    private fun tieLine(path: Path, list: MutableList<Point>,startRowsIndex :Int) {
+        for (i in list.indices) {
+            val point = list[i]
+            if (point.x == 0 && point.y == 0) continue
+            if (i == 0) {
+                path.moveTo(point.x.toFloat(), point.y.toFloat())
+            } else {
+                if(startRowsIndex + i <= dataList.size )
+                path.lineTo(point.x.toFloat(), point.y.toFloat())
+            }
+        }
+    }
+
     private fun buildBrokenLinePoint(startRowsIndex: Int, startLinesIndex: Int) {
         val endRowsIndex =
             if (startRowsIndex + displayRowNum + 1 >= dataList.size) dataList.size - 1 else startRowsIndex + displayRowNum + 1
         val realStartRowIndex = if (startRowsIndex == 0) startRowsIndex else startRowsIndex - 1
+        val offsetX =  numWidth / 2 + dateWidth + meshScrollX
+        val offsetY =  numHeight / 2 + numHeight + meshScrollY
         for (rowIndex in realStartRowIndex..endRowsIndex) {
             val numTextList = dataList[rowIndex].numbers
             val endLinesIndex =
                 if (startLinesIndex + displayLineNum < numTextList.size) startLinesIndex + displayLineNum else numTextList.size - 1
             for (numLineIndex in startLinesIndex..endLinesIndex) {
                 val num = numTextList[numLineIndex]
-                (num.ballType > 0).doTrue {
-                    val pointIndexOfRow = rowIndex - realStartRowIndex
-                    val pointIndexOfLine = numLineIndex / mBitCount
-                    val point = mBrokenLinePointsList[pointIndexOfLine][pointIndexOfRow]
-                    if(endRowsIndex == dataList.size - 1 && rowIndex - realStartRowIndex > displayRowNum+1) {
-                        //绝对坐标
-                        point.set(0,0)
-                    }else{
-                        //绝对坐标
-                        point.x = (numLineIndex - startLinesIndex) * numWidth + numWidth / 2 + dateWidth+ meshScrollX
-                        point.y = (rowIndex - startRowsIndex) * numHeight + numHeight / 2+ numHeight+ meshScrollY
+                val pointIndexOfRow = rowIndex - realStartRowIndex
+                val pointIndexOfLine = numLineIndex / mBitCount
+                val point = mBrokenLinePointsList[pointIndexOfLine][pointIndexOfRow]
+                if (num.ballType > 0) {
+                    //绝对坐标
+                    point.x = (numLineIndex - startLinesIndex) * numWidth + offsetX
+                    point.y = (rowIndex - startRowsIndex) * numHeight + offsetY
+                } else {
+                    if (numLineIndex == startLinesIndex) {
+                        var lastBallIndex = 0
+                        val startLine = if (startLinesIndex - mBitCount >= 0) startLinesIndex - mBitCount else 0
+                        for (i in startLine..startLinesIndex) {
+                            if (numTextList[i].ballType > 0)
+                                lastBallIndex = i
+                        }
+                        if (lastBallIndex < startLinesIndex && lastBallIndex / mBitCount == pointIndexOfLine) {
+                            //说明中奖号码在当前最左边号码出现之前就以出现,这时候需要确定选中号码的X轴坐标
+                            point.x =
+                                (lastBallIndex - startLinesIndex) * numWidth + offsetX
+                            point.y = (rowIndex - startRowsIndex) * numHeight + offsetY
+                        }
+                    } else if (numLineIndex == endLinesIndex) {
+                        var lastBallIndex = endLinesIndex
+                        val endLIndex =
+                            if (endLinesIndex + mBitCount < numTextList.size) endLinesIndex + mBitCount else numTextList.size - 1
+                        for (i in endLinesIndex..endLIndex) {
+                            //找到这行还没显示出来的中奖号码的index
+                            if (numTextList[i].ballType > 0) {
+                                lastBallIndex = i
+                                break
+                            }
+                        }
+                        if (lastBallIndex > endLinesIndex && lastBallIndex / mBitCount == pointIndexOfLine) {
+                            point.x =
+                                (lastBallIndex - startLinesIndex) * numWidth + offsetX
+                            point.y = (rowIndex - startRowsIndex) * numHeight + offsetY
+                        }
                     }
-
                 }
             }
         }
     }
 
-    private val brokenPath = Path()
+    private val brokenPathList = mutableListOf<Path>()
     private fun drawMesh(startRowsIndex: Int, startLinesIndex: Int, canvas: Canvas) {
         canvas.saveAndRestore {
             canvas.translate(meshScrollX.toFloat(), 0f)
@@ -652,8 +721,10 @@ class LotteryNumDisplayView : View {
                 val num = list[numIndex]
                 canvas.saveAndRestore {
                     if (numIndex == startLinesIndex) {
-                        canvas.clipRect(abs(meshScrollX) + (mThickMeshPaint.strokeWidth / 2).toInt(), 0, numWidth,
-                            numHeight)
+                        canvas.clipRect(
+                            abs(meshScrollX) + (mThickMeshPaint.strokeWidth / 2).toInt(), 0, numWidth,
+                            numHeight
+                        )
                     }
                     val backgroundColorIndex = (numIndex) / mBitCount
                     canvas.drawRect(

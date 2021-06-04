@@ -11,7 +11,8 @@ fun  main(){
     val target=20
     println("$target   key->  ${binarySearch(arr,target,0,arr.size-1)}")
     println("$target   key->  ${binarySearch(arr,target)}")
-    println("${1.2f%1}")
+    println("${1.2f%1f}")
+    println("${1.2f/1.2f}")
 }
 
 //快速排序

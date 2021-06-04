@@ -69,13 +69,23 @@ class LotteryFragment : Fragment(), DataSwitchListener {
 
                                 val bitCount =
                                     when (lotteryType) {
-                                        LOTTERY_TYPE_SSQ -> 33
-                                        LOTTERY_TYPE_DLT -> 35
-                                        LOTTERY_TYPE_FCSD, LOTTERY_TYPE_PL3, LOTTERY_TYPE_PL5, LOTTERY_TYPE_7XC -> 10
-                                        else -> 0
+                                        LOTTERY_TYPE_SSQ -> {
+                                            binding?.lottertView?.isShowBrokenLine = false
+                                            33}
+                                        LOTTERY_TYPE_DLT -> {
+                                            binding?.lottertView?.isShowBrokenLine = false
+                                            35}
+                                        LOTTERY_TYPE_FCSD, LOTTERY_TYPE_PL3, LOTTERY_TYPE_PL5, LOTTERY_TYPE_7XC ->{
+                                            binding?.lottertView?.isShowBrokenLine = true
+                                            10
+                                        }
+                                        else -> {
+                                            binding?.lottertView?.isShowBrokenLine = false
+                                            0
+                                        }
                                     }
                                 fragmentCallBack.selectMenuItem(data.lotteryId)
-                                binding?.lottertView?.mBitCount = bitCount
+                                binding?.lottertView?.setBitCount(bitCount)
                                 binding?.lottertView?.refreshData(it, getTitleListByLotteryType(data.lotteryId))
                             }
                         }

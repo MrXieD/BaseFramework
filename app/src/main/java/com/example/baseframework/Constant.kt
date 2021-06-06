@@ -1,5 +1,5 @@
 package com.example.baseframework
 
-object Constant {
+object  Constant {
     const val IS_DEBUG = true
 }

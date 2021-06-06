@@ -1,2 +1,4 @@
+include ':imlotterytool'
+include ':reinforce'
 include ':app'
 rootProject.name = "BaseFramework"

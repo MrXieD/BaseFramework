@@ -14,8 +14,11 @@ open abstract class BasePresenter<VIEW : BaseView> : LifecycleObserver {
 
     protected var view: VIEW? = null
 
-    fun attachView(v: VIEW) {
-        view = v
+    @Suppress("UNCHECKED_CAST")
+    fun attachView(v: Any?) {
+        if(v is BaseView){
+            view = v as VIEW
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)

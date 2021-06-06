@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">ImLotteryTool</string>
+    <string name="juhe_lottery_key">77e2ec383b68f48ec8b0428844d22366</string>
+    <!--902624041c2fd8a631a797ec4fb088aa   胡飞-->
+    <!--77e2ec383b68f48ec8b0428844d22366   xiedi-->
+    <string name="fcsd">福彩3d</string>
+    <string name="ssq">双色球</string>
+    <string name="cjdlt">超级大乐透</string>
+    <string name="pl3">排列三</string>
+    <string name="pl5">排列五</string>
+    <string name="qxc">七星彩</string>
+</resources>

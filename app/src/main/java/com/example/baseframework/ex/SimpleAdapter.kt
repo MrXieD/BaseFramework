@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.baseframework.log.XLog
 
 /**
  * 简单的Adapter
@@ -22,6 +23,11 @@ class SimpleAdapter<T>(private val context: Context, private val layoutResId:Int
 
     override fun onBindViewHolder(holder: ItemHolder<T>, position: Int) {
         holder.bindView(list[position])
+    }
+
+    override fun onBindViewHolder(holder: ItemHolder<T>, position: Int, payloads: MutableList<Any>) {
+        super.onBindViewHolder(holder, position, payloads)
+        XLog.i("onBindViewHolder--->payloads")
     }
 
     class ItemHolder<T>(val view:View,val init:(View,T)-> Unit):RecyclerView.ViewHolder(view){

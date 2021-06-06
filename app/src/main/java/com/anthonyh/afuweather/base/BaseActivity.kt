@@ -8,17 +8,21 @@ import androidx.appcompat.app.AppCompatActivity
 @date: 2021/1/15 0015
 @desription:
  */
-open abstract class BaseActivity<Presenter : BasePresenter<V>, V : BaseView> : AppCompatActivity(),BaseView {
+open abstract class BaseActivity<Presenter : BasePresenter<*>> : AppCompatActivity(),BaseView {
 
     protected var presenter: Presenter? = null
 
-    @Suppress("UNCHECKED_CAST")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        presenter?.attachView(this as V)
+        presenter?.attachView(this )
         lifecycle.addObserver(createPresenter())
     }
 
 
     abstract fun createPresenter(): Presenter
+    override fun onDisLoading() {
+    }
+
+    override fun onLoading() {
+    }
 }

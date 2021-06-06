@@ -52,7 +52,7 @@ abstract class LotteryDao {
     abstract suspend fun getDataByDate(lotteryDate: String): LotteryEntity?
 
 
-    @Query("SELECT * FROM LotteryEntity WHERE lottery_id=:lotteryId AND  lottery_date <=:lotteryDate ORDER BY lottery_date DESC LIMIT 50")
-    abstract suspend fun getDatasByTypeAndDate(lotteryId: String, lotteryDate: String?): List<LotteryEntity>?
+    @Query("SELECT * FROM LotteryEntity WHERE lottery_id=:lotteryId AND  lottery_date <=:lotteryDate ORDER BY lottery_date DESC LIMIT :pageSize")
+    abstract suspend fun getDatasByTypeAndDate(lotteryId: String, lotteryDate: String?,pageSize:Int): List<LotteryEntity>?
 
 }

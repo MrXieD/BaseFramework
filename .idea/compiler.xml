@@ -4,6 +4,8 @@
     <bytecodeTargetLevel target="1.7">
       <module name="BaseFramework.app" target="11" />
       <module name="BaseFramework.imlotterytool" target="11" />
+      <module name="WorkCode.BaseFramework.app" target="11" />
+      <module name="WorkCode.BaseFramework.imlotterytool" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>

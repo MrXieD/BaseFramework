@@ -13,15 +13,15 @@ import android.view.ScaleGestureDetector
 import android.view.View
 import com.example.baseframework.R
 import com.example.baseframework.ex.*
-import com.example.baseframework.log.XLog
 import com.example.baseframework.utils.StringUtils
-import com.example.imlotterytool.db.table.*
+import com.example.imlotterytool.db.table.BLUE_BALL_TYPE
+import com.example.imlotterytool.db.table.LotteryItem
+import com.example.imlotterytool.db.table.OneLotteryNum
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import kotlin.math.min
-import kotlin.random.Random
 
 /**
  * 彩票中奖号码展示View https://datachart.500.com/dlt/
@@ -180,7 +180,7 @@ class LotteryNumDisplayView : View {
 
 
         mScrollBarPaint.isAntiAlias = true
-        mScrollBarPaint.color = context.getColorResource(R.color.color_outerTextColor)
+        mScrollBarPaint.color = context.getColorResource(R.color.purple_200)
         mScrollBarPaint.style = Paint.Style.FILL
         //设置为圆角
         mScrollBarPaint.strokeCap = Paint.Cap.ROUND
@@ -544,12 +544,12 @@ class LotteryNumDisplayView : View {
                 for (i in minLineIndex..maxLineIndex) {
                     val brokenLine = brokenPathList[i]
                     brokenLine.reset()
-                    tieLine(brokenLine, mBrokenLinePointsList[i],startRowsIndex)
+                    tieLine(brokenLine, mBrokenLinePointsList[i], startRowsIndex)
                 }
             } else {
                 val brokenLine = brokenPathList[minLineIndex]
                 brokenLine.reset()
-                tieLine(brokenLine, mBrokenLinePointsList[minLineIndex],startRowsIndex)
+                tieLine(brokenLine, mBrokenLinePointsList[minLineIndex], startRowsIndex)
             }
             canvas.saveAndRestore {
                 canvas.clipRect(
@@ -578,66 +578,65 @@ class LotteryNumDisplayView : View {
         )
     }
 
-    private fun tieLine(path: Path, list: MutableList<Point>,startRowsIndex :Int) {
+    private fun tieLine(path: Path, list: MutableList<Point>, startRowsIndex: Int) {
         for (i in list.indices) {
             val point = list[i]
             if (point.x == 0 && point.y == 0) continue
             if (i == 0) {
                 path.moveTo(point.x.toFloat(), point.y.toFloat())
             } else {
-                if(startRowsIndex + i <= dataList.size )
-                path.lineTo(point.x.toFloat(), point.y.toFloat())
+                if (startRowsIndex + i <= dataList.size)
+                    path.lineTo(point.x.toFloat(), point.y.toFloat())
             }
         }
     }
-
+    //折线使用的是绝对坐标，需要先找到中奖号码的RowIndex和lineIndex
+    //由于折线需要显示到当前行和列数 + 2项---> font -1 和 rear +1
+    //
     private fun buildBrokenLinePoint(startRowsIndex: Int, startLinesIndex: Int) {
         val endRowsIndex =
             if (startRowsIndex + displayRowNum + 1 >= dataList.size) dataList.size - 1 else startRowsIndex + displayRowNum + 1
         val realStartRowIndex = if (startRowsIndex == 0) startRowsIndex else startRowsIndex - 1
-        val offsetX =  numWidth / 2 + dateWidth + meshScrollX
-        val offsetY =  numHeight / 2 + numHeight + meshScrollY
+        val offsetX = numWidth / 2 + dateWidth + meshScrollX
+        val offsetY = numHeight / 2 + numHeight + meshScrollY
         for (rowIndex in realStartRowIndex..endRowsIndex) {
             val numTextList = dataList[rowIndex].numbers
             val endLinesIndex =
                 if (startLinesIndex + displayLineNum < numTextList.size) startLinesIndex + displayLineNum else numTextList.size - 1
-            for (numLineIndex in startLinesIndex..endLinesIndex) {
-                val num = numTextList[numLineIndex]
+            for (indexOfLine in startLinesIndex..endLinesIndex) {
+                val num = numTextList[indexOfLine]
                 val pointIndexOfRow = rowIndex - realStartRowIndex
-                val pointIndexOfLine = numLineIndex / mBitCount
+                val pointIndexOfLine = indexOfLine / mBitCount
                 val point = mBrokenLinePointsList[pointIndexOfLine][pointIndexOfRow]
                 if (num.ballType > 0) {
-                    //绝对坐标
-                    point.x = (numLineIndex - startLinesIndex) * numWidth + offsetX
+
+                    point.x = (indexOfLine - startLinesIndex) * numWidth + offsetX
                     point.y = (rowIndex - startRowsIndex) * numHeight + offsetY
                 } else {
-                    if (numLineIndex == startLinesIndex) {
-                        var lastBallIndex = 0
-                        val startLine = if (startLinesIndex - mBitCount >= 0) startLinesIndex - mBitCount else 0
+                    if (indexOfLine == startLinesIndex) {
+                        var lastBallIndex = startLinesIndex
+                        val startLine = startLinesIndex - startLinesIndex % mBitCount
                         for (i in startLine..startLinesIndex) {
                             if (numTextList[i].ballType > 0)
                                 lastBallIndex = i
                         }
-                        if (lastBallIndex < startLinesIndex && lastBallIndex / mBitCount == pointIndexOfLine) {
+                        if (lastBallIndex < startLinesIndex) {
                             //说明中奖号码在当前最左边号码出现之前就以出现,这时候需要确定选中号码的X轴坐标
-                            point.x =
-                                (lastBallIndex - startLinesIndex) * numWidth + offsetX
+                            point.x = (lastBallIndex - startLinesIndex) * numWidth + offsetX
                             point.y = (rowIndex - startRowsIndex) * numHeight + offsetY
                         }
-                    } else if (numLineIndex == endLinesIndex) {
+                    } else if (indexOfLine == endLinesIndex) {
                         var lastBallIndex = endLinesIndex
-                        val endLIndex =
-                            if (endLinesIndex + mBitCount < numTextList.size) endLinesIndex + mBitCount else numTextList.size - 1
-                        for (i in endLinesIndex..endLIndex) {
+                        val endLIndex = endLinesIndex + mBitCount - endLinesIndex % mBitCount
+                        for (i in endLinesIndex until endLIndex) {
                             //找到这行还没显示出来的中奖号码的index
                             if (numTextList[i].ballType > 0) {
                                 lastBallIndex = i
                                 break
                             }
                         }
-                        if (lastBallIndex > endLinesIndex && lastBallIndex / mBitCount == pointIndexOfLine) {
-                            point.x =
-                                (lastBallIndex - startLinesIndex) * numWidth + offsetX
+                        if (lastBallIndex > endLinesIndex) {
+                            point.x = (lastBallIndex - startLinesIndex) * numWidth + offsetX
                             point.y = (rowIndex - startRowsIndex) * numHeight + offsetY
                         }
                     }

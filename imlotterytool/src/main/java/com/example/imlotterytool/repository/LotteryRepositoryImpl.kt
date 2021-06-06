@@ -12,7 +12,6 @@ import com.example.imlotterytool.network.service.LotteryHistoryService
 import com.example.imlotterytool.util.*
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
-import java.lang.Exception
 import java.util.*
 import kotlin.collections.HashSet
 
@@ -127,7 +126,7 @@ class LotteryRepositoryImpl private constructor(
                 Log.d(TAG, "loadFromDb: ")
                 val laseDate = if (date.isNullOrEmpty()) checkDate else date
                 checkDate = laseDate
-                val list = lotteryDao.getDatasByTypeAndDate(lotteryType, laseDate)?.toMutableList()
+                val list = lotteryDao.getDatasByTypeAndDate(lotteryType, laseDate, PAGE_SIZE)?.toMutableList()
                 list?.sortBy { it.lotteryDate }
                 return list
             }

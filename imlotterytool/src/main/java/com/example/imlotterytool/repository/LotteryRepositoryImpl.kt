@@ -199,7 +199,7 @@ class LotteryRepositoryImpl private constructor(
                 synchronized(LotteryRepositoryImpl::class.java) {
                     if (instance == null) {
                         instance = LotteryRepositoryImpl(
-                            AppDatabase.getInstance(context).weatherDao(),
+                            AppDatabase.getInstance(context).lotteryDao(),
                             RetrofitManager.createService(clazz = LotteryHistoryService::class.java)
                         )
                     }

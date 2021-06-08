@@ -17,7 +17,7 @@ import com.example.imlotterytool.db.table.LotteryEntity
 abstract class AppDatabase : RoomDatabase() {
 
 
-    abstract fun weatherDao(): LotteryDao
+    abstract fun lotteryDao(): LotteryDao
 
 
     companion object {

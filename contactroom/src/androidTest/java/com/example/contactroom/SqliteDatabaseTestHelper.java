@@ -11,12 +11,12 @@ public class SqliteDatabaseTestHelper {
     public static void createTable(SqliteTestDbOpenHelper helper) {
         SQLiteDatabase db = helper.getWritableDatabase();
 
-        db.execSQL("CREATE TABLE IF NOT EXISTS user (user_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        db.execSQL("CREATE TABLE IF NOT EXISTS user (user_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
                 + " user_name TEXT NOT NULL,"
                 + "phone_numbers TEXT NOT NULL"
                 + " )");
 
-        db.execSQL("CREATE TABLE IF NOT EXISTS 'group' (group_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        db.execSQL("CREATE TABLE IF NOT EXISTS 'group' (group_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
                 + " group_name TEXT NOT NULL"
                 + " )");
 
@@ -24,7 +24,7 @@ public class SqliteDatabaseTestHelper {
                 + " user_id INTEGER NOT NULL,"
                 + " primary key(user_id,group_id))");
 
-        db.execSQL("CREATE TABLE IF NOT EXISTS call_record (id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        db.execSQL("CREATE TABLE IF NOT EXISTS call_record (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
                 + " phone_number TEXT NOT NULL,"
                 + "record_date INTEGER NOT NULL,"
                 + "record_type INTEGER NOT NULL,"

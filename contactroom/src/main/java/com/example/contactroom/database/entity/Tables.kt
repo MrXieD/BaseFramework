@@ -11,16 +11,16 @@ import java.util.*
  */
 @Entity(tableName = "user")
 data class User(
-    @ColumnInfo(name = "user_id") @PrimaryKey(autoGenerate = true) @NonNull val userId: Int?,
     @ColumnInfo(name = "user_name") val userName: String,
-    @ColumnInfo(name = "phone_numbers") val phoneNumbers: String//一个人可以有多个号码，这里用#的方式来分隔各个号码
+    @ColumnInfo(name = "phone_numbers") val phoneNumbers: String,
+    @ColumnInfo(name = "user_id") @PrimaryKey(autoGenerate = true) val userId: Int = 0
 )
 
 
 @Entity(tableName = "group")
 data class Group(
-    @ColumnInfo(name = "group_id") @PrimaryKey(autoGenerate = true) @NonNull val groupId: Int?,
-    @ColumnInfo(name = "group_name") val groupName: String
+    @ColumnInfo(name = "group_name") val groupName: String,
+    @ColumnInfo(name = "group_id") @PrimaryKey(autoGenerate = true) @NonNull val groupId: Int = 0
 )
 
 @Entity(tableName = "user_group_cross_ref", primaryKeys = ["user_id", "group_id"])
@@ -51,11 +51,12 @@ data class GroupWithUsers(
 //引用
 @Entity(tableName = "call_record")
 data class CallRecord(
-    @ColumnInfo(name = "id") @PrimaryKey(autoGenerate = true) val id: Int?,
     @ColumnInfo(name = "phone_number") val phoneNumber: String,//这个地方？
     @ColumnInfo(name = "record_date") val recordDate: Date,
     @ColumnInfo(name = "record_type") val recordType: Int,
-    @ColumnInfo(name = "record_duration") val recordDuration: String
+    @ColumnInfo(name = "record_duration") val recordDuration: String,
+    @ColumnInfo(name = "id") @PrimaryKey(autoGenerate = true) val id: Int = 0
+
 ) {
     companion object {
         const val INCOME_CALL = 0x1

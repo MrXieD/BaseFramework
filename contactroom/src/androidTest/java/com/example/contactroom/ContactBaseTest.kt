@@ -47,36 +47,36 @@ class ContactBaseTest {
             val dao = getContactDataBase().contactDao()
             val userIdList = dao.insertUsers(
                 listOf(
-                    User(null, "张三", "123"),
-                    User(null, "张三", "10993289"),
-                    User(null, "李四", "132"),
-                    User(null, "王五", "231"),
-                    User(null, "王五", "1230"),
-                    User(null, "二狗子", "2312"),
-                    User(null, "王麻子", "2313")
+                    User("张三", "123"),
+                    User("张三", "10993289"),
+                    User("李四", "132"),
+                    User("王五", "231"),
+                    User("王五", "1230"),
+                    User("二狗子", "2312"),
+                    User("王麻子", "2313")
                 )
             )
 
             val groupIdList = dao.insertGroups(
                 listOf(
-                    Group(null, "气氛组"),
-                    Group(null, "干饭组"),
-                    Group(null, "牛逼组")
+                    Group("气氛组"),
+                    Group("干饭组"),
+                    Group("牛逼组")
                 )
             )
 
 
             dao.insertCallRecords(
                 listOf(
-                    CallRecord(null, "10993289", Date(101), CallRecord.INCOME_CALL, "响铃3秒"),
-                    CallRecord(null, "10993289", Date(101), CallRecord.OUT_CALL, "响铃2秒"),
-                    CallRecord(null, "10993289", Date(102), CallRecord.OUT_CALL, "未接通"),
-                    CallRecord(null, "123", Date(103), CallRecord.INCOME_CALL, "1分16秒"),
-                    CallRecord(null, "123", Date(101), CallRecord.INCOME_CALL, "1分13秒"),
-                    CallRecord(null, "123", Date(104), CallRecord.INCOME_CALL, "1分16秒"),
-                    CallRecord(null, "2312", Date(103), CallRecord.INCOME_CALL, "1分16秒"),
-                    CallRecord(null, "2312", Date(103), CallRecord.INCOME_CALL, "2分16秒"),
-                    CallRecord(null, "12300000", Date(101), CallRecord.INCOME_CALL, "1分16秒")
+                    CallRecord("10993289", Date(101), CallRecord.INCOME_CALL, "响铃3秒"),
+                    CallRecord("10993289", Date(101), CallRecord.OUT_CALL, "响铃2秒"),
+                    CallRecord("10993289", Date(102), CallRecord.OUT_CALL, "未接通"),
+                    CallRecord("123", Date(103), CallRecord.INCOME_CALL, "1分16秒"),
+                    CallRecord("123", Date(101), CallRecord.INCOME_CALL, "1分13秒"),
+                    CallRecord("123", Date(104), CallRecord.INCOME_CALL, "1分16秒"),
+                    CallRecord("2312", Date(103), CallRecord.INCOME_CALL, "1分16秒"),
+                    CallRecord("2312", Date(103), CallRecord.INCOME_CALL, "2分16秒"),
+                    CallRecord("12300000", Date(101), CallRecord.INCOME_CALL, "1分16秒")
                 )
             )
 

@@ -51,7 +51,6 @@ class PartialNotifyAdapter(var list: MutableList<String>) : RecyclerView.Adapter
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
-
         Log.e(
             TAG, "onBindViewHolder-->: ${position};===>,${payloads.isEmpty()}"
         )

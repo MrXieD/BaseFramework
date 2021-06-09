@@ -66,6 +66,9 @@ abstract class ContactDao {
         }
     }
 
+    /**
+     * 自定义查询返回字段，一个普通的类(POJO)
+     */
     data class CallRecordsResult(
         val count: Int?,
         val date: Long?,

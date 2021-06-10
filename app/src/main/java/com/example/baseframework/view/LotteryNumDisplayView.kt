@@ -3,6 +3,7 @@ package com.example.baseframework.view
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
@@ -11,8 +12,10 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
+import androidx.annotation.RequiresApi
 import com.example.baseframework.R
 import com.example.baseframework.ex.*
+import com.example.baseframework.log.XLog
 import com.example.baseframework.utils.StringUtils
 import com.example.imlotterytool.db.table.BLUE_BALL_TYPE
 import com.example.imlotterytool.db.table.LotteryItem
@@ -20,16 +23,15 @@ import com.example.imlotterytool.db.table.OneLotteryNum
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
-import kotlin.math.abs
-import kotlin.math.min
+import kotlin.math.*
 
 /**
- * 彩票中奖号码展示View https://datachart.500.com/dlt/
+ * 彩票中奖号码数据---> https://datachart.500.com/dlt/
  * 要求：
  * 1、可在XML中配置显示的可显示范围行数和列数以及总的行数和列数
  * 2、可水平和竖直惯性滑动及拖动，并且内容也做相应变化
  * 3、中奖号码内容配置
- * 4、中奖号码连线（暂缓）
+ * 4、中奖号码连线
  * 5、需要显示期号
  * 6、双指缩小和放大、双击放大或缩小（暂缓）
  * 7、显示滚动条
@@ -92,6 +94,8 @@ class LotteryNumDisplayView : View {
     //加粗网格画笔
     private val mThickMeshPaint: Paint = Paint()
 
+    //连线画笔
+    private val mNumLinePaint: Paint = Paint()
 
     private val mBackgroundColorPaint1: Paint = Paint()
     private val mBackgroundColorPaint2: Paint = Paint()
@@ -179,8 +183,14 @@ class LotteryNumDisplayView : View {
         mThickMeshPaint.strokeWidth = 3f
 
 
+        mNumLinePaint.isAntiAlias = true
+        mNumLinePaint.color = context.getColorResource(R.color.colorAccent)
+        mNumLinePaint.style = Paint.Style.STROKE
+        mNumLinePaint.strokeWidth = 5f
+
+
         mScrollBarPaint.isAntiAlias = true
-        mScrollBarPaint.color = context.getColorResource(R.color.purple_200)
+        mScrollBarPaint.color = context.getColorResource(R.color.color_outerTextColor)
         mScrollBarPaint.style = Paint.Style.FILL
         //设置为圆角
         mScrollBarPaint.strokeCap = Paint.Cap.ROUND
@@ -247,18 +257,16 @@ class LotteryNumDisplayView : View {
     }
 
     private var mBitCount = 10
+
     fun setBitCount(bitCount: Int) {
         mBitCount = bitCount
     }
-
-    private var mOneBitCount = 1
 
     //设置彩票有好多位，用于每一位（个，十，百加粗纵列分割线）
     private fun setOneBitCount(oneBitCount: Int) {
         if (!isShowBrokenLine) return
         mBrokenLinePointsList.clear()
         brokenPathList.clear()
-        mOneBitCount = oneBitCount
         for (i in 0 until oneBitCount) {
             val pointList = mutableListOf<Point>()
             for (j in 0..displayRowNum + 2) {
@@ -269,6 +277,17 @@ class LotteryNumDisplayView : View {
         }
     }
 
+    //用于记录每一部分有几位数 数组下标表示第几位，数组的值表示第几位由0~n个数字之一
+    // 比如
+    // 排列三---》{[0-9],[10-19],[20-29]}
+    // 大乐透 ---》{[0-34],[0-11]}
+    // 双色球 ---》{[0-32],[0-15]}
+    private val mBitCountMap = mutableMapOf<Int,IntRange>()
+    fun setBitCount(bitCountList: MutableMap<Int,IntRange>){
+        if(bitCountList.isEmpty()) return
+        mBitCountMap.clear()
+        mBitCountMap.putAll(bitCountList)
+    }
 
     private fun initTypedArray(attrs: AttributeSet?) {
 
@@ -279,6 +298,7 @@ class LotteryNumDisplayView : View {
         measureNumWH()
     }
 
+    private var lotteryCircleRadius = 0f
     private fun measureNumWH() {
         if (dataList.isEmpty()) return
 
@@ -296,6 +316,8 @@ class LotteryNumDisplayView : View {
         }
         autoMeasureTextSizeToPaint(testString, 0.5f, numWidth.toFloat(), mNumTextPaint)
         autoMeasureTextSizeToPaint(dataList[0].issues, 0.8f, dateWidth.toFloat(), mIssuesTextPaint)
+
+        lotteryCircleRadius = min(numWidth / 2f * 0.8f, numHeight / 2f * 0.8f)
     }
 
     private fun autoMeasureTextSizeToPaint(
@@ -534,36 +556,8 @@ class LotteryNumDisplayView : View {
             }
         }
         //绘制折线
-        if (isShowBrokenLine) {
-            buildBrokenLinePoint(startRowsIndex, startLinesIndex)
-            val endLinesIndex =
-                if (startLinesIndex + displayLineNum < numTextList.size) startLinesIndex + displayLineNum else numTextList.size - 1
-            val minLineIndex = startLinesIndex / mBitCount
-            val maxLineIndex = endLinesIndex / mBitCount
-            if (minLineIndex < maxLineIndex) {
-                for (i in minLineIndex..maxLineIndex) {
-                    val brokenLine = brokenPathList[i]
-                    brokenLine.reset()
-                    tieLine(brokenLine, mBrokenLinePointsList[i], startRowsIndex)
-                }
-            } else {
-                val brokenLine = brokenPathList[minLineIndex]
-                brokenLine.reset()
-                tieLine(brokenLine, mBrokenLinePointsList[minLineIndex], startRowsIndex)
-            }
-            canvas.saveAndRestore {
-                canvas.clipRect(
-                    dateWidth.toFloat(),
-                    numHeight.toFloat(),
-                    width.toFloat(),
-                    height.toFloat()
-                )
-                for (i in minLineIndex..maxLineIndex) {
-                    val pathList = brokenPathList[i]
-                    canvas.drawPath(pathList, mThickMeshPaint)
-                }
-            }
-        }
+        drawNumLine(startRowsIndex, startLinesIndex, canvas)
+
         //绘制滚动条,带有一定透明度，暂不支持触控滚动条
         mScrollBarPaint.alpha = if (isScroll || isDown) 150 else 222
         val totalHeight = totalRows * numHeight + dateHeight - height
@@ -578,18 +572,55 @@ class LotteryNumDisplayView : View {
         )
     }
 
+    private fun drawNumLine(startRowsIndex: Int, startLinesIndex: Int, canvas: Canvas) {
+        if (!isShowBrokenLine) return
+        buildBrokenLinePoint(startRowsIndex, startLinesIndex)
+        val endLinesIndex =
+            if (startLinesIndex + displayLineNum < numTextList.size) startLinesIndex + displayLineNum else numTextList.size - 1
+        val minLineIndex = startLinesIndex / mBitCount
+        val maxLineIndex = endLinesIndex / mBitCount
+        for (i in minLineIndex..maxLineIndex) {
+            val brokenLine = brokenPathList[i]
+            brokenLine.reset()
+            tieLine(brokenLine, mBrokenLinePointsList[i], startRowsIndex)
+        }
+        canvas.saveAndRestore {
+            canvas.clipRect(
+                dateWidth.toFloat(),
+                numHeight.toFloat(),
+                width.toFloat(),
+                height.toFloat()
+            )
+            for (i in minLineIndex..maxLineIndex) {
+                canvas.drawPath(brokenPathList[i], mNumLinePaint)
+            }
+        }
+    }
+
+    /**
+     * 由于Point是中点位置，需要重新调整点位使点位在选中号码圆圈上
+     */
     private fun tieLine(path: Path, list: MutableList<Point>, startRowsIndex: Int) {
         for (i in list.indices) {
             val point = list[i]
             if (point.x == 0 && point.y == 0) continue
-            if (i == 0) {
-                path.moveTo(point.x.toFloat(), point.y.toFloat())
-            } else {
-                if (startRowsIndex + i <= dataList.size)
-                    path.lineTo(point.x.toFloat(), point.y.toFloat())
+            if (i < list.size - 1 && startRowsIndex + i < dataList.size) {
+                val nextPoint = list[i + 1]
+                if (nextPoint.x == 0 && nextPoint.y == 0) continue
+                //计算出角度
+                val angle = atan2(nextPoint.y - point.y.toDouble(), nextPoint.x - point.x.toDouble()).toFloat()
+                path.moveTo(
+                    point.x.toFloat() + cos(angle) * lotteryCircleRadius,
+                    point.y.toFloat() + sin(angle) * lotteryCircleRadius
+                )
+                path.lineTo(
+                    nextPoint.x.toFloat() - cos(angle) * lotteryCircleRadius,
+                    nextPoint.y.toFloat() - sin(angle) * lotteryCircleRadius
+                )
             }
         }
     }
+
     //折线使用的是绝对坐标，需要先找到中奖号码的RowIndex和lineIndex
     //由于折线需要显示到当前行和列数 + 2项---> font -1 和 rear +1
     //
@@ -609,7 +640,6 @@ class LotteryNumDisplayView : View {
                 val pointIndexOfLine = indexOfLine / mBitCount
                 val point = mBrokenLinePointsList[pointIndexOfLine][pointIndexOfRow]
                 if (num.ballType > 0) {
-
                     point.x = (indexOfLine - startLinesIndex) * numWidth + offsetX
                     point.y = (rowIndex - startRowsIndex) * numHeight + offsetY
                 } else {
@@ -617,8 +647,10 @@ class LotteryNumDisplayView : View {
                         var lastBallIndex = startLinesIndex
                         val startLine = startLinesIndex - startLinesIndex % mBitCount
                         for (i in startLine..startLinesIndex) {
-                            if (numTextList[i].ballType > 0)
+                            if (numTextList[i].ballType > 0) {
                                 lastBallIndex = i
+                                break
+                            }
                         }
                         if (lastBallIndex < startLinesIndex) {
                             //说明中奖号码在当前最左边号码出现之前就以出现,这时候需要确定选中号码的X轴坐标
@@ -744,15 +776,11 @@ class LotteryNumDisplayView : View {
     private fun realDrawNum(num: OneLotteryNum, canvas: Canvas) {
         mNumTextPaint.getTextBounds(num.num, 0, num.num.length, tempRect)
         (num.ballType > 0).doIf({
-            mNumTextPaint.color = if (num.ballType == BLUE_BALL_TYPE) {
-                Color.BLUE
-            } else {
-                Color.RED
-            }
+            mNumTextPaint.color = if (num.ballType == BLUE_BALL_TYPE) Color.BLUE else Color.RED
             canvas.drawCircle(
                 numWidth / 2f,
                 numHeight / 2f,
-                min(numWidth / 2f * 0.8f, numHeight / 2f * 0.8f),
+                lotteryCircleRadius,
                 mNumTextPaint
             )
             mNumTextPaint.color = Color.WHITE

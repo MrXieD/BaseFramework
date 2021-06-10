@@ -55,10 +55,7 @@ class LotteryFragment : Fragment(), DataSwitchListener {
         lotteryViewModel.lotteryLiveData.observe(viewLifecycleOwner) { resource ->
             resource?.let { resource ->
                 when (resource.status) {
-                    Status.LOADING
-                    -> {
-                        showSnackBar("正在获取数据...")
-                    }
+                    Status.LOADING -> showSnackBar("正在获取数据...")
                     Status.SUCCESS -> {
                         val data = resource.data
                         data?.let { data ->
@@ -66,7 +63,6 @@ class LotteryFragment : Fragment(), DataSwitchListener {
                             dataList?.let {
                                 showSnackBar("获取数据成功！")
                                 //显示数据
-
                                 val bitCount =
                                     when (lotteryType) {
                                         LOTTERY_TYPE_SSQ -> {
@@ -75,8 +71,12 @@ class LotteryFragment : Fragment(), DataSwitchListener {
                                         LOTTERY_TYPE_DLT -> {
                                             binding?.lottertView?.isShowBrokenLine = false
                                             35}
-                                        LOTTERY_TYPE_FCSD, LOTTERY_TYPE_PL3, LOTTERY_TYPE_PL5, LOTTERY_TYPE_7XC ->{
+                                        LOTTERY_TYPE_FCSD, LOTTERY_TYPE_PL3, LOTTERY_TYPE_PL5 ->{
                                             binding?.lottertView?.isShowBrokenLine = true
+                                            10
+                                        }
+                                         LOTTERY_TYPE_7XC ->{
+                                            binding?.lottertView?.isShowBrokenLine = false
                                             10
                                         }
                                         else -> {

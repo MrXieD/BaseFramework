@@ -1,6 +1,5 @@
 package com.example.baseframework.lottery.ui
 
-import android.util.Log
 import android.view.Menu
 import androidx.core.view.get
 import com.example.baseframework.R
@@ -8,7 +7,6 @@ import com.example.baseframework.activity.BaseDBActivity
 import com.example.baseframework.databinding.ActivityLotteryBinding
 import com.example.baseframework.lottery.ui.fragment.DataSwitchListener
 import com.example.baseframework.lottery.ui.fragment.LotteryFragmentCallBack
-import com.example.imlotterytool.db.AppDatabase
 import com.example.imlotterytool.util.*
 import com.google.android.material.navigation.NavigationView
 
@@ -88,7 +86,6 @@ class LotteryActivity : BaseDBActivity<ActivityLotteryBinding>(), LotteryFragmen
     override fun onBackPressed() {
         if (dataBinding.drawerLayout.isOpen) {
             dataBinding.drawerLayout.close()
-            AppDatabase.getInstance(applicationContext).close()
         } else {
             super.onBackPressed()
         }

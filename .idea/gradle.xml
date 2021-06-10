@@ -12,12 +12,14 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/contactroom" />
             <option value="$PROJECT_DIR$/imlotterytool" />
             <option value="$PROJECT_DIR$/reinforce" />
+            <option value="$PROJECT_DIR$/reinforce/roomembedded" />
+            <option value="$PROJECT_DIR$/roomembedded" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
-        <option name="useQualifiedModuleNames" value="true" />
       </GradleProjectSettings>
     </option>
   </component>

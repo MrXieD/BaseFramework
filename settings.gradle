@@ -2,3 +2,6 @@ include ':imlotterytool'
 include ':reinforce'
 include ':app'
 rootProject.name = "BaseFramework"
+include ':contactroom'
+include ':reinforce:roomembedded'
+include ':roomembedded'

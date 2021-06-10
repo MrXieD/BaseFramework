@@ -3,9 +3,7 @@ package com.example.baseframework.lottery.ui.fragment
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -26,7 +24,6 @@ class LotteryFragment : Fragment(), DataSwitchListener {
     companion object {
         private const val TAG = "LotteryFragment"
     }
-
     private lateinit var fragmentCallBack: LotteryFragmentCallBack
     private val lotteryViewModel by viewModels<LotteryViewModel>(
         factoryProducer = { InjectorUtil.getLotteryViewModelFatory(requireContext().applicationContext) }
@@ -40,6 +37,7 @@ class LotteryFragment : Fragment(), DataSwitchListener {
         binding?.lifecycleOwner = this
         return view
     }
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

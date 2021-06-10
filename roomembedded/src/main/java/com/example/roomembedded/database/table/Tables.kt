@@ -44,13 +44,14 @@ class DataConverters {
     @TypeConverter
     fun animalFood2Json(animalFood: AnimalFood): String {
         val jsonFood = Gson().toJson(animalFood, AnimalFood::class.java)
-        Log.e(TAG, "animalFood2Json: $jsonFood")
+        Log.e(TAG, "animalFood2Json:---->thread:${Thread.currentThread().name}")
         return jsonFood
     }
 
     @TypeConverter
     fun json2AnimalFood(jsonFood: String): AnimalFood {
         val animalFood = Gson().fromJson(jsonFood, AnimalFood::class.java)
+        Log.e(TAG, "json2AnimalFood: ----->thread:${Thread.currentThread().name}")
         return animalFood
     }
 }

@@ -2,18 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/navigation_home"
-        android:icon="@drawable/ic_home_black_24dp"
+        android:id="@+id/navigation_call"
+        android:icon="@drawable/ic_baseline_call_24"
         android:title="电话" />
 
     <item
-        android:id="@+id/navigation_dashboard"
-        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:id="@+id/navigation_contact"
+        android:icon="@drawable/ic_baseline_contacts_24"
         android:title="联系人" />
 
     <item
-        android:id="@+id/navigation_notifications"
-        android:icon="@drawable/ic_notifications_black_24dp"
+        android:id="@+id/navigation_collect"
+        android:icon="@drawable/ic_baseline_collections_24"
         android:title="收藏" />
 
 </menu>

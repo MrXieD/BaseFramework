@@ -1,12 +1,12 @@
-package com.example.contactroom.database
+package com.example.contactroom.data.database
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.contactroom.database.dao.ContactDao
-import com.example.contactroom.database.entity.*
+import com.example.contactroom.data.database.dao.ContactDao
+import com.example.contactroom.data.database.entity.*
 
 /**
 @author Anthony.H
@@ -14,8 +14,9 @@ import com.example.contactroom.database.entity.*
 @desription:
  */
 @Database(
-    entities = [User::class, Group::class, UserGroupCoressRef::class, CallRecord::class], version = 1, exportSchema =
-    true
+    entities = [User::class, Group::class, UserGroupCoressRef::class, CallRecord::class],
+    version = 1,
+    exportSchema = false
 )
 @TypeConverters(DateConverters::class)
 abstract class ContactDataBase : RoomDatabase() {

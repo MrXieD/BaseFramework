@@ -1,7 +1,7 @@
-package com.example.contactroom.database.dao
+package com.example.contactroom.data.database.dao
 
 import androidx.room.*
-import com.example.contactroom.database.entity.*
+import com.example.contactroom.data.database.entity.*
 import kotlinx.coroutines.flow.Flow
 
 /**

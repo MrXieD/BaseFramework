@@ -5,7 +5,9 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.roomembedded.database.AnthonyDB
 import com.example.roomembedded.database.table.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -43,7 +45,7 @@ class RommTest {
             )
 
             Log.e(TAG, "setUp: ${idPList.size},${idAList.size}")
-            Log.e(TAG, "setUp: ----------------->")
+            Log.e(TAG, "setUp: ----------------->>>${Thread.currentThread().name}")
         }
     }
 
@@ -56,7 +58,6 @@ class RommTest {
 
     @Test
     fun test1() {
-
         runBlocking {
             val dao = getRoomDb().dbDao()
             dao.getAllPepole().first { list ->
@@ -72,9 +73,9 @@ class RommTest {
     @Test
     fun test2() {
         runBlocking {
-            getRoomDb().dbDao().getAllAnimal().first { list ->
+            getRoomDb().dbDao().getAllAnimal().flowOn(Dispatchers.Main).first { list ->
                 list.forEach {
-                    Log.e(TAG, "animal:$it ")
+                    Log.e(TAG, "animal:$it >>>>>${Thread.currentThread().name}")
                 }
                 true
             }

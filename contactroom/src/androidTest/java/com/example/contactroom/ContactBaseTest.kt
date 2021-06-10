@@ -4,11 +4,11 @@ import android.util.Log
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.contactroom.database.ContactDataBase
-import com.example.contactroom.database.entity.CallRecord
-import com.example.contactroom.database.entity.Group
-import com.example.contactroom.database.entity.User
-import com.example.contactroom.database.entity.UserGroupCoressRef
+import com.example.contactroom.data.database.ContactDataBase
+import com.example.contactroom.data.database.entity.CallRecord
+import com.example.contactroom.data.database.entity.Group
+import com.example.contactroom.data.database.entity.User
+import com.example.contactroom.data.database.entity.UserGroupCoressRef
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -142,6 +142,7 @@ class ContactBaseTest {
 
     @Test
     fun test4() {
+
 
     }
 

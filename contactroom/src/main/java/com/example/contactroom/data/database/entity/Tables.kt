@@ -1,4 +1,4 @@
-package com.example.contactroom.database.entity
+package com.example.contactroom.data.database.entity
 
 import androidx.annotation.NonNull
 import androidx.room.*

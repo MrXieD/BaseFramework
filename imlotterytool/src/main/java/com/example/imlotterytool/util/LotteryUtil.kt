@@ -1,6 +1,5 @@
 package com.example.imlotterytool.util
 
-import android.util.Log
 import com.example.imlotterytool.db.table.*
 import java.lang.NullPointerException
 import java.text.SimpleDateFormat
@@ -21,7 +20,7 @@ fun convertDb2Result(
                 return convert2_FCSD_BData(it,5)
             }
             LOTTERY_TYPE_7XC -> {
-                return convert2_FCSD_BData(it,7)
+                return convert2_7XC_BData(it)
             }
             LOTTERY_TYPE_SSQ -> {
                 return convert2SsqDBData(it)
@@ -159,7 +158,7 @@ fun checkSsqRedIsSelect(ballIndex: Int, numberArray: List<Int>): Int {
 fun convert2_FCSD_BData(dataList: List<LotteryEntity>?,bitCount:Int, isShowMiss: Boolean = true):
         MutableList<LotteryItem>? {
     dataList?.let {
-        val fcsddbList = ArrayList<LotteryItem>()
+        val lotteryList = ArrayList<LotteryItem>()
         for (i in it.indices) {
             val oneList = ArrayList<OneLotteryNum>()
             val numberArray = convert2Numbers(it[i].lotteryRes)
@@ -173,7 +172,7 @@ fun convert2_FCSD_BData(dataList: List<LotteryEntity>?,bitCount:Int, isShowMiss:
                     } else if (isShowMiss) {//该号码未选中，不管遗漏值
                         var missNum = "1"
                         if (i != 0) {
-                            val lastNumData = fcsddbList.last().numbers[ballIndex + 10 * bitIndex]
+                            val lastNumData = lotteryList.last().numbers[ballIndex + 10 * bitIndex]
                             missNum = if (lastNumData.ballType == MISS_TYPE) (lastNumData.num.toInt() + 1).toString()
                             else "1"
                         }
@@ -182,9 +181,59 @@ fun convert2_FCSD_BData(dataList: List<LotteryEntity>?,bitCount:Int, isShowMiss:
                     oneList.add(OneLotteryNum(numberShow, type))
                 }
             }
-            fcsddbList.add(LotteryItem(it[i].lotteryNo, oneList))
+            lotteryList.add(LotteryItem(it[i].lotteryNo, oneList))
         }
-        return fcsddbList
+        return lotteryList
+    }
+    return null
+}
+
+fun convert2_7XC_BData(dataList: List<LotteryEntity>?, isShowMiss: Boolean = true): MutableList<LotteryItem>? {
+    dataList?.let {
+        val lotteryList = ArrayList<LotteryItem>()
+        for (i in it.indices) {
+            val oneList = ArrayList<OneLotteryNum>()
+            val numberArray = convert2Numbers(it[i].lotteryRes)
+            for (bitIndex in 0 until 6){
+                for (ballIndex in 0..9) {
+                    var numberShow = "-"
+                    var type: Int = MISS_TYPE
+                    if (ballIndex == numberArray[bitIndex]) {//选中了这个号
+                        type = NORMAL_TYPE
+                        numberShow = numberArray[bitIndex].toString()
+                    } else if (isShowMiss) {//该号码未选中，不管遗漏值
+                        var missNum = "1"
+                        if (i != 0) {
+                            val lastNumData = lotteryList.last().numbers[ballIndex + 10 * bitIndex]
+                            missNum = if (lastNumData.ballType == MISS_TYPE) (lastNumData.num.toInt() + 1).toString()
+                            else "1"
+                        }
+                        numberShow = missNum
+                    }
+                    oneList.add(OneLotteryNum(numberShow, type))
+                }
+            }
+            for (ballIndex in 0..14) {
+                var numberShow = "-"
+                var type: Int = MISS_TYPE
+                if (ballIndex == numberArray[6]) {//选中了这个号
+                    type = NORMAL_TYPE
+                    numberShow = numberArray[6].toString()
+                } else if (isShowMiss) {//该号码未选中，不管遗漏值
+                    var missNum = "1"
+                    if (i != 0) {
+                        val lastNumData = lotteryList.last().numbers[ballIndex + 10 * 6]
+                        missNum = if (lastNumData.ballType == MISS_TYPE) (lastNumData.num.toInt() + 1).toString()
+                        else "1"
+                    }
+                    numberShow = missNum
+                }
+                oneList.add(OneLotteryNum(numberShow, type))
+            }
+
+            lotteryList.add(LotteryItem(it[i].lotteryNo, oneList))
+        }
+        return lotteryList
     }
     return null
 }
@@ -377,10 +426,13 @@ fun getTitleListByLotteryType(lotteryId: String): List<String> {
             }
         }
         LOTTERY_TYPE_7XC -> {
-            for (outterIndex in 0..6) {
+            for (outterIndex in 0..5) {
                 for (innerIndex in 0..9) {
                     arrayList.add(innerIndex.toString())
                 }
+            }
+            for (innerIndex in 0..14) {
+                arrayList.add(innerIndex.toString())
             }
         }
         LOTTERY_TYPE_SSQ -> {

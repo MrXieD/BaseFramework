@@ -63,29 +63,48 @@ class LotteryFragment : Fragment(), DataSwitchListener {
                             dataList?.let {
                                 showSnackBar("获取数据成功！")
                                 //显示数据
-                                val bitCount =
-                                    when (lotteryType) {
-                                        LOTTERY_TYPE_SSQ -> {
-                                            binding?.lottertView?.isShowBrokenLine = false
-                                            33}
-                                        LOTTERY_TYPE_DLT -> {
-                                            binding?.lottertView?.isShowBrokenLine = false
-                                            35}
-                                        LOTTERY_TYPE_FCSD, LOTTERY_TYPE_PL3, LOTTERY_TYPE_PL5 ->{
-                                            binding?.lottertView?.isShowBrokenLine = true
-                                            10
-                                        }
-                                         LOTTERY_TYPE_7XC ->{
-                                            binding?.lottertView?.isShowBrokenLine = false
-                                            10
-                                        }
-                                        else -> {
-                                            binding?.lottertView?.isShowBrokenLine = false
-                                            0
-                                        }
+                                when (lotteryType) {
+                                    LOTTERY_TYPE_SSQ -> {
+                                        binding?.lottertView?.isShowBrokenLine = false
+                                        binding?.lottertView?.setBitCountList(listOf(IntRange(0, 32), IntRange(33, 48)))
                                     }
+                                    LOTTERY_TYPE_DLT -> {
+                                        binding?.lottertView?.isShowBrokenLine = false
+                                        binding?.lottertView?.setBitCountList(listOf(IntRange(0, 34), IntRange(35, 47)))
+                                    }
+                                    LOTTERY_TYPE_FCSD, LOTTERY_TYPE_PL3 -> {
+                                        binding?.lottertView?.isShowBrokenLine = true
+                                        binding?.lottertView?.setBitCountList(listOf(IntRange(0, 9), IntRange(10, 19), IntRange(20, 29)))
+                                    }
+                                    LOTTERY_TYPE_PL5 -> {
+                                        binding?.lottertView?.isShowBrokenLine = true
+                                        binding?.lottertView?.setBitCountList(
+                                            listOf(IntRange(0, 9), IntRange(10, 19), IntRange(20, 29), IntRange(30, 39), IntRange(40, 49))
+                                        )
+                                    }
+
+                                    LOTTERY_TYPE_7XC -> {
+                                        binding?.lottertView?.isShowBrokenLine = true
+                                        binding?.lottertView?.setBitCountList(
+                                            listOf(
+                                                IntRange(0, 9),
+                                                IntRange(10, 19),
+                                                IntRange(20, 29),
+                                                IntRange(30, 39),
+                                                IntRange(40, 49),
+                                                IntRange(50, 59),
+                                                IntRange(60, 74)
+                                            )
+                                        )
+
+                                    }
+                                    else -> {
+                                        binding?.lottertView?.isShowBrokenLine = false
+
+                                    }
+                                }
                                 fragmentCallBack.selectMenuItem(data.lotteryId)
-                                binding?.lottertView?.setBitCount(bitCount)
+
                                 binding?.lottertView?.refreshData(it, getTitleListByLotteryType(data.lotteryId))
                             }
                         }

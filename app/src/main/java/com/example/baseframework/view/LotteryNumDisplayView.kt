@@ -3,7 +3,6 @@ package com.example.baseframework.view
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
@@ -12,7 +11,6 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
-import androidx.annotation.RequiresApi
 import com.example.baseframework.R
 import com.example.baseframework.ex.*
 import com.example.baseframework.log.XLog
@@ -233,11 +231,6 @@ class LotteryNumDisplayView : View {
         dataList.addAll(lotteryData)
         totalRows = dataList.size
         totalLines = this.numTextList.size
-        if (totalLines % mBitCount == 0) {
-            setOneBitCount(totalLines / mBitCount)
-        } else {
-            setOneBitCount(totalLines / mBitCount + 1)
-        }
         measureNumWH()
         totalScrollX = 0
         totalScrollY = 0
@@ -256,18 +249,20 @@ class LotteryNumDisplayView : View {
         invalidate()
     }
 
-    private var mBitCount = 10
-
-    fun setBitCount(bitCount: Int) {
-        mBitCount = bitCount
-    }
-
-    //设置彩票有好多位，用于每一位（个，十，百加粗纵列分割线）
-    private fun setOneBitCount(oneBitCount: Int) {
-        if (!isShowBrokenLine) return
+    //用于记录每一部分有几位数 数组下标表示第几位，数组的值表示第几位由0~n个数字之一
+    // 比如
+    // 排列三---》{[0-9],[10-19],[20-29]}
+    // 大乐透 ---》{[0-34],[0-11]}
+    // 双色球 ---》{[0-32],[0-15]}
+    private val mBitCountList = mutableListOf<IntRange>()
+    fun setBitCountList(bitCountList: List<IntRange>){
+        if(bitCountList.isEmpty() ) return
+        mBitCountList.clear()
+        mBitCountList.addAll(bitCountList)
+        if(!isShowBrokenLine) return
         mBrokenLinePointsList.clear()
         brokenPathList.clear()
-        for (i in 0 until oneBitCount) {
+        for (i in 0 until mBitCountList.size) {
             val pointList = mutableListOf<Point>()
             for (j in 0..displayRowNum + 2) {
                 pointList.add(Point())
@@ -277,17 +272,28 @@ class LotteryNumDisplayView : View {
         }
     }
 
-    //用于记录每一部分有几位数 数组下标表示第几位，数组的值表示第几位由0~n个数字之一
-    // 比如
-    // 排列三---》{[0-9],[10-19],[20-29]}
-    // 大乐透 ---》{[0-34],[0-11]}
-    // 双色球 ---》{[0-32],[0-15]}
-    private val mBitCountMap = mutableMapOf<Int,IntRange>()
-    fun setBitCount(bitCountList: MutableMap<Int,IntRange>){
-        if(bitCountList.isEmpty()) return
-        mBitCountMap.clear()
-        mBitCountMap.putAll(bitCountList)
+    private fun getBitCountFromNumLineIndex(index :Int):Int{
+        var bitCount = 0
+        for ( i in mBitCountList.indices){
+            if(mBitCountList[i].contains(index)){
+                bitCount = mBitCountList[i].last - mBitCountList[i].first
+                break
+            }
+        }
+        return  bitCount + 1
     }
+
+    private fun getBitPositionFromNumLineIndex(index :Int):Int{
+        var bitPosition = 0
+        for ( i in mBitCountList.indices){
+            if(mBitCountList[i].contains(index)){
+                bitPosition = i
+                break
+            }
+        }
+        return  bitPosition
+    }
+
 
     private fun initTypedArray(attrs: AttributeSet?) {
 
@@ -507,6 +513,7 @@ class LotteryNumDisplayView : View {
                 canvas.saveAndRestore {
                     val endLinesIndex =
                         if (startLinesIndex + displayLineNum < numTextList.size) startLinesIndex + displayLineNum else numTextList.size - 1
+                    var lastBitPosition = getBitPositionFromNumLineIndex(startLinesIndex)
                     for (i in startLinesIndex..endLinesIndex) {
                         canvas.saveAndRestore {
                             if (i == startLinesIndex) {
@@ -517,9 +524,12 @@ class LotteryNumDisplayView : View {
                                     numHeight + (mThickMeshPaint.strokeWidth / 2).toInt()
                                 )
                             }
-                            val paint = if (mBitCount > 0) {
-                                if (i % mBitCount == 0) mThickMeshPaint else
-                                    mMeshPaint
+                            val paint = if (mBitCountList.size > 0) {
+                                val bitPosition = getBitPositionFromNumLineIndex( i)
+                                if (bitPosition > lastBitPosition){
+                                    lastBitPosition = bitPosition
+                                    mThickMeshPaint
+                                } else mMeshPaint
                             } else {
                                 mMeshPaint
                             }
@@ -572,13 +582,15 @@ class LotteryNumDisplayView : View {
         )
     }
 
+
+
     private fun drawNumLine(startRowsIndex: Int, startLinesIndex: Int, canvas: Canvas) {
         if (!isShowBrokenLine) return
         buildBrokenLinePoint(startRowsIndex, startLinesIndex)
         val endLinesIndex =
             if (startLinesIndex + displayLineNum < numTextList.size) startLinesIndex + displayLineNum else numTextList.size - 1
-        val minLineIndex = startLinesIndex / mBitCount
-        val maxLineIndex = endLinesIndex / mBitCount
+        val minLineIndex = getBitPositionFromNumLineIndex(startLinesIndex)
+        val maxLineIndex = getBitPositionFromNumLineIndex(endLinesIndex)
         for (i in minLineIndex..maxLineIndex) {
             val brokenLine = brokenPathList[i]
             brokenLine.reset()
@@ -637,7 +649,8 @@ class LotteryNumDisplayView : View {
             for (indexOfLine in startLinesIndex..endLinesIndex) {
                 val num = numTextList[indexOfLine]
                 val pointIndexOfRow = rowIndex - realStartRowIndex
-                val pointIndexOfLine = indexOfLine / mBitCount
+                val pointIndexOfLine = getBitPositionFromNumLineIndex(indexOfLine)
+                val bitCount = getBitCountFromNumLineIndex(indexOfLine)
                 val point = mBrokenLinePointsList[pointIndexOfLine][pointIndexOfRow]
                 if (num.ballType > 0) {
                     point.x = (indexOfLine - startLinesIndex) * numWidth + offsetX
@@ -645,7 +658,7 @@ class LotteryNumDisplayView : View {
                 } else {
                     if (indexOfLine == startLinesIndex) {
                         var lastBallIndex = startLinesIndex
-                        val startLine = startLinesIndex - startLinesIndex % mBitCount
+                        val startLine = startLinesIndex - startLinesIndex % bitCount
                         for (i in startLine..startLinesIndex) {
                             if (numTextList[i].ballType > 0) {
                                 lastBallIndex = i
@@ -659,7 +672,7 @@ class LotteryNumDisplayView : View {
                         }
                     } else if (indexOfLine == endLinesIndex) {
                         var lastBallIndex = endLinesIndex
-                        val endLIndex = endLinesIndex + mBitCount - endLinesIndex % mBitCount
+                        val endLIndex = endLinesIndex + bitCount - endLinesIndex % bitCount
                         for (i in endLinesIndex until endLIndex) {
                             //找到这行还没显示出来的中奖号码的index
                             if (numTextList[i].ballType > 0) {
@@ -682,10 +695,14 @@ class LotteryNumDisplayView : View {
         canvas.saveAndRestore {
             canvas.translate(meshScrollX.toFloat(), 0f)
             canvas.saveAndRestore {
+                var lastBitPosition = getBitPositionFromNumLineIndex(startLinesIndex)
                 for (i in 0..displayLineNum) {
-                    val paint = if (mBitCount > 0) {
-                        if ((startLinesIndex + i) % mBitCount == 0) mThickMeshPaint else
-                            mMeshPaint
+                    val paint = if (mBitCountList.size > 0) {
+                        val bitPosition = getBitPositionFromNumLineIndex(startLinesIndex + i)
+                        if (bitPosition > lastBitPosition){
+                            lastBitPosition = bitPosition
+                            mThickMeshPaint
+                        } else mMeshPaint
                     } else {
                         mMeshPaint
                     }
@@ -757,13 +774,13 @@ class LotteryNumDisplayView : View {
                             numHeight
                         )
                     }
-                    val backgroundColorIndex = (numIndex) / mBitCount
+                    //绘制数字背景框
                     canvas.drawRect(
                         marginInterval,
                         marginInterval,
                         numWidth - marginInterval,
                         numHeight - marginInterval,
-                        if (backgroundColorIndex % 2 == 0) mBackgroundColorPaint1 else mBackgroundColorPaint2
+                        if (getBitPositionFromNumLineIndex(numIndex) % 2 == 0) mBackgroundColorPaint1 else mBackgroundColorPaint2
                     )
                     realDrawNum(num, canvas)
                 }
@@ -851,7 +868,7 @@ class LotteryNumDisplayView : View {
             if (!forceIntercptMove) {
                 isScroll = true
                 mFuture = mExecutor.scheduleWithFixedDelay(
-                    InertiaScrollTimerTask(vX.toInt(), vY.toInt()), 0, 7L,
+                    InertiaScrollTimerTask(vX.toInt(), vY.toInt()), 0, 6L,
                     TimeUnit.MILLISECONDS
                 )
             }

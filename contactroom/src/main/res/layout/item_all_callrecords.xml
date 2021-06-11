@@ -4,6 +4,9 @@
 
     <data>
 
+        <variable
+            name="callrecord"
+            type="com.example.contactroom.data.database.dao.ContactDao.CallRecordsResult" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

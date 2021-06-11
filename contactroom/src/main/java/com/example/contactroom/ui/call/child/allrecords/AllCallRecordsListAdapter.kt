@@ -4,15 +4,19 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.contactroom.R
+import com.example.contactroom.data.database.dao.ContactDao
 
 /**
 @author Anthony.H
 @date: 2021/6/10
 @desription:
  */
-class AllCallRecordsListAdapter : RecyclerView.Adapter<AllCallRecordsListAdapter.AllRecordsViewHolder>() {
+class AllCallRecordsListAdapter :
+    ListAdapter<ContactDao.CallRecordsResult, AllCallRecordsListAdapter.AllRecordsViewHolder>(AllRecordsDiffCallBack()) {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AllRecordsViewHolder {
@@ -44,15 +48,33 @@ class AllCallRecordsListAdapter : RecyclerView.Adapter<AllCallRecordsListAdapter
         }
     }
 
-    override fun getItemCount(): Int {
-        TODO("Not yet implemented")
-    }
-
 
     inner class AllRecordsViewHolder(val viewDataBinding: ViewDataBinding) : RecyclerView.ViewHolder(
         viewDataBinding
             .root
     )
+
+
+    private class AllRecordsDiffCallBack : DiffUtil.ItemCallback<ContactDao.CallRecordsResult>() {
+        override fun areItemsTheSame(
+            oldItem: ContactDao.CallRecordsResult,
+            newItem: ContactDao.CallRecordsResult
+        ): Boolean {
+            return oldItem.count == newItem.count && oldItem.date == newItem.date && oldItem.name == newItem.name &&
+                    oldItem
+                        .number == newItem.number
+        }
+
+        override fun areContentsTheSame(
+            oldItem: ContactDao.CallRecordsResult,
+            newItem: ContactDao.CallRecordsResult
+        ): Boolean {
+            return oldItem.count == newItem.count && oldItem.date == newItem.date && oldItem.name == newItem.name &&
+                    oldItem
+                        .number == newItem.number
+        }
+
+    }
 
 }
 

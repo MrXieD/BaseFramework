@@ -5,3 +5,4 @@ rootProject.name = "BaseFramework"
 include ':contactroom'
 include ':reinforce:roomembedded'
 include ':roomembedded'
+include ':drawtest'

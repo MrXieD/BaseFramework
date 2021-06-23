@@ -16,7 +16,7 @@ import com.example.contactroom.data.database.entity.*
 @Database(
     entities = [User::class, Group::class, UserGroupCoressRef::class, CallRecord::class],
     version = 1,
-    exportSchema = false
+    exportSchema = true
 )
 @TypeConverters(DateConverters::class)
 abstract class ContactDataBase : RoomDatabase() {
@@ -36,7 +36,8 @@ abstract class ContactDataBase : RoomDatabase() {
                         contactDataBase = Room.databaseBuilder(
                             context,
                             ContactDataBase::class.java, DATABASE_NAME
-                        ).build()
+                        ).createFromAsset("pre_pack_contact.db")
+                            .build()
                     }
                 }
             }

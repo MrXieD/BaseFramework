@@ -10,9 +10,7 @@
         android:name="com.example.contactroom.ui.call.CallFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_call">
-        <action
-            android:id="@+id/action_navigation_call_to_navigation_contact_detail"
-            app:destination="@id/navigation_contact_detail" />
+
     </fragment>
 
     <fragment
@@ -27,8 +25,4 @@
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
 
-    <fragment
-        android:id="@+id/navigation_contact_detail"
-        android:name="com.example.contactroom.ui.call.CallDetailFragment"
-        tools:layout="@layout/fragment_notifications" />
 </navigation>

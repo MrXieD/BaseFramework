@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.contactroom.data.ContactRepostoryFactory
 import com.example.contactroom.data.IContactRepository
 import com.example.contactroom.ui.call.child.allrecords.AllRecordsViewModelFactory
+import com.example.contactroom.ui.call.child.allrecords.SigRecordsViewModelFactory
 
 /**
 @author Anthony.H
@@ -18,4 +19,5 @@ object InjectUtil {
 
     fun getAllRecordsViewModelFactory(context: Context) = AllRecordsViewModelFactory(getContactRepostory(context))
 
+    fun getSigRecordsViewModelFactory(context: Context) = SigRecordsViewModelFactory(getContactRepostory(context))
 }

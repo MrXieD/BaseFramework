@@ -9,10 +9,7 @@ import com.example.contactroom.data.database.entity.CallRecord
 import com.example.contactroom.data.database.entity.Group
 import com.example.contactroom.data.database.entity.User
 import com.example.contactroom.data.database.entity.UserGroupCoressRef
-import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.*
@@ -20,26 +17,20 @@ import kotlin.random.Random
 
 /**
 @author Anthony.H
-@date: 2021/6/7
+@date: 2021/6/21
 @desription:
-
-!!!注意，room的dao查询返回的flow默认情况下和一般自定义的flow不同，
-room返回的flow在外部collect后是不会自动停止完成的。
  */
 @RunWith(AndroidJUnit4::class)
-class ContactBaseTest {
+class ContactPrePackTest {
 
-    companion object {
-        val TESTBBNAME = "test_db"
-        private const val TAG = "ContactBaseTest"
+    companion object{
+        private const val TAG = "ContactPrePackTest"
     }
 
-    private lateinit var sqliteTestDbHelper: SqliteTestDbOpenHelper
 
-    @Before
-    fun setUp() {
-        sqliteTestDbHelper = SqliteTestDbOpenHelper(ApplicationProvider.getApplicationContext(), TESTBBNAME)
-        SqliteDatabaseTestHelper.createTable(sqliteTestDbHelper)
+    @Test
+    fun createData() {
+
         runBlocking {
             val dao = getContactDataBase().contactDao()
             val userIdList = dao.insertUsers(
@@ -81,75 +72,14 @@ class ContactBaseTest {
                 dao.groupAddUser(UserGroupCoressRef(userId.toInt(), groupIdList[Random.nextInt(0, 3)].toInt()))
             }
         }
+        Log.e(TAG, "createData: 123" );
     }
-
-    @After
-    fun tearDown() {
-        SqliteDatabaseTestHelper.clearDatabase(sqliteTestDbHelper)
-    }
-
-
-    @Test
-    fun test1() {
-        runBlocking {
-            val dao = getContactDataBase().contactDao()
-            val userWithGroups = dao.getUsersWithGoroups()
-            val stringBuilder = StringBuilder()
-            userWithGroups.first { list ->
-                list.forEach { userWithGroups ->
-                    stringBuilder.clear()
-                    stringBuilder.append(userWithGroups.user.userName)
-                        .append("组有:")
-                    userWithGroups.groupList.forEach { group ->
-                        stringBuilder
-                            .append(group.groupName)
-                            .append(" ")
-                    }
-                    Log.e(TAG, "->: ${stringBuilder.toString()}")
-                }
-                true//因为room的flow不会自动关闭，这里需要这样操作
-            }
-        }
-    }
-
-
-    @Test
-    fun test2() {
-        runBlocking {
-            val dao = getContactDataBase().contactDao()
-            val list = dao.getAllCallRecordsReal()
-            list.forEach { callRecordsResult ->
-                Log.e(TAG, "test2: ${callRecordsResult.count}")
-            }
-        }
-    }
-
-    @Test
-    fun test3() {
-        runBlocking {
-            val dao = getContactDataBase().contactDao()
-            dao.getAllCallRecordsRealActive().first {
-                it.forEach { result ->
-                    Log.e(TAG, "test3: ${result.count}")
-                }
-                true
-            }
-        }
-    }
-
-    @Test
-    fun test4() {
-
-
-    }
-
 
     private fun getContactDataBase(): ContactDataBase {
-        val contactDataBase = Room.databaseBuilder(
+        return Room.databaseBuilder(
             ApplicationProvider.getApplicationContext(),
-            ContactDataBase::class.java, TESTBBNAME
+            ContactDataBase::class.java, "pre_pack_contact.db"
         ).build()
-        return contactDataBase
     }
 
 }

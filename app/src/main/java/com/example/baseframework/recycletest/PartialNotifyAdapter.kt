@@ -84,7 +84,7 @@ class PartialNotifyAdapter(var list: MutableList<String>) : RecyclerView.Adapter
         }
     }
 
-      interface ItemClickListener {
+    interface ItemClickListener {
         fun onItemClick(position: Int)
     }
 

@@ -1,7 +1,10 @@
 package com.example.contactroom.data.database.dao
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.room.*
 import com.example.contactroom.data.database.entity.*
+import com.example.contactroom.util.DateUtil
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -53,6 +56,9 @@ abstract class ContactDao {
     abstract fun getAllCallRecordsRealActive(): Flow<MutableList<CallRecordsResult>>
 
 
+//    @Query
+//    abstract fun getAllC
+
     /**
      * 先删除用户表中记录，
      * 然后删除对应的[CallRecord]中的记录
@@ -74,7 +80,51 @@ abstract class ContactDao {
         val date: Long?,
         val number: String?,
         val name: String?
-    )
+    ) : Parcelable {
+        /**
+         * 格式化后的日期
+         */
+        var formatDate: String? = number
+
+        constructor(parcel: Parcel) : this(
+            parcel.readValue(Int::class.java.classLoader) as? Int,
+            parcel.readValue(Long::class.java.classLoader) as? Long,
+            parcel.readString(),
+            parcel.readString()
+        ) {
+            formatDate = parcel.readString()
+        }
+
+        init {
+            date?.let {
+                formatDate = DateUtil.timeStamp2FormatDate(it)
+            }
+        }
+
+        override fun writeToParcel(parcel: Parcel, flags: Int) {
+            parcel.writeValue(count)
+            parcel.writeValue(date)
+            parcel.writeString(number)
+            parcel.writeString(name)
+            parcel.writeString(formatDate)
+        }
+
+        override fun describeContents(): Int {
+            return 0
+        }
+
+        companion object CREATOR : Parcelable.Creator<CallRecordsResult> {
+            override fun createFromParcel(parcel: Parcel): CallRecordsResult {
+                return CallRecordsResult(parcel)
+            }
+
+            override fun newArray(size: Int): Array<CallRecordsResult?> {
+                return arrayOfNulls(size)
+            }
+        }
+
+
+    }
 
 
 }

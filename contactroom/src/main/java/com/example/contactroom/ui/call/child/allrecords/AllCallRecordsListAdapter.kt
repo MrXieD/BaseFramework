@@ -1,14 +1,21 @@
 package com.example.contactroom.ui.call.child.allrecords
 
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.contactroom.BR
 import com.example.contactroom.R
 import com.example.contactroom.data.database.dao.ContactDao
+import com.example.contactroom.databinding.ItemAllCallrecordsBinding
+import com.example.contactroom.ui.call.CallFragmentDirections
 
 /**
 @author Anthony.H
@@ -18,9 +25,12 @@ import com.example.contactroom.data.database.dao.ContactDao
 class AllCallRecordsListAdapter :
     ListAdapter<ContactDao.CallRecordsResult, AllCallRecordsListAdapter.AllRecordsViewHolder>(AllRecordsDiffCallBack()) {
 
+    companion object {
+        private const val TAG = "AllCallRecordsListAdapt"
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AllRecordsViewHolder {
-        val viewDataBinding: ViewDataBinding = DataBindingUtil.inflate(
+        val viewDataBinding: ItemAllCallrecordsBinding = DataBindingUtil.inflate(
             LayoutInflater.from(parent.context),
             R.layout.item_all_callrecords,
             parent,
@@ -31,8 +41,8 @@ class AllCallRecordsListAdapter :
     }
 
     override fun onBindViewHolder(holder: AllRecordsViewHolder, position: Int) {
-        holder.viewDataBinding.let {
-
+        holder.viewDataBinding.apply {
+            callrecord = getItem(position)
         }
     }
 
@@ -49,10 +59,24 @@ class AllCallRecordsListAdapter :
     }
 
 
-    inner class AllRecordsViewHolder(val viewDataBinding: ViewDataBinding) : RecyclerView.ViewHolder(
+    inner class AllRecordsViewHolder(val viewDataBinding: ItemAllCallrecordsBinding) : RecyclerView.ViewHolder(
         viewDataBinding
             .root
-    )
+    ) {
+        init {
+            viewDataBinding.clickListener = detailClickListener
+        }
+    }
+
+    private val detailClickListener = View.OnClickListener {
+        //根据号码跳转通话记录详情页面
+        val pos = (it.parent.parent as RecyclerView).getChildAdapterPosition(it.parent as View)
+
+        Log.i(TAG, "detail click $pos ")
+        val callRecordResult = getItem(pos)
+        val direction = CallFragmentDirections.actionNavigationCallToNavigationContactDetail()
+        it.findNavController().navigate(direction)
+    }
 
 
     private class AllRecordsDiffCallBack : DiffUtil.ItemCallback<ContactDao.CallRecordsResult>() {

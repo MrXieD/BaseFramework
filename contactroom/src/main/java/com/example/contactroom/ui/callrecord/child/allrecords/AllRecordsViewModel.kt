@@ -1,4 +1,4 @@
-package com.example.contactroom.ui.call.child.allrecords
+package com.example.contactroom.ui.callrecord.child.allrecords
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData

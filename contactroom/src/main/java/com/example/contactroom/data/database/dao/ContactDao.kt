@@ -56,8 +56,11 @@ abstract class ContactDao {
     abstract fun getAllCallRecordsRealActive(): Flow<MutableList<CallRecordsResult>>
 
 
-//    @Query
-//    abstract fun getAllC
+    @Query("select call_record.* from call_record,user where call_record.phone_number=user.phone_numbers and user.user_name=:name order by call_record.record_date desc")
+    abstract fun getSigCallRecodsByName(name: String): Flow<List<CallRecord>>
+
+    @Query("select * from call_record where call_record.phone_number=:number order by call_record.record_date desc")
+    abstract fun getSigCallRecodsByNumber(number: String): Flow<List<CallRecord>>
 
     /**
      * 先删除用户表中记录，
@@ -71,6 +74,9 @@ abstract class ContactDao {
             moveUserFromGroup(user.userId!!)  //删除组成员表
         }
     }
+
+    @Query("select user.phone_numbers from user where user.user_name=:name")
+    abstract fun getNumbersForContact(name: String): Flow<List<String>>
 
     /**
      * 自定义查询返回字段，一个普通的类(POJO)

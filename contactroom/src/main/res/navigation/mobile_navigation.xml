@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/navigation_call"
-        android:name="com.example.contactroom.ui.call.CallFragment"
+        android:name="com.example.contactroom.ui.callrecord.CallFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_call">
 

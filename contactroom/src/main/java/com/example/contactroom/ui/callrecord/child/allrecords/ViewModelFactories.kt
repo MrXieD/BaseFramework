@@ -1,9 +1,10 @@
-package com.example.contactroom.ui.call.child.allrecords
+package com.example.contactroom.ui.callrecord.child.allrecords
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.contactroom.data.IContactRepository
-import com.example.contactroom.ui.call.child.SigRecordsViewModel
+import com.example.contactroom.ui.callrecord.child.SigRecordsViewModel
+import com.example.contactroom.ui.callrecord.detail.contacts.ContactDetailViewModel
 
 /**
 @author Anthony.H
@@ -21,5 +22,12 @@ class SigRecordsViewModelFactory(private val contactRepository: IContactReposito
     ViewModelProvider.NewInstanceFactory() {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return SigRecordsViewModel(contactRepository) as T
+    }
+}
+
+class ContactDetailViewModelFactory(private val contactRepository: IContactRepository) :
+    ViewModelProvider.NewInstanceFactory() {
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return ContactDetailViewModel(contactRepository) as T
     }
 }

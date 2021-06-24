@@ -1,4 +1,4 @@
-package com.example.contactroom.ui.call.child.allrecords
+package com.example.contactroom.ui.callrecord.child.allrecords
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -43,7 +43,6 @@ class AllCallRecordsFragment : Fragment() {
             addItemDecoration(DividerItemDecoration(binding.recyclerView.context, layout.orientation))
             val recordsListAdapter = AllCallRecordsListAdapter()
             adapter = recordsListAdapter
-            //
             queryWeatherViewModel.allCallRecordsLiveData.observe(viewLifecycleOwner) { callResultList ->
                 recordsListAdapter.submitList(callResultList)
             }

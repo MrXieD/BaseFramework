@@ -1,4 +1,4 @@
-package com.example.contactroom.ui.call.child.missrecords
+package com.example.contactroom.ui.callrecord.child.missrecords
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.contactroom.databinding.FragmentAllcallrecordsBinding
-import com.example.contactroom.ui.call.child.allrecords.AllCallRecordsListAdapter
+import com.example.contactroom.ui.callrecord.child.allrecords.AllCallRecordsListAdapter
 
 /**
 @author Anthony.H

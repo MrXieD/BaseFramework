@@ -1,9 +1,9 @@
-package com.example.contactroom.ui.call
+package com.example.contactroom.ui.callrecord
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.contactroom.ui.call.child.allrecords.AllCallRecordsFragment
-import com.example.contactroom.ui.call.child.missrecords.MissedCallRecordsFragment
+import com.example.contactroom.ui.callrecord.child.allrecords.AllCallRecordsFragment
+import com.example.contactroom.ui.callrecord.child.missrecords.MissedCallRecordsFragment
 
 /**
 @author Anthony.H

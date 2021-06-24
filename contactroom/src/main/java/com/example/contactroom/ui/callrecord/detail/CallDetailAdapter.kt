@@ -1,9 +1,11 @@
-package com.example.contactroom.ui.call
+package com.example.contactroom.ui.callrecord.detail
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.contactroom.data.database.dao.ContactDao
+import com.example.contactroom.ui.callrecord.detail.record.CallRecordDetailFragment
+import com.example.contactroom.ui.callrecord.detail.contacts.ContactsDetailFragment
 
 /**
 @author Anthony.H
@@ -18,14 +20,14 @@ class CallDetailAdapter(activity: AppCompatActivity, val callRecodsResult: Conta
     override fun createFragment(position: Int): Fragment {
         return when (position) {
             0 -> {
-                if (itemCount==1){
-                    ContactDetailFragment.createInstance(callRecodsResult.name!!)
-                }else{
-//                    ContactDetailFragment.createInstance(callRecodsResult.name!!)
+                if (itemCount == 1) {
+                    CallRecordDetailFragment.createInstance(callRecodsResult.name, callRecodsResult.number)
+                } else {
+                    ContactsDetailFragment.createInstance(callRecodsResult.name!!)
                 }
             }
             1 -> {
-                CallRecordDetailFragment.createInstance()
+                CallRecordDetailFragment.createInstance(callRecodsResult.name, callRecodsResult.number)
             }
             else -> {
                 throw IllegalAccessError()

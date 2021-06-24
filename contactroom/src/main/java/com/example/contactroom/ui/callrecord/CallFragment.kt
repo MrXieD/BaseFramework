@@ -1,4 +1,4 @@
-package com.example.contactroom.ui.call
+package com.example.contactroom.ui.callrecord
 
 import android.os.Bundle
 import android.view.LayoutInflater

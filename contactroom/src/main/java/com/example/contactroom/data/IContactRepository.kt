@@ -27,5 +27,9 @@ interface IContactRepository {
      */
     fun getSigCallRecordsByNumber(number: String): Flow<List<CallRecord>>
 
+    /**
+     * 根据某个人获取所有号码
+     */
+    fun getNumbersForContact(name: String): Flow<List<String>>
 
 }

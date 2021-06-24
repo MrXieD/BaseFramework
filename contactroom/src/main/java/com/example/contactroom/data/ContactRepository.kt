@@ -19,11 +19,15 @@ class ContactRepository(private val contactDao: ContactDao) : IContactRepository
     }
 
     override fun getSigCallRecordsByName(name: String): Flow<List<CallRecord>> {
-        TODO("Not yet implemented")
+        return contactDao.getSigCallRecodsByName(name)
     }
 
     override fun getSigCallRecordsByNumber(number: String): Flow<List<CallRecord>> {
-        TODO("Not yet implemented")
+        return contactDao.getSigCallRecodsByNumber(number)
+    }
+
+    override fun getNumbersForContact(name: String): Flow<List<String>> {
+         return  contactDao.getNumbersForContact(name)
     }
 
 

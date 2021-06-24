@@ -1,21 +1,19 @@
-package com.example.contactroom.ui.call.child.allrecords
+package com.example.contactroom.ui.callrecord.child.allrecords
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
-import androidx.navigation.Navigation
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.contactroom.BR
 import com.example.contactroom.R
 import com.example.contactroom.data.database.dao.ContactDao
 import com.example.contactroom.databinding.ItemAllCallrecordsBinding
-import com.example.contactroom.ui.call.CallFragmentDirections
+import com.example.contactroom.ui.callrecord.detail.CallRecordDetailActivity
 
 /**
 @author Anthony.H
@@ -74,8 +72,14 @@ class AllCallRecordsListAdapter :
 
         Log.i(TAG, "detail click $pos ")
         val callRecordResult = getItem(pos)
-        val direction = CallFragmentDirections.actionNavigationCallToNavigationContactDetail()
-        it.findNavController().navigate(direction)
+        gotoDetailActivity(it.context, callRecordResult)
+    }
+
+    private fun gotoDetailActivity(context: Context, callRecordResult: ContactDao.CallRecordsResult) {
+        val intent = Intent(context, CallRecordDetailActivity::class.java).apply {
+            putExtra(CallRecordDetailActivity.CALLRECODS_KEY, callRecordResult)
+        }
+        context.startActivity(intent)
     }
 
 

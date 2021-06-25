@@ -6,6 +6,7 @@ import android.view.Gravity
 import android.view.Menu
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.Toolbar
 import androidx.viewpager2.widget.ViewPager2
 import com.example.contactroom.R
@@ -38,10 +39,15 @@ class CallRecordDetailActivity : AppCompatActivity() {
 
     private fun init() {
         setSupportActionBar(binding.topToolbar)
-        binding.bottomToolbar.setOnMenuItemClickListener(menuItemClickListener)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        binding.bottomActionmv.setOnMenuItemClickListener(menuItemClickListener)
+
 
         val callRecodsResult = intent.getParcelableExtra<ContactDao.CallRecordsResult>(CALLRECODS_KEY)
         callRecodsResult?.let {
+            binding.topCollapsinglayout.title = callRecodsResult.name ?: callRecodsResult.number
+
             binding.pager.adapter = CallDetailAdapter(this, callRecodsResult)
             callRecodsResult.name?.let {
                 binding.tabLayout.visibility = View.VISIBLE
@@ -58,11 +64,6 @@ class CallRecordDetailActivity : AppCompatActivity() {
     }
 
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        return super.onCreateOptionsMenu(menu)
-
-    }
-
     /**
      *
      * 页面滑动监听器
@@ -70,8 +71,6 @@ class CallRecordDetailActivity : AppCompatActivity() {
     private val pagerChangeListener = object : ViewPager2.OnPageChangeCallback() {
 
         override fun onPageSelected(position: Int) {
-            Log.e(TAG, "onPageSelected: $position")
-
             when (position) {
                 0 -> {
                     binding.bottomActionmv.menu.apply {
@@ -95,7 +94,10 @@ class CallRecordDetailActivity : AppCompatActivity() {
     /**
      * 底部toolbar菜单选择监听
      */
-    private val menuItemClickListener = Toolbar.OnMenuItemClickListener { true }
+    private val menuItemClickListener = ActionMenuView.OnMenuItemClickListener {
+        Log.e(TAG, "OnMenuItemClickListener:${it.itemId}")
+        true
+    }
 
 
     override fun onDestroy() {
@@ -103,5 +105,10 @@ class CallRecordDetailActivity : AppCompatActivity() {
         binding.pager.unregisterOnPageChangeCallback(pagerChangeListener)
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+        Log.e(TAG, "onSupportNavigateUp: ")
+        onBackPressed()
+        return true
+    }
 
 }

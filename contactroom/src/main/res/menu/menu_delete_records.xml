@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
 
     <item
         android:id="@+id/delete_callrecords"
-        android:title="删除通话记录"
         app:actionLayout="@layout/layout_menu_delete"
-        app:showAsAction="always" />
+        app:showAsAction="always"
+        tools:ignore="MenuTitle" />
 
 </menu>

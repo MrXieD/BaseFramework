@@ -18,8 +18,8 @@
 
     <!--menu items 间隔设置-->
     <style name="myActionButtonStyle" parent="Widget.AppCompat.ActionButton">
-        <item name="android:paddingLeft">6dp</item>
-        <item name="android:paddingRight">6dp</item>
+        <item name="android:paddingLeft">30dp</item>
+        <item name="android:paddingRight">30dp</item>
         <item name="android:minWidth">36dp</item>
         <item name="android:minHeight">36dp</item>
     </style>

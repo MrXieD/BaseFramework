@@ -1,10 +1,9 @@
 package com.example.contactroom.ui.callrecord
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
+import com.example.contactroom.R
 import com.example.contactroom.databinding.FragmentCallBinding
 import com.google.android.material.tabs.TabLayoutMediator
 

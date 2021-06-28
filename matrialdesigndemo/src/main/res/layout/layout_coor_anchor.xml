@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="MissingDefaultResource">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="200dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/center_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="@color/teal_200" />
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/center_toolbar2"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="@color/teal_700" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <ImageView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:elevation="8dp"
+        android:src="@mipmap/ic_launcher_round"
+        android:layout_gravity="center_horizontal"
+        app:layout_anchor="@id/center_toolbar2"
+        app:layout_anchorGravity="top|center_horizontal" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

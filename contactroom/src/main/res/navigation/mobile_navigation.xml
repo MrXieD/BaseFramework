@@ -15,13 +15,13 @@
 
     <fragment
         android:id="@+id/navigation_contact"
-        android:name="com.example.contactroom.ui.collection.DashboardFragment"
+        android:name="com.example.contactroom.ui.collection.CollectionFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
         android:id="@+id/navigation_collect"
-        android:name="com.example.contactroom.ui.contacts.NotificationsFragment"
+        android:name="com.example.contactroom.ui.contacts.ContactsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
 

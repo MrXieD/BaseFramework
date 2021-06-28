@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="MissingDefaultResource">
+
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/materialup.appbar"
+        android:layout_width="match_parent"
+        android:layout_height="200dp">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="#123212" />
+
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/materialup.title_container"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="#909090" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/materialup.viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <ImageView
+        android:id="@+id/materialup.profile_image"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center_horizontal"
+        android:elevation="8dp"
+        android:src="@mipmap/ic_launcher"
+        app:layout_anchor="@id/materialup.title_container"
+        app:layout_anchorGravity="top|center_horizontal" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

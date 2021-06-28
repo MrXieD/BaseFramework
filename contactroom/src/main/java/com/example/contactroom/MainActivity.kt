@@ -2,6 +2,8 @@ package com.example.contactroom
 
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
@@ -13,6 +15,7 @@ import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.contactroom.databinding.ActivityMainBinding
+import com.example.contactroom.ui.callrecord.child.allrecords.AllCallRecordsFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -35,6 +38,12 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolBar)
     }
 
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        Log.e(TAG, "onOptionsItemSelected: ${item.itemId},${item.title}")
+        return super.onOptionsItemSelected(item)
+    }
+
     /**
      * 使用 FragmentContainerView 创建 NavHostFragment，
      * 或通过 FragmentTransaction 手动将 NavHostFragment 添加到您的 Activity 时，
@@ -46,10 +55,6 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
         val navController = navHostFragment.navController
-        navController.addOnDestinationChangedListener { controller, destination, arguments ->
-            Log.e(TAG, "OnDestinationChangedListener:$destination,$arguments ")
-        }
-
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration(

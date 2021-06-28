@@ -6,6 +6,7 @@
       <module name="BaseFramework.contactroom" target="11" />
       <module name="BaseFramework.drawtest" target="11" />
       <module name="BaseFramework.imlotterytool" target="11" />
+      <module name="BaseFramework.matrialdesigndemo" target="11" />
       <module name="BaseFramework.roomembedded" target="11" />
       <module name="WorkCode.BaseFramework.app" target="11" />
       <module name="WorkCode.BaseFramework.imlotterytool" target="11" />

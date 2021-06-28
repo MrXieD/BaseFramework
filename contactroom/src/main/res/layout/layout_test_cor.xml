@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"></com.google.android.material.appbar.AppBarLayout>
+
+
+    <ImageView
+        android:id="@+id/titlt_iv"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#0000ee"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <!--当指定到一个参考view时候，如果bottom则是一半的位置，top同理-->
+    <ImageView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="#eeeeee"
+        app:layout_anchor="@id/titlt_iv"
+        app:layout_anchorGravity="bottom|center_horizontal" />
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -106,7 +106,6 @@ class CallRecordDetailActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        Log.e(TAG, "onSupportNavigateUp: ")
         onBackPressed()
         return true
     }
